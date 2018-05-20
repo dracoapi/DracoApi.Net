@@ -1,0 +1,25 @@
+namespace DracoProtos.Core.Enums
+{
+    public enum BuffType
+	{
+        ATTACKER_CP_BOOST,
+        BEST_BALL_LUCK,
+        BEST_POTION_LUCK,
+        TWO_EXTRA_ITEMS_IN_STOP_LOOT,
+        INCENSE_BOOST,
+        INCENCE,
+        EXPERIENCE_BOOSTER,
+        SUPER_VISION,
+        DOUBLE_DROP_FROM_STOPS,
+        PERSONAL_STOP_FIELD,
+        ACTIVATION_RADIUS_IMPROVE,
+        SYSTEM_MAINTENANCE,
+        TOWER_ELEMENTAL_DUNGEON,
+        TOWER_ELEMENTAL_WATER,
+        TOWER_ELEMENTAL_WIND,
+        TOWER_ELEMENTAL_FIRE,
+        TOWER_ELEMENTAL_EARTH,
+        RADAR_IMPROVE,
+        ENCOUNTER_EXTRA_LOOT_ITEM
+    }
+}

@@ -1,0 +1,38 @@
+branches:
+  only:
+  - master
+
+assembly_info:
+  patch: false
+
+configuration: Release
+
+platform: Any CPU
+
+image: Visual Studio 2017
+  
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+# Install .NET Core SDK 1.0 rc4 build 004771
+init:
+  - ps: (new-object net.webclient).DownloadFile('https://www.microsoft.com/net/download/thank-you/dotnet-sdk-2.1.200-windows-x64-installer', "c:/dotnet-install.exe")
+  - ps: Start-Process c:\dotnet-install.exe -ArgumentList "/install","/quiet" -Wait
+
+build_script:
+  - ps: dotnet restore --no-cache
+  - ps: dotnet build .\DraoLib.Core\DracoLib.Core.csproj -c Release
+  #- ps: dotnet build .\DracoLib.Core.Demo.ConsoleApp\DracoLib.Core.Demo.ConsoleApp.csproj -c Release
+  
+after_build:
+  - ps: dotnet pack .\DracoLib.Core\DracoLib.Core.csproj -c Release --no-build -o artifacts
+  
+artifacts:
+  - path: .\**\artifacts\*.nupkg
+
+#deploy:
+#  - provider: NuGet
+#    api_key:
+#      secure: Y/AgjrCeBdDo/UpZoyVLIV61fC3YNdmAgMQ1yHE6lMxs0ArlO5NDCmu2cUpcXR/Y
+#    on:
+#      branch: master
