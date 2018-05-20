@@ -5,7 +5,7 @@ branches:
 assembly_info:
   patch: false
 
-configuration: Release
+configuration: Debug
 
 platform: Any CPU
 
@@ -21,11 +21,11 @@ init:
 
 build_script:
   - ps: dotnet restore --no-cache
-  - ps: dotnet build .\DraoLib.Core\DracoLib.Core.csproj -c Release
-  #- ps: dotnet build .\DracoLib.Core.Demo.ConsoleApp\DracoLib.Core.Demo.ConsoleApp.csproj -c Release
+  - ps: dotnet build .\DraoLib.Core\DracoLib.Core.csproj -c Debug
+  #- ps: dotnet build .\DracoLib.Core.Demo.ConsoleApp\DracoLib.Core.Demo.ConsoleApp.csproj -c Debug
   
 after_build:
-  - ps: dotnet pack .\DracoLib.Core\DracoLib.Core.csproj -c Release --no-build -o artifacts
+  - ps: dotnet pack .\DracoLib.Core\DracoLib.Core.csproj -c Debug --no-build -o artifacts
   
 artifacts:
   - path: .\**\artifacts\*.nupkg

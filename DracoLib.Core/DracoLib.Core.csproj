@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/d6dddda25a178dc2dd93edae79821fe3?s=512&amp;amp;r=g&amp;amp;d=retro</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
