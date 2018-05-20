@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageIconUrl>https://secure.gravatar.com/avatar/d6dddda25a178dc2dd93edae79821fe3?s=512&amp;amp;r=g&amp;amp;d=retro</PackageIconUrl>
+    <Authors>--=FurtiF™=--</Authors>
+    <Description>A community-driven DraconiusGo API Library written in C#.</Description>
+    <PackageProjectUrl>https://github.com/Furtif/DracoLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Furtif/DracoLib</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
