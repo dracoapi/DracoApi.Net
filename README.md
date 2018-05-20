@@ -1,4 +1,4 @@
-DracoLib [![Build status](https://ci.appveyor.com/api/projects/status/9t9ivl3bahv92u45/branch/master?svg=true)](https://ci.appveyor.com/project/RocketBot/dracolib/branch/master) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SNATC29B4ZJD4) [![Discord](https://img.shields.io/badge/Discord-Online-blue.svg)](https://discord.gg/y6EU2qY)
+DracoLib [![Build status](https://ci.appveyor.com/api/projects/status/9t9ivl3bahv92u45/branch/master?svg=true)](https://ci.appveyor.com/project/RocketBot/dracolib/branch/master) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SNATC29B4ZJD4) [![Discord](https://img.shields.io/badge/Discord-Online-blue.svg)](https://discord.gg/bsHQC2Y)
 ===================
 
 # Usage
