@@ -1,0 +1,4 @@
+[submodule "DracoProtos"]
+	path = DracoProtos
+	url = https://github.com/Furtif/DracoProtos.git
+	branch = master

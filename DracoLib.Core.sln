@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DracoProtos.Core", "DracoProtos.Core\DracoProtos.Core.csproj", "{53F51AA7-9FDB-470E-BB31-C8B9519D8035}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DracoProtos\DracoProtos.Core", "DracoProtos\DracoProtos.Core\DracoProtos.Core.csproj", "{53F51AA7-9FDB-470E-BB31-C8B9519D8035}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DracoLib.Core", "DracoLib.Core\DracoLib.Core.csproj", "{E878890B-B7DB-421C-A273-4C17552CCF69}"
 	ProjectSection(ProjectDependencies) = postProject
