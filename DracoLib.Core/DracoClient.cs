@@ -46,7 +46,13 @@ namespace DracoLib.Core
         public DracoClient() : this("iOS 11.2.6", "iPhone8,1", DracoUtils.GenerateDeviceId())
         {
             //TODO: for test
-            this.User.Login = "GOOGLE";
+            this.User = new User
+            {
+                Login = "GOOGLE",
+                Username = "xxxx@gmail.com",
+                Password = "xxxxxx"
+            };
+            this.Auth = new Auth();
             //
         }
 
