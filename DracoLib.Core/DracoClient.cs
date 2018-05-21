@@ -1,4 +1,5 @@
-﻿using DracoProtos.Core.Classes;
+﻿using DracoLib.Core.Providers;
+using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
@@ -7,13 +8,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace DracoLib.Core
 {
+    public class User
+    {
+        public string Id { get; set; }
+        public string DeviceId { get; set; }
+        public string Nickname { get; set; }
+        public int Avatar { get; set; }
+        public string Login { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class Auth
+    {
+        public string Name { get; set; }
+        public AuthType Type { get; set; }
+        public string Reg { get; set; }
+        public string ProfileId { get; set; }
+        public string TokenId { get; set; }
+    }
+
     public class DracoClient
     {
         public FClientInfo ClientInfo { get; set; }
-        public UserInfo User { get; set; }
+        public UserInfo UserInfo { get; set; }
+        public User User { get; set; }
+        public Auth Auth { get; set; }
         private SerializerContext serializer;
         private RestClient client;
         //private int[] eventsCounter;
@@ -24,11 +48,10 @@ namespace DracoLib.Core
 
         public DracoClient(string platformVersion, string deviceModel, string deviceid)
         {
-            this.User = new UserInfo
+            this.UserInfo = new UserInfo
             {
                 DeviceId = deviceid,
                 DeviceAdId = DracoUtils.GenerateDeviceId(),
-                
             };
 
             ClientInfo = new FClientInfo()
@@ -40,9 +63,9 @@ namespace DracoLib.Core
                 screenWidth = 750,
                 screenHeight = 1334,
                 language = "English",
-                iOsAdvertisingIdentifier = this.User.DeviceAdId,
+                iOsAdvertisingIdentifier = this.UserInfo.DeviceAdId,
                 iOsAdvertisingTrackingEnabled = true,
-                iOsVendorIdentifier = this.User.DeviceId,
+                iOsVendorIdentifier = this.UserInfo.DeviceId,
                 googleAdvertisingId = null,
                 googleTrackingEnabled = false
             };
@@ -84,16 +107,16 @@ namespace DracoLib.Core
 
             return response.StatusCode == HttpStatusCode.OK;
         }
-        
+
         public object ServiceCall(string service, string method, object body)
         {
             var rawbody = serializer.Serialize(body);
 
             var request = new RestRequest("serviceCall", Method.POST);
             request.AddHeader("Protocol-Version", serializer.protocolVersion.ToString());
-            if (this.User.PortalId != null)
+            if (this.UserInfo.PortalId != null)
             {
-                request.AddHeader("dcportal", this.User.PortalId);
+                request.AddHeader("dcportal", this.UserInfo.PortalId);
             }
             request.AddParameter("service", service);
             request.AddParameter("method", method);
@@ -108,12 +131,12 @@ namespace DracoLib.Core
 
             var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
             var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
-            if (dcportal != null) this.User.PortalId = dcportal;
+            if (dcportal != null) this.UserInfo.PortalId = dcportal;
             if (protocolVersion != serializer.protocolVersion.ToString())
             {
                 throw new Exception("Incorrect protocol version received: " + protocolVersion);
             }
-            
+
             var data = serializer.Deserialize(response.RawBytes);
             (data ?? "").ToString();
 
@@ -126,7 +149,7 @@ namespace DracoLib.Core
             this.ServiceCall("ClientEventService", "onEvent", new object[]
             {
                 name,
-                this.User.UserId,
+                this.UserInfo.UserId,
                 this.ClientInfo,
                 //eventCounter,
                 one,
@@ -149,15 +172,15 @@ namespace DracoLib.Core
             this.Event("TrySingIn", "DEVICE");
             var data = this.ServiceCall("AuthService", "trySingIn", new object[]
             {
-                new AuthData() { authType = AuthType.DEVICE, profileId = this.User.DeviceId },
+                new AuthData() { authType = AuthType.DEVICE, profileId = this.UserInfo.DeviceId },
                 this.ClientInfo,
                 new FRegistrationInfo() { age = "", email = "", gender = "", regType = "dv", socialId = "" },
             }) as FAuthData;
 
             if (data != null)
             {
-                this.User.UserId = data.info.userId;
-                this.User.Avatar = data.info.avatarAppearanceDetails;
+                this.UserInfo.UserId = data.info.userId;
+                this.UserInfo.Avatar = data.info.avatarAppearanceDetails;
             }
 
             return data;
@@ -191,15 +214,15 @@ namespace DracoLib.Core
             this.Event("Register", "DEVICE", nickname);
             var data = this.ServiceCall("AuthService", "register", new object[]
             {
-                new AuthData() { authType = AuthType.DEVICE, profileId = this.User.DeviceId },
+                new AuthData() { authType = AuthType.DEVICE, profileId = this.UserInfo.DeviceId },
                 nickname,
                 this.ClientInfo,
                 new FRegistrationInfo() { age = "", email = "", gender = "", regType = "dv", socialId = "" },
             }) as FAuthData;
 
-            this.User.UserId = data.info.userId;
+            this.UserInfo.UserId = data.info.userId;
 
-            this.Event("ServerAuthSuccess", this.User.UserId);
+            this.Event("ServerAuthSuccess", this.UserInfo.UserId);
 
             return data;
         }
@@ -208,7 +231,7 @@ namespace DracoLib.Core
         {
             this.Event("AvatarPlayerGenderRace", "1", "1");
             this.Event("AvatarPlayerSubmit", "271891");
-            this.ServiceCall("PlayerService", "saveUserSettings", new object[] { this.User.Avatar });
+            this.ServiceCall("PlayerService", "saveUserSettings", new object[] { this.UserInfo.Avatar });
         }
 
         public void Init()
@@ -216,7 +239,7 @@ namespace DracoLib.Core
             this.Event("LoadingScreenPercent", "100");
             this.Event("CreateAvatarByType", "MageMale");
             this.Event("LoadingScreenPercent", "100");
-            this.Event("AvatarUpdateView", this.User.Avatar.ToString());
+            this.Event("AvatarUpdateView", this.UserInfo.Avatar.ToString());
             this.Event("InitPushNotifications", "True");
         }
 
@@ -260,5 +283,59 @@ namespace DracoLib.Core
             }) as FUpdate;
             return data;
         }
+
+        public async Task<FAuthData> Login()
+        {
+            if (this.User.Login == "DEVICE")
+            {
+                this.Auth = new Auth() {
+                    Name = "DEVICE",
+                    Type = AuthType.DEVICE,
+                    Reg = "dv",
+                    ProfileId = this.User.DeviceId
+                };
+            }
+            else if (this.User.Login == "GOOGLE")
+            {
+                this.Auth = new Auth {
+                    Name = "GOOGLE",
+                    Type = AuthType.GOOGLE,
+                    Reg = "gl",
+                    ProfileId = "?",
+                };
+                await this.GoogleLogin();
+            }
+            else if (this.User.Login == "FACEBOOK")
+            {
+                throw new Exception("Facebook login not implemented.");
+            }
+            else
+            {
+                throw new Exception("Unsupported login type: " + this.User.Login);
+            }
+            // await this.event('TrySingIn', this.auth.name);
+            var response = this.ServiceCall("AuthService", "trySingIn", new object[]
+            {
+                new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
+                this.ClientInfo,
+                new FRegistrationInfo () { email = this.User.Username, regType = this.Auth.Reg },
+            }) as FAuthData;
+
+            if (response != null && response.info != null) {
+                this.User.Id = response.info.userId;
+                this.User.Avatar = response.info.avatarAppearanceDetails;
+            }
+            return response;
+        }
+
+        public async Task GoogleLogin()
+        {
+            // await this.event('StartGoogleSignIn');
+            var login = new Google();
+            var data = await login.Login(this.User.Username, this.User.Password);
+            this.Auth.TokenId = data["Auth"]; //Token
+            this.Auth.ProfileId = data["ProfileId"]; //TODO: real line is -> jwt.decode(this.Auth.TokenId, null, true).sub;
+        }
     }
 }
+

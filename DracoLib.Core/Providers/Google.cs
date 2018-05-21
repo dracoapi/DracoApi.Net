@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using DracoLib.Core.Exceptions;
 using GPSOAuthSharp;
 
@@ -11,7 +12,7 @@ namespace DracoLib.Core.Providers
         const string GOOGLE_LOGIN_APP = "net.elyland.DraconiusGO";
         const string GOOGLE_LOGIN_CLIENT_SIG = "fc0e7d31361f6c8722135af1024355d5a86b0689";
 
-        public async Task<string> Login(string username, string password)
+        public async Task<Dictionary<string, string>> Login(string username, string password)
         {
             var googleClient = new GPSOAuthClient(username, password);
             var masterLoginResponse = await googleClient.PerformMasterLogin();
@@ -34,7 +35,7 @@ namespace DracoLib.Core.Providers
                 throw new GoogleLoginException("Auth token was missing from oauth login response.");
             }
 
-            return oauthResponse["Auth"];
+            return oauthResponse;
         }
     }
 }
