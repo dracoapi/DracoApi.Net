@@ -45,6 +45,11 @@ namespace DracoLib.Core
 
         public DracoClient() : this("iOS 11.2.6", "iPhone8,1", DracoUtils.GenerateDeviceId())
         {
+
+        }
+
+        public DracoClient(string platformVersion, string deviceModel, string deviceid)
+        {
             //TODO: for test
             this.User = new User
             {
@@ -54,10 +59,7 @@ namespace DracoLib.Core
             };
             this.Auth = new Auth();
             //
-        }
 
-        public DracoClient(string platformVersion, string deviceModel, string deviceid)
-        {
             this.UserInfo = new UserInfo
             {
                 DeviceId = deviceid,
