@@ -27,7 +27,8 @@ namespace DracoLib.Core
             this.User = new UserInfo
             {
                 DeviceId = deviceid,
-                DeviceAdId = DracoUtils.GenerateDeviceId()
+                DeviceAdId = DracoUtils.GenerateDeviceId(),
+                
             };
 
             ClientInfo = new FClientInfo()
