@@ -45,6 +45,9 @@ namespace DracoLib.Core
 
         public DracoClient() : this("iOS 11.2.6", "iPhone8,1", DracoUtils.GenerateDeviceId())
         {
+            //TODO: for test
+            this.User.Login = "GOOGLE";
+            //
         }
 
         public DracoClient(string platformVersion, string deviceModel, string deviceid)
@@ -335,7 +338,7 @@ namespace DracoLib.Core
             var login = new Google();
             this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);
             var decoder = new CustomJsonWebToken();
-            this.Auth.ProfileId =  decoder.Decode(this.Auth.TokenId, null, true).ToString();
+            this.Auth.ProfileId =  decoder.Decode(this.Auth.TokenId, null, true);
         }
     }
 }
