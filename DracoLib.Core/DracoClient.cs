@@ -1,6 +1,7 @@
 ﻿using DracoLib.Core.Providers;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
+using DracoProtos.Core.Extensions;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
 using RestSharp;
@@ -332,9 +333,9 @@ namespace DracoLib.Core
         {
             // await this.event('StartGoogleSignIn');
             var login = new Google();
-            var data = await login.Login(this.User.Username, this.User.Password);
-            this.Auth.TokenId = data["Auth"]; //Token
-            this.Auth.ProfileId = data["ProfileId"]; //TODO: real line is -> jwt.decode(this.Auth.TokenId, null, true).sub;
+            this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);
+            var decoder = new CustomJsonWebToken();
+            this.Auth.ProfileId =  decoder.Decode(this.Auth.TokenId, null, true).ToString();
         }
     }
 }
