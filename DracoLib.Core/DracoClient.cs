@@ -292,7 +292,8 @@ namespace DracoLib.Core
         {
             if (this.User.Login == "DEVICE")
             {
-                this.Auth = new Auth() {
+                this.Auth = new Auth()
+                {
                     Name = "DEVICE",
                     Type = AuthType.DEVICE,
                     Reg = "dv",
@@ -301,7 +302,8 @@ namespace DracoLib.Core
             }
             else if (this.User.Login == "GOOGLE")
             {
-                this.Auth = new Auth {
+                this.Auth = new Auth
+                {
                     Name = "GOOGLE",
                     Type = AuthType.GOOGLE,
                     Reg = "gl",
@@ -325,7 +327,8 @@ namespace DracoLib.Core
                 new FRegistrationInfo () { email = this.User.Username, regType = this.Auth.Reg },
             }) as FAuthData;
 
-            if (response != null && response.info != null) {
+            if (response != null && response.info != null)
+            {
                 this.User.Id = response.info.userId;
                 this.User.Avatar = response.info.avatarAppearanceDetails;
             }
@@ -338,7 +341,7 @@ namespace DracoLib.Core
             var login = new Google();
             this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);
             var decoder = new CustomJsonWebToken();
-            this.Auth.ProfileId =  decoder.Decode(this.Auth.TokenId, null, true);
+            this.Auth.ProfileId = decoder.Decode(this.Auth.TokenId, null, true);
         }
     }
 }
