@@ -16,8 +16,9 @@ namespace DracoLib.Core
         public UserInfo User { get; set; }
         private SerializerContext serializer;
         private RestClient client;
+        //private int[] eventsCounter;
 
-        public DracoClient() : this("iOS 10.3.3", "iPhone8,1", DracoUtils.GenerateDeviceId())
+        public DracoClient() : this("iOS 11.2.6", "iPhone8,1", DracoUtils.GenerateDeviceId())
         {
         }
 
@@ -33,7 +34,7 @@ namespace DracoLib.Core
             {
                 platform = "IPhonePlayer",
                 platformVersion = platformVersion,
-                revision = "6935",
+                revision = FGameObjects.ClientVersion.ToString(),
                 deviceModel = deviceModel,
                 screenWidth = 750,
                 screenHeight = 1334,
@@ -45,14 +46,16 @@ namespace DracoLib.Core
                 googleTrackingEnabled = false
             };
 
-            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, 839333433u);
+            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
 
             this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
-            this.client.UserAgent = "DraconiusGO/6935 CFNetwork/811.5.4 Darwin/16.7.0";
+            this.client.AddDefaultHeader("Protocol-Version", FGameObjects.ProtocolVersion.ToString());
+            this.client.AddDefaultHeader("Client-Version", FGameObjects.ClientVersion.ToString());
+            this.client.UserAgent = $"DraconiusGO/{FGameObjects.ClientVersion} CFNetwork/897.15 Darwin/17.5.0";
             this.client.AddDefaultHeader("Accept", "*/*");
             this.client.AddDefaultHeader("Accept-Language", "en-us");
-            this.client.AddDefaultHeader("X-Unity-Version", "2017.1.0f3");
+            this.client.AddDefaultHeader("X-Unity-Version", "2017.1.3f1");
             this.client.CookieContainer = new CookieContainer();
         }
 
@@ -116,19 +119,22 @@ namespace DracoLib.Core
             return data;
         }
 
-        public void Event(string name, string value1 = null, string value2 = null)
+        public void Event(string name, string one = null, string two = null, string three = null)
         {
+            //const int eventCounter = this.eventsCounter[name] ?? 1;
             this.ServiceCall("ClientEventService", "onEvent", new object[]
             {
                 name,
                 this.User.UserId,
                 this.ClientInfo,
-                value1,
-                value2,
-                null,
+                //eventCounter,
+                one,
+                two,
+                three,
                 null,
                 null
             });
+            //this.eventsCounter[name] = eventCounter + 1;
         }
 
         public void Boot()
