@@ -1,4 +1,5 @@
-﻿using DracoLib.Core.Providers;
+﻿using DracoLib.Core.Exceptions;
+using DracoLib.Core.Providers;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Extensions;
@@ -321,7 +322,7 @@ namespace DracoLib.Core
             }
             else if (this.User.Login == "FACEBOOK")
             {
-                throw new Exception("Facebook login not implemented.");
+                throw new FacebookLoginException("Facebook login not implemented.");
             }
             else
             {
