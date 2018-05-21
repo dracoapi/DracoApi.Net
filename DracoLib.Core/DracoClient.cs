@@ -1,8 +1,8 @@
 ﻿using DracoLib.Core.Exceptions;
+using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
-using DracoProtos.Core.Extensions;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
 using RestSharp;

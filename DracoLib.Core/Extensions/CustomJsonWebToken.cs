@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DracoProtos.Core.Extensions
+namespace DracoLib.Core.Extensions
 {
     public enum JwtHashAlgorithm
     {
