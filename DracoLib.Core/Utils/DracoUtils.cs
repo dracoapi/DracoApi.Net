@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DracoLib.Core
+namespace DracoLib.Core.Utils
 {
     internal class DracoUtils
     {
