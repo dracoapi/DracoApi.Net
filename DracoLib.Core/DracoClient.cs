@@ -164,7 +164,7 @@ namespace DracoLib.Core
             var rawbody = serializer.Serialize(body);
 
             var request = new RestRequest("serviceCall", Method.POST);
-            request.AddHeader("Protocol-Version", serializer.protocolVersion.ToString());
+            request.AddHeader("Protocol-Version", this.ProtocolVersion.ToString());
             if (this.Dcportal != null)
             {
                 request.AddHeader("dcportal", this.Dcportal);
@@ -197,9 +197,9 @@ namespace DracoLib.Core
                 {
                     data = serializer.Deserialize(response.RawBytes);
                 }
-                catch (DracoError)
+                catch (Exception ex)
                 {
-                    throw new DracoError("Error from server: " + response.StatusCode + " - " + response.ErrorMessage);
+                    throw new DracoError("Error from server: " + response.StatusCode + " - " + ex);
                 }
             }
 
@@ -221,7 +221,7 @@ namespace DracoLib.Core
                 null,
                 null
             });
-            this.EventsCounter[name] = eventCounter;// + 1;
+            this.EventsCounter[name] = (int)eventCounter + 1;
         }
 
         public FConfig Boot()//User clientinfo)
