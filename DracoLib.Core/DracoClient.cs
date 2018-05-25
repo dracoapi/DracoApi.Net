@@ -69,40 +69,38 @@ namespace DracoLib.Core
         private Auth Auth { get; set; }
         private sbyte ConfigHash { get; set; }
 
-        public Dictionary<object, object> EventsCounter { get; set; }
-        public int utcOffset;
+        public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
+        public int UtcOffset;
 
         /*
          * Vars c#
          */
         private SerializerContext serializer;
         private RestClient client;
-        public Config Config { get; private set; }
 
-        public DracoClient(Config config)
+        public DracoClient(string proxy = null)
         {
-            this.Config = new Config();
-            this.Config = config;
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString() ?? "389771870";
             this.ClientVersion = FGameObjects.ClientVersion.ToString() ?? "11808";
-            if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
+            /*if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
             if (config.EventsCounter.Count() > 0) this.EventsCounter = config.EventsCounter;
             if (config.UtcOffset > 0)
             {
-                this.utcOffset = config.UtcOffset;
+                this.UtcOffset = config.UtcOffset;
             }
             else
             {
                 //TODO: look this 
                 //this.utcOffset = -new DateTime().GetTimezoneOffset() * 60;            
             }
+            */
             
-            this.Proxy = config.Proxy;
+            this.Proxy = proxy;
             int timeout = 20 * 1000;
-            if (config.TimeOut > 0)
-            {
-                timeout = config.TimeOut;
-            }
+            //if (config.TimeOut > 0)
+            //{
+            //    timeout = config.TimeOut;
+            //}
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
 
@@ -124,7 +122,7 @@ namespace DracoLib.Core
             {
                 deviceModel = "iPhone8,1",
                 iOsAdvertisingTrackingEnabled = false,
-                language = config.Lang ?? "English",
+                language = "English",// config.Lang ?? "English",
                 platform = "IPhonePlayer",
                 platformVersion = "iOS 11.2.6",
                 revision = this.ClientVersion,
@@ -208,7 +206,11 @@ namespace DracoLib.Core
 
         public void Event(string name, string one = null, string two = null, string three = null)
         {
-            object eventCounter = this.EventsCounter[name] ?? 1;
+            int eventCounter = 1;
+
+            if (this.EventsCounter[name] > 0)
+                eventCounter = this.EventsCounter[name];
+
             this.Call("ClientEventService", "onEventWithCounter", new object[]
             {
                 name,
@@ -221,17 +223,17 @@ namespace DracoLib.Core
                 null,
                 null
             });
-            this.EventsCounter[name] = (int)eventCounter + 1;
+            this.EventsCounter[name] = eventCounter + 1;
         }
 
-        public FConfig Boot()//User clientinfo)
+        public FConfig Boot(User clientinfo)
         {
-            this.User.Id = this.Config.Id;
-            this.User.DeviceId = this.Config.DeviceId;
-            this.User.Login = (this.Config.Login ?? "DEVICE").ToUpper();
-            this.User.Username = this.Config.Username;
-            this.User.Password = this.Config.Password;
-            this.ClientInfo.iOsVendorIdentifier = this.Config.IOsVendorIdentifier ?? DracoUtils.GenerateDeviceId();
+            this.User.Id = clientinfo.Id;
+            this.User.DeviceId = clientinfo.DeviceId ?? DracoUtils.GenerateDeviceId();
+            this.User.Login = (clientinfo.Login ?? "DEVICE").ToUpper();
+            this.User.Username = clientinfo.Username;
+            this.User.Password = clientinfo.Password;
+            this.ClientInfo.iOsVendorIdentifier = clientinfo.DeviceId ?? DracoUtils.GenerateDeviceId();
             /*foreach (var key in new List<string> { clientinfo }) {
                 if (this.ClientInfo.GetHashCode(key))
                 {
@@ -452,7 +454,7 @@ namespace DracoLib.Core
                 new FClientRequest
                 {
                     time = 0,
-                    currentUtcOffsetSeconds = this.utcOffset,
+                    currentUtcOffsetSeconds = this.UtcOffset,
                     coordsWithAccuracy = new GeoCoordsWithAccuracy
                     {
                         latitude = clientLat,
@@ -489,7 +491,7 @@ namespace DracoLib.Core
                     new FClientRequest
                     {
                         time = 0,
-                        currentUtcOffsetSeconds = this.utcOffset,
+                        currentUtcOffsetSeconds = this.UtcOffset,
                         coordsWithAccuracy = new GeoCoordsWithAccuracy
                         {
                             latitude = latitude,

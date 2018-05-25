@@ -42,7 +42,7 @@ namespace DracoLib.Core
                 {
                     new FClientRequest {
                         time = 0,
-                        currentUtcOffsetSeconds = this.dracoClient.utcOffset,
+                        currentUtcOffsetSeconds = this.dracoClient.UtcOffset,
                         coordsWithAccuracy = new GeoCoordsWithAccuracy
                         {
                             latitude = latitude,

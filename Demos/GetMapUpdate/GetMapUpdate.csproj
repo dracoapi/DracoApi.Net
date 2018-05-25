@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DracoLib.Core\DracoLib.Core.csproj" />
+    <ProjectReference Include="..\..\DracoProtos\DracoProtos.Core\DracoProtos.Core.csproj" />
+  </ItemGroup>
+
+</Project>

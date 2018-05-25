@@ -12,11 +12,10 @@ namespace DracoProtos.Core.Config
         public string Password { get; set; }
         public string Lang { get; set; }
         public string Proxy { get; set; }
-        public string IOsVendorIdentifier { get; set; }
         public bool CheckProtocol { get; set; }
         public int UtcOffset { get; set; }
         public int TimeOut { get; set; }
         public int Delay { get; set; }
-        public Dictionary<object, object> EventsCounter { get; set; }
+        public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
     }
 }
