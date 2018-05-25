@@ -1,5 +1,4 @@
 ﻿using DracoLib.Core;
-using DracoProtos.Core.Config;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;

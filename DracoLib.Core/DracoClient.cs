@@ -3,7 +3,6 @@ using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Classes;
-using DracoProtos.Core.Config;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
