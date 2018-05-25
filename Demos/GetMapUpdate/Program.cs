@@ -36,9 +36,9 @@ namespace GetMapUpdate
             draco.Load();
 
             Console.WriteLine("Get user items...");
-            //var response = draco.Inventory.GetUserItems();
+            var response = draco.Inventory.GetUserItems();
             //foreach (var item in response) {
-                //Console.WriteLine($"  item type { item.type}, count = ${ item.count}`);
+                //Console.WriteLine($"  item type { item.type}, count = { item.count}`);
             //}
 
             Console.WriteLine("Get map update");
