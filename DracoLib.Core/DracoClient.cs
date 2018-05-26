@@ -68,7 +68,7 @@ namespace DracoLib.Core
         private sbyte ConfigHash { get; set; }
 
         public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        public int UtcOffset;// = 7200;
+        public int UtcOffset = 7200;
 
         /*
          * Vars c#
@@ -89,7 +89,7 @@ namespace DracoLib.Core
             else
             {*/
             //Original line GetTimezoneOffset() * 60;  
-            this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
+            //this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
             //}
             
             this.Proxy = proxy;
@@ -166,7 +166,7 @@ namespace DracoLib.Core
             request.AddParameter("method", method);
             request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
 
-            var response = client.Execute(request);
+            var response = this.client.Execute(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -197,6 +197,21 @@ namespace DracoLib.Core
             }
 
             return data;
+        }
+
+        public void Post(string url, object data)
+        {
+            var _client = new RestClient(url);
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("dcportal", this.Dcportal);
+            request.AddObject(data);
+
+            var response = _client.Execute(request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Invalid status received: " + response.StatusDescription);
+            }
         }
 
         public void Event(string name, string one = null, string two = null, string three = null)
@@ -247,7 +262,7 @@ namespace DracoLib.Core
             return config;
         }
 
-        public sbyte BuildConfigHash(FConfig config)
+        public object BuildConfigHash(FConfig config)
         {
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();

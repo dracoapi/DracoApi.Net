@@ -30,7 +30,29 @@ namespace GetMapUpdate
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-            draco.Login();
+
+            if (!(draco.Login() is FAuthData login)) throw new Exception("Unable to login");
+
+            var newLicence = login.info.newLicense;
+
+            if (login.info.sendClientLog)
+            {
+                Console.WriteLine("Send client log is set to true! Please report.");
+            }
+
+            draco.Post("https://us.draconiusgo.com/client-error", new
+            {
+                appVersion = draco.ClientVersion,
+                deviceInfo = $"platform = iOS\"nos ={ draco.ClientInfo.platformVersion }\"ndevice = iPhone 6S",
+                userId = draco.User.Id,
+                message = "Material doesn\"t have a texture property \"_MainTex\"",
+                stackTrace = "",
+            });
+
+            if (newLicence > 0)
+            {
+                draco.AcceptLicence(newLicence);
+            }
 
             Console.WriteLine("Init client...");
             draco.Load();
@@ -42,12 +64,12 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            var mapreponse = draco.GetMapUpdate((float)45.469896, (float)9.180439, (float)20, null) as FUpdate;
-            FCreatureUpdate creatures = (FCreatureUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
-            FHatchedEggs hatched = (FHatchedEggs)mapreponse.items.Find(o => o.GetType() == typeof(FHatchedEggs));
-            FChestUpdate chests = (FChestUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FChestUpdate));
-            FAvaUpdate avatar = (FAvaUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FAvaUpdate));
-            FBuildingUpdate buildings = (FBuildingUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FBuildingUpdate));
+            var map = draco.GetMapUpdate((float)45.469896, (float)9.180439, (float)20, null) as FUpdate;
+            FCreatureUpdate creatures = (FCreatureUpdate)map.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
+            FHatchedEggs hatched = (FHatchedEggs)map.items.Find(o => o.GetType() == typeof(FHatchedEggs));
+            FChestUpdate chests = (FChestUpdate)map.items.Find(o => o.GetType() == typeof(FChestUpdate));
+            FAvaUpdate avatar = (FAvaUpdate)map.items.Find(o => o.GetType() == typeof(FAvaUpdate));
+            FBuildingUpdate buildings = (FBuildingUpdate)map.items.Find(o => o.GetType() == typeof(FBuildingUpdate));
 
             Console.WriteLine($"  { creatures.inRadar.Count} creature(s) in radar");
             foreach (var creature in creatures.inRadar)

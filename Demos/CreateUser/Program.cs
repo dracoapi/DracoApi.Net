@@ -41,8 +41,30 @@ namespace CreateUser
             Console.WriteLine("Boot...");
             draco.Boot(config);
 
-            Console.WriteLine("Init login...");
-            draco.Login();
+            Console.WriteLine("Login...");
+
+            if (!(draco.Login() is FAuthData login)) throw new Exception("Unable to login");
+
+            var newLicence = login.info.newLicense;
+
+            if (login.info.sendClientLog)
+            {
+                Console.WriteLine("Send client log is set to true! Please report.");
+            }
+
+            draco.Post("https://us.draconiusgo.com/client-error", new
+            {
+                appVersion = draco.ClientVersion,
+                deviceInfo = $"platform = iOS\"nos ={ draco.ClientInfo.platformVersion }\"ndevice = iPhone 6S",
+                userId = draco.User.Id,
+                message = "Material doesn\"t have a texture property \"_MainTex\"",
+                stackTrace = "",
+            });
+
+            if (newLicence > 0)
+            {
+                draco.AcceptLicence(newLicence);
+            }
 
             Console.WriteLine("Generate nickname...");
             var nickname = GenerateNickname();
