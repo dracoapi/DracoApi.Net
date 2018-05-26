@@ -228,11 +228,11 @@ namespace DracoLib.Core
         public FConfig Boot(User clientinfo)
         {
             this.User.Id = clientinfo.Id;
-            this.User.DeviceId = clientinfo.DeviceId ?? DracoUtils.GenerateDeviceId();
+            this.User.DeviceId = clientinfo.DeviceId;
             this.User.Login = (clientinfo.Login ?? "DEVICE").ToUpper();
             this.User.Username = clientinfo.Username;
             this.User.Password = clientinfo.Password;
-            this.ClientInfo.iOsVendorIdentifier = clientinfo.DeviceId ?? DracoUtils.GenerateDeviceId();
+            this.ClientInfo.iOsVendorIdentifier = clientinfo.DeviceId;
             /*foreach (var key in new List<string> { clientinfo }) {
                 if (this.ClientInfo.GetHashCode(key))
                 {
