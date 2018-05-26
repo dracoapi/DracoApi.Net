@@ -3,15 +3,16 @@ DracoLib.Core [![NuGet](https://img.shields.io/nuget/v/DracoLib.Core.svg?maxAge=
 
 ## How to use
 
-All api calls can be done manuall using the `.call(service, method, args)` method.
+All api calls can be done manuall using the `.Call(service, method, args)` method.
 
 ```CSharp
 using DracoLib.Core;
 using DracoProtos.Core.Objects;
 using System;
 
-DracoClient draco = new DracoClient(/*Url:Port for Proxys here*/);
-var response = this.Call("AuthService", "trySingIn", new object[]
+DracoClient draco = new DracoClient(/*"http://localhost:8888"*/); //Proxys here
+
+var response = draco.Call("AuthService", "trySingIn", new object[]
 {
     new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
     this.ClientInfo,
@@ -29,16 +30,16 @@ using System;
 
 User config = new User()
 {
-	Username = "xxxxxxx@gmail.com",
-	Password = "xxxxxxx",
-	DeviceId = DracoUtils.GenerateDeviceId(),
-	Login = "GOOGLE"
+    Username = "xxxxxxx@gmail.com",
+    Password = "xxxxxxx",
+    DeviceId = DracoUtils.GenerateDeviceId(),
+    Login = "GOOGLE"
 };
 
 var draco = new DracoClient(/*"http://localhost:8888"*/); //Proxys here
 
-var ping = draco.Ping();
-if (!ping) throw new Exception();
+if (!draco.Ping())
+    throw new Exception();
 
 draco.Boot(config);
 draco.Login();
