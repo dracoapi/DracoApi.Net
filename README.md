@@ -53,6 +53,22 @@ foreach (var item in response.items) {
 
 More example can be found here: https://github.com/Furtif/DracoLib/tree/master/Demos
 
+### `Cloning Source Code`
+
+Next, you need to get the source code.  This source code repository uses git submodules. So when you clone the source code, you will need to clone recursively:
+
+```
+git clone --recursive https://github.com/Furtif/DracoLib.git
+```
+
+Or if you already cloned without the recursive option, you can update the submodules by running:
+
+```
+git clone --recursive https://github.com/Furtif/DracoLib.git
+cd DracoLib
+git submodule update --init --recursive
+```
+
 #### Versioning
 
 We are following [semantic versioning](http://semver.org/) for DracoProtos.  Every version will be mapped to their current Draconius Go version.
