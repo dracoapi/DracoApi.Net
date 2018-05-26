@@ -1,7 +1,6 @@
 ﻿using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
-using DracoLib.Core.Utils;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
@@ -69,7 +68,7 @@ namespace DracoLib.Core
         private sbyte ConfigHash { get; set; }
 
         public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        public int UtcOffset = 7200;
+        public int UtcOffset;// = 7200;
 
         /*
          * Vars c#
@@ -88,11 +87,10 @@ namespace DracoLib.Core
                 this.UtcOffset = config.UtcOffset;
             }
             else
-            {
-                //TODO: look this 
-                //this.utcOffset = -new DateTime().GetTimezoneOffset() * 60;            
-            }
-            */
+            {*/
+            //Original line GetTimezoneOffset() * 60;  
+            this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
+            //}
             
             this.Proxy = proxy;
             int timeout = 20 * 1000;
@@ -223,7 +221,7 @@ namespace DracoLib.Core
             this.EventsCounter[name] = eventCounter + 1;
         }
 
-        public FConfig Boot(User clientinfo)
+        public object Boot(User clientinfo)
         {
             this.User.Id = clientinfo.Id;
             this.User.DeviceId = clientinfo.DeviceId;
@@ -242,7 +240,7 @@ namespace DracoLib.Core
             return this.GetConfig();
         }
 
-        public FConfig GetConfig()
+        public object GetConfig()
         {
             var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language }) as FConfig;
             this.BuildConfigHash(config);
@@ -258,7 +256,7 @@ namespace DracoLib.Core
             return this.ConfigHash;
         }
 
-        public FAuthData Login()
+        public object Login()
         {
             if (this.User.Login == "DEVICE")
             {
@@ -353,7 +351,7 @@ namespace DracoLib.Core
             return this.Call("AuthService", "acceptLicence", new object[] { licence });
         }
 
-        public FAuthData Register(string nickname)
+        public object Register(string nickname)
         {
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
@@ -410,7 +408,7 @@ namespace DracoLib.Core
             return this.Call("PlayerService", "acknowledgeNotification", new object[] { type });
         }
 
-        public FUpdate GetMapUpdate(float latitude, float longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
+        public object GetMapUpdate(float latitude, float longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>();

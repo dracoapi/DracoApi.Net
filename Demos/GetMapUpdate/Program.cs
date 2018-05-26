@@ -1,7 +1,6 @@
 ﻿using DracoLib.Core;
 using DracoProtos.Core.Objects;
 using System;
-using System.Collections.Generic;
 using DracoLib.Core.Utils;
 
 namespace GetMapUpdate
@@ -43,7 +42,7 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            var mapreponse = draco.GetMapUpdate((float)45.469896, (float)9.180439, (float)20, null);
+            var mapreponse = draco.GetMapUpdate((float)45.469896, (float)9.180439, (float)20, null) as FUpdate;
             FCreatureUpdate creatures = (FCreatureUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
             FHatchedEggs hatched = (FHatchedEggs)mapreponse.items.Find(o => o.GetType() == typeof(FHatchedEggs));
             FChestUpdate chests = (FChestUpdate)mapreponse.items.Find(o => o.GetType() == typeof(FChestUpdate));

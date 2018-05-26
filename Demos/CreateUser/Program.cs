@@ -3,7 +3,6 @@ using DracoLib.Core.Utils;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace CreateUser
