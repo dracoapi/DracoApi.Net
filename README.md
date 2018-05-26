@@ -23,24 +23,31 @@ More high level methods also exists, here is a more complete example that get us
 
 ```CSharp
 using DracoLib.Core;
+using DracoLib.Core.Utils;
 using DracoProtos.Core.Objects;
 using System;
 
-DracoClient draco = new DracoClient(/*Url:Port for Proxys here*/);
-bool ping = draco.Ping();
-
 User config = new User()
 {
-    Username = "xxxxxxx@gmail.com",
-    Password = "xxxxxxx",
-    DeviceId = "xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxx",
-    Login = "GOOGLE"
+	Username = "xxxxxxx@gmail.com",
+	Password = "xxxxxxx",
+	DeviceId = DracoUtils.GenerateDeviceId(),
+	Login = "GOOGLE"
 };
+
+var draco = new DracoClient(/*"http://localhost:8888"*/); //Proxys here
+
+var ping = draco.Ping();
+if (!ping) throw new Exception();
 
 draco.Boot(config);
 draco.Login();
 draco.Load();
-var response = draco.Inventory.GetUserItems();
+
+var response = draco.Inventory.GetUserItems() as FBagUpdate;
+foreach (var item in response.items) {
+	Console.WriteLine($"Item type { item.type }, count = { item.count}");
+}
 ```
 
 More example can be found here: https://github.com/Furtif/DracoLib/tree/master/Demos
