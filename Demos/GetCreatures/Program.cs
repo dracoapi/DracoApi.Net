@@ -25,7 +25,8 @@ namespace GetCreatures
             var draco = new DracoClient("http://localhost:8888");
 
             Console.WriteLine("Ping...");
-            draco.Ping();
+            var ping = draco.Ping();
+            if (!ping) throw new Exception();
 
             Console.WriteLine("Boot...");
             draco.Boot(config);
@@ -37,14 +38,11 @@ namespace GetCreatures
             draco.Load();
 
             Console.WriteLine("Get creatures...");
-            var response = draco.Inventory.GetUserCreatures();
-            //for (const creature of response.userCreatures) {
-            //    const name = creature.alias || strings.getCreature(DracoNode.enums.CreatureType[creature.name]);
-            //    Console.WriteLine(`  ${name
-            //}
-            //lvl ${creature.leve}
-            //          , cp=${creature.cp}`);
-            // }
+            var response = draco.Inventory.GetUserCreatures() as FUserCreaturesList;
+            foreach (var creature in response.userCreatures) {
+                var name = creature.alias;
+                Console.WriteLine($"  { name } lvl { creature.level}, cp= {creature.cp}");
+             }
 
             Console.WriteLine("Done.");
         }

@@ -327,7 +327,7 @@ namespace DracoLib.Core
             // await this.event('InitPushNotifications', 'False');
         }
 
-        public string ValidateNickName(string nickname, bool takeSuggested = true)
+        public object ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
             var result = this.Call("AuthService", "validateNickname", new object[] { nickname }) as FNicknameValidationResult;

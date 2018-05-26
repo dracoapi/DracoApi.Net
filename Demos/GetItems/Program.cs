@@ -38,10 +38,10 @@ namespace GetItems
             draco.Load();
 
             Console.WriteLine("Get user items...");
-            var response = draco.Inventory.GetUserItems();
-            //for (const item of response.items) {
-            //    Console.WriteLine(`Item type ${ DracoNode.enums.ItemType[item.type]}, count = ${ item.count}`);
-            //}
+            var response = draco.Inventory.GetUserItems() as FBagUpdate;
+            foreach (var item in response.items) {
+                Console.WriteLine($"Item type { item.type }, count = { item.count}");
+            }
 
             Console.WriteLine("Done.");
         }

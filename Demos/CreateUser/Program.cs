@@ -4,18 +4,22 @@ using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CreateUser
 {
     class Program
     {
+        private static Random random = new Random();
+
         private static string GenerateNickname()
         {
-            //var chars = "abcdefghijklmnopqrstuvwxyz";
+            var chars = "abcdefghijklmnopqrstuvwxyz";
             var name = "";
             for (var i = 0; i < 8; i++)
             {
-                //name += chars[Math.Floor(Math.random() * chars.length)];
+                name += new string(Enumerable.Repeat(chars, 1)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
             }
             return name;
         }
@@ -33,7 +37,6 @@ namespace CreateUser
                 Login = "GOOGLE"
             };
 
-
             var draco = new DracoClient();
 
             Console.WriteLine("Boot...");
@@ -44,35 +47,26 @@ namespace CreateUser
 
             Console.WriteLine("Generate nickname...");
             var nickname = GenerateNickname();
-            var response = draco.ValidateNickName(nickname);
-            //while (response != null && response == FNicknameValidationError.DUPLICATE)
-            //{
-            //    nickname = response.suggestedNickname;
-            //    response = await this.validateNickname(nickname);
-            //}
-            //if (response) throw new Error("Unable to register nickname. Error: " + response.error);
+            var response = draco.ValidateNickName(nickname) as FNicknameValidationResult;
+            while (response != null && response.error == FNicknameValidationError.DUPLICATE)
+            {
+                nickname = response.suggestedNickname;
+                response = draco.ValidateNickName(nickname) as FNicknameValidationResult;
+            }
+            if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
             Console.WriteLine("  nickname: " + nickname);
 
             Console.WriteLine("Accept tos...");
             draco.AcceptToS();
 
             Console.WriteLine("Register account...");
-            //draco.ProtocolVersion(nickname);
+            draco.Register(nickname);
 
             Console.WriteLine("Set avatar...");
-            response = (string)draco.SetAvatar(271891);
+            draco.SetAvatar(271891);
 
-            //Console.WriteLine("Save data into users.json...");
-            //var users = [];
-            //if (fs.existsSync("users.json"))
-            //{
-            //    users = JSON.parse(fs.readFileSync("users.json", "utf8"));
-            //}
-            //users.push(draco.user);
-            //fs.writeFileSync("users.json", JSON.stringify(users, null, 2), "utf8");
-
-            // Console.WriteLine("Load...");
-            // await draco.load();
+            Console.WriteLine("Load...");
+            draco.Load();
 
             Console.WriteLine("Done.");
         }
