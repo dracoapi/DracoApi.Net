@@ -2,9 +2,9 @@
 
 namespace DracoLib.Core.Utils
 {
-    internal class DracoUtils
+    public class DracoUtils
     {
-        internal static string GenerateDeviceId()
+        public static string GenerateDeviceId()
         {
             return Guid.NewGuid().ToString().ToUpper();
         }

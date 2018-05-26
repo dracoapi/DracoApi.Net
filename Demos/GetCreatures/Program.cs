@@ -1,4 +1,5 @@
 ﻿using DracoLib.Core;
+using DracoLib.Core.Utils;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
@@ -17,7 +18,7 @@ namespace GetCreatures
             {
                 Username = "xxxxxxx@gmail.com",
                 Password = "xxxxxxx",
-                DeviceId = "xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxx-xxxxxxx",
+                DeviceId = DracoUtils.GenerateDeviceId(),
                 Login = "GOOGLE"
             };
 

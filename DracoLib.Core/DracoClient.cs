@@ -114,7 +114,7 @@ namespace DracoLib.Core
             this.client.AddDefaultHeader("Accept-Language", "en-us");
             this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0";
             this.client.CookieContainer = new CookieContainer();
-            this.client.Encoding = null;
+            //this.client.Encoding = null;
             this.client.Timeout = timeout;
 
             this.ClientInfo = new FClientInfo
@@ -256,7 +256,7 @@ namespace DracoLib.Core
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();
             byte[] hash = md5.ComputeHash(buffer);
-            this.ConfigHash = (sbyte)hash.FirstOrDefault();
+            this.ConfigHash = Convert.ToSByte(hash);
             return this.ConfigHash;
         }
 
@@ -469,7 +469,7 @@ namespace DracoLib.Core
                     {
                         latitude = buildingLat,
                         longitude = buildingLng,
-                },
+                    },
                     id = buildingId,
                 },
             });
