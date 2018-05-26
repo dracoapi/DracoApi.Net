@@ -69,7 +69,7 @@ namespace DracoLib.Core
         private sbyte ConfigHash { get; set; }
 
         public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        public int UtcOffset;
+        public int UtcOffset = 7200;
 
         /*
          * Vars c#
@@ -136,13 +136,11 @@ namespace DracoLib.Core
             this.Creatures = new Creatures(this);
         }
 
-        //TODO: look this
-        /*
         private float GetAccuracy() {
-            return [20, 65][Math.floor(Math.random() * 2)];
+            double random = new Random().Next(20, 65) * 2;
+            return (float)Math.Floor(random);
         }
-        */
-
+        
         public bool Ping()
         {
             var request = new RestRequest("ping", Method.POST);
@@ -233,7 +231,7 @@ namespace DracoLib.Core
             this.User.Username = clientinfo.Username;
             this.User.Password = clientinfo.Password;
             this.ClientInfo.iOsVendorIdentifier = clientinfo.DeviceId;
-            /*foreach (var key in new List<string> { clientinfo }) {
+            /*foreach (var key in this.ClientInfo) {
                 if (this.ClientInfo.GetHashCode(key))
                 {
                     this.ClientInfo[key] = clientinfo[key];
@@ -291,7 +289,7 @@ namespace DracoLib.Core
             {
                 throw new Exception("Unsupported login type: " + this.User.Login);
             }
-            // await this.event('TrySingIn', this.auth.name);
+            //this.event('TrySingIn', this.auth.name);
             var response = this.Call("AuthService", "trySingIn", new object[]
             {
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
@@ -309,7 +307,7 @@ namespace DracoLib.Core
 
         public async void GoogleLogin()
         {
-            // await this.event('StartGoogleSignIn');
+            //this.event('StartGoogleSignIn');
             var login = new Google();
             this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);
             var decoder = new CustomJsonWebToken();
@@ -320,11 +318,11 @@ namespace DracoLib.Core
         {
             if (this.User.Avatar == 0 ) throw new Exception("Please login first.");
 
-            // await this.event('LoadingScreenPercent', '100');
-            // await this.event('CreateAvatarByType', 'MageMale');
-            // await this.event('LoadingScreenPercent', '100');
-            // await this.event('AvatarUpdateView', this.user.avatar.toString());
-            // await this.event('InitPushNotifications', 'False');
+            // this.event('LoadingScreenPercent', '100');
+            // this.event('CreateAvatarByType', 'MageMale');
+            // this.event('LoadingScreenPercent', '100');
+            // this.event('AvatarUpdateView', this.user.avatar.toString());
+            // this.event('InitPushNotifications', 'False');
         }
 
         public object ValidateNickName(string nickname, bool takeSuggested = true)
@@ -414,17 +412,15 @@ namespace DracoLib.Core
 
         public FUpdate GetMapUpdate(float latitude, float longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
         {
-            //TODO: look this
-            //horizontalAccuracy = horizontalAccuracy; || this.getAccuracy();
+            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>();
             var data = this.Call("MapService", "getUpdate", new object[] {
                 new FUpdateRequest()
                 {
                     clientRequest = new FClientRequest()
                     {
-                        time = 0,
-                        //TODO: look this
-                        currentUtcOffsetSeconds = /*this.utcOffset,*/ 7200, 
+                        time = 0,                        
+                        currentUtcOffsetSeconds = this.UtcOffset, 
                         coordsWithAccuracy = new GeoCoordsWithAccuracy()
                         {
                             latitude = latitude,
@@ -458,8 +454,7 @@ namespace DracoLib.Core
                     {
                         latitude = clientLat,
                         longitude = clientLng,
-                        //TODO: look this
-                        //horizontalAccuracy = this.getAccuracy(),
+                        horizontalAccuracy = this.GetAccuracy(),
                     },
                 },
 
@@ -483,8 +478,7 @@ namespace DracoLib.Core
 
         public object LeaveDungeon(float latitude, float longitude, float horizontalAccuracy)
         {
-            //TODO: look this
-            //horizontalAccuracy = horizontalAccuracy || this.getAccuracy();
+            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call("MapService", "leaveDungeon", new object[]
                 {
                     new FClientRequest
@@ -495,8 +489,7 @@ namespace DracoLib.Core
                         {
                             latitude = latitude,
                             longitude = longitude,
-                            //TODO: look this
-                            //horizontalAccuracy = horizontalAccuracy,
+                            horizontalAccuracy = horizontalAccuracy,
                         },
                     },
                 });
