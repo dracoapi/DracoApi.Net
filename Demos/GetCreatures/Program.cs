@@ -1,5 +1,7 @@
 ﻿using DracoLib.Core;
+using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
+using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
 
@@ -60,7 +62,7 @@ namespace GetCreatures
             Console.WriteLine("Get creatures...");
             var response = draco.Inventory.GetUserCreatures() as FUserCreaturesList;
             foreach (var creature in response.userCreatures) {
-                var name = creature.alias;
+                var name = creature.alias ??  English.Load[creature.name.ToString()];
                 Console.WriteLine($"  { name } lvl { creature.level}, cp= {creature.cp}");
              }
 
