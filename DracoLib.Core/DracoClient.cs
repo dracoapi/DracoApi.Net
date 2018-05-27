@@ -93,7 +93,7 @@ namespace DracoLib.Core
             //this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
             //}
             
-            this.Proxy = proxy;
+            this.Proxy = proxy ?? String.Empty;
             int timeout = 20 * 1000;
             //if (config.TimeOut > 0)
             //{
@@ -191,11 +191,11 @@ namespace DracoLib.Core
         public void Post(string url, object data)
         {
             var _client = new RestClient(url);
-            var request = new RestRequest(Method.POST);
-            request.AddHeader("dcportal", this.Dcportal);
-            request.AddObject(data);
+            var _request = new RestRequest(Method.POST);
+            _request.AddHeader("dcportal", this.Dcportal);
+            _request.AddObject(data);
 
-            var response = _client.Execute(request);
+            var response = _client.Execute(_request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -412,7 +412,7 @@ namespace DracoLib.Core
             return this.Call("PlayerService", "acknowledgeNotification", new object[] { type });
         }
 
-        public object GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
+        public object GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>();

@@ -2,6 +2,7 @@
 using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
+using DracoLib.Core.Text;
 
 namespace GetMapUpdate
 {
@@ -64,7 +65,7 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            var map = draco.GetMapUpdate(45.469896, 9.180439, 20, null) as FUpdate;
+            var map = draco.GetMapUpdate(45.469896, 9.180439, 20) as FUpdate;
             FCreatureUpdate creatures = (FCreatureUpdate)map.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
             FHatchedEggs hatched = (FHatchedEggs)map.items.Find(o => o.GetType() == typeof(FHatchedEggs));
             FChestUpdate chests = (FChestUpdate)map.items.Find(o => o.GetType() == typeof(FChestUpdate));
@@ -75,7 +76,8 @@ namespace GetMapUpdate
             foreach (var creature in creatures.inRadar)
             {
                 var id = creature.id;
-                Console.WriteLine($"    creature { creature.name} ({ creature.coords.latitude }, ${ creature.coords.longitude })");
+                var name = English.Load[creature.name.ToString()];
+                Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, ${ creature.coords.longitude })");
             }
             Console.WriteLine("Done.");
         }
