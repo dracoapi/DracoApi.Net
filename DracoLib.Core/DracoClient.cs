@@ -1,6 +1,7 @@
 ﻿using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
+using DracoLib.Core.Utils;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
@@ -60,14 +61,14 @@ namespace DracoLib.Core
         public string ProtocolVersion;
         public string ClientVersion;
 
-        private object Request { get; set; }
+        private RestRequest Request { get; set; }
         private string Proxy { get; set; }
         private string Dcportal { get; set; }
         private bool CheckProtocol { get; set; } = true;
         private Auth Auth { get; set; }
         private sbyte ConfigHash { get; set; }
 
-        public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
+        public Dictionary<string, int> EventsCounter { get; set; } // = new Dictionary<string, int>();
         public int UtcOffset = 7200;
 
         /*
@@ -99,7 +100,7 @@ namespace DracoLib.Core
             //    timeout = config.TimeOut;
             //}
 
-            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
+            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, Convert.ToUInt32(this.ProtocolVersion));
 
             this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
@@ -141,9 +142,9 @@ namespace DracoLib.Core
         
         public bool Ping()
         {
-            var request = new RestRequest("ping", Method.POST);
-            request.AddHeader("Content-Type", "application /x-www-form-urlencoded");
-            var response = client.Execute(request);
+            Request = new RestRequest("ping", Method.POST);
+            Request.AddHeader("Content-Type", "application /x-www-form-urlencoded");
+            var response = client.Execute(Request);
 
             this.client.AddDefaultParameter("Path", "/", ParameterType.Cookie);
             this.client.AddDefaultParameter("path", "/", ParameterType.Cookie);
@@ -156,17 +157,17 @@ namespace DracoLib.Core
         {
             var rawbody = serializer.Serialize(body);
 
-            var request = new RestRequest("serviceCall", Method.POST);
-            request.AddHeader("Protocol-Version", this.ProtocolVersion.ToString());
+            Request = new RestRequest("serviceCall", Method.POST);
+            Request.AddHeader("Protocol-Version", this.ProtocolVersion);
             if (this.Dcportal != null)
             {
-                request.AddHeader("dcportal", this.Dcportal);
+                Request.AddHeader("dcportal", this.Dcportal);
             }
-            request.AddParameter("service", service);
-            request.AddParameter("method", method);
-            request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
+            Request.AddParameter("service", service);
+            Request.AddParameter("method", method);
+            Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
 
-            var response = this.client.Execute(request);
+            var response = this.client.Execute(Request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -183,18 +184,6 @@ namespace DracoLib.Core
 
             var data = serializer.Deserialize(response.RawBytes);
             (data ?? "").ToString();
-
-            if ((int)response.StatusCode > 300)
-            {
-                try
-                {
-                    data = serializer.Deserialize(response.RawBytes);
-                }
-                catch (Exception ex)
-                {
-                    throw new DracoError("Error from server: " + response.StatusCode + " - " + ex);
-                }
-            }
 
             return data;
         }
@@ -257,12 +246,12 @@ namespace DracoLib.Core
 
         public object GetConfig()
         {
-            var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language }) as FConfig;
+            var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language });
             this.BuildConfigHash(config);
             return config;
         }
 
-        public object BuildConfigHash(FConfig config)
+        public object BuildConfigHash(object config)
         {
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();
@@ -293,7 +282,7 @@ namespace DracoLib.Core
                     ProfileId = "?",
                 };
                 this.GoogleLogin();
-            }
+            }            
             else if (this.User.Login == "FACEBOOK")
             {
                 throw new FacebookLoginException("Facebook login not implemented.");
@@ -322,7 +311,7 @@ namespace DracoLib.Core
         {
             //this.event('StartGoogleSignIn');
             var login = new Google();
-            this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);
+            this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);           
             var decoder = new CustomJsonWebToken();
             this.Auth.ProfileId = decoder.Decode(this.Auth.TokenId, null, true);
         }
@@ -423,7 +412,7 @@ namespace DracoLib.Core
             return this.Call("PlayerService", "acknowledgeNotification", new object[] { type });
         }
 
-        public object GetMapUpdate(float latitude, float longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
+        public object GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>();
@@ -455,7 +444,7 @@ namespace DracoLib.Core
             return data;
         }
 
-        public object UseBuilding(float clientLat, float clientLng, string buildingId, float buildingLat, float buildingLng)
+        public object UseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng)
         {
             return this.Call("MapService", "tryUseBuilding", new object[]
             {
@@ -483,13 +472,13 @@ namespace DracoLib.Core
             });
         }
 
-        public object OpenChest(FChest chest)
+        public object OpenChest(object chest)
         {
             this.Call("MapService", "startOpeningChest", new object[] { chest });
             return this.Call("MapService", "openChestResult", new object[] { chest });
         }
 
-        public object LeaveDungeon(float latitude, float longitude, float horizontalAccuracy)
+        public object LeaveDungeon(double latitude, double longitude, float horizontalAccuracy)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call("MapService", "leaveDungeon", new object[]

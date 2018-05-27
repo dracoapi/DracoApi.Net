@@ -30,8 +30,8 @@ namespace GetItems
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-
-            if (!(draco.Login() is FAuthData login)) throw new Exception("Unable to login");
+            var login = draco.Login() as FAuthData; 
+            if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;
 

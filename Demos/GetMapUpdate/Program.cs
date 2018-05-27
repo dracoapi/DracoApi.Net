@@ -30,8 +30,8 @@ namespace GetMapUpdate
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-
-            if (!(draco.Login() is FAuthData login)) throw new Exception("Unable to login");
+            var login = draco.Login() as FAuthData;
+            if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;
 
@@ -64,7 +64,7 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            var map = draco.GetMapUpdate((float)45.469896, (float)9.180439, (float)20, null) as FUpdate;
+            var map = draco.GetMapUpdate(45.469896, 9.180439, 20, null) as FUpdate;
             FCreatureUpdate creatures = (FCreatureUpdate)map.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
             FHatchedEggs hatched = (FHatchedEggs)map.items.Find(o => o.GetType() == typeof(FHatchedEggs));
             FChestUpdate chests = (FChestUpdate)map.items.Find(o => o.GetType() == typeof(FChestUpdate));
