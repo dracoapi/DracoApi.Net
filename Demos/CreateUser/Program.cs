@@ -3,6 +3,7 @@ using DracoLib.Core.Utils;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CreateUser
@@ -36,7 +37,16 @@ namespace CreateUser
                 Login = "GOOGLE"
             };
 
-            var draco = new DracoClient();
+            Config options = new Config()
+            {
+                CheckProtocol = true,
+                EventsCounter = new Dictionary<string, int>(),
+                Lang = "English",
+                TimeOut = 0,
+                UtcOffset = 7200
+            };
+
+            var draco = new DracoClient(null, options);
 
             Console.WriteLine("Boot...");
             draco.Boot(config);

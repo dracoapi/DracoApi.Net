@@ -2,6 +2,7 @@
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Objects;
 using System;
+using System.Collections.Generic;
 
 namespace GetItems
 {
@@ -20,7 +21,16 @@ namespace GetItems
                 Login = "GOOGLE"
             };
 
-            var draco = new DracoClient(/*"http://localhost:8888"*/);
+            Config options = new Config()
+            {
+                CheckProtocol = true,
+                EventsCounter = new Dictionary<string, int>(),
+                Lang = "English",
+                TimeOut = 0,
+                UtcOffset = 7200
+            };
+
+            var draco = new DracoClient(null, options);
 
             Console.WriteLine("Ping...");
             var ping = draco.Ping();

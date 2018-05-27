@@ -64,12 +64,12 @@ namespace DracoLib.Core
         private RestRequest Request { get; set; }
         private string Proxy { get; set; }
         private string Dcportal { get; set; }
-        private bool CheckProtocol { get; set; } = true;
+        private bool CheckProtocol { get; set; }
         private Auth Auth { get; set; }
         private sbyte ConfigHash { get; set; }
 
-        public Dictionary<string, int> EventsCounter { get; set; } // = new Dictionary<string, int>();
-        public int UtcOffset = 7200;
+        public Dictionary<string, int> EventsCounter { get; set; }
+        public int UtcOffset;
 
         /*
          * Vars c#
@@ -77,28 +77,30 @@ namespace DracoLib.Core
         private SerializerContext serializer;
         private RestClient client;
 
-        public DracoClient(string proxy = null)
+        public DracoClient(string proxy = null, Config config = null)
         {
+            config = config ?? new Config();
+
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString() ?? "389771870";
             this.ClientVersion = FGameObjects.ClientVersion.ToString() ?? "11808";
-            /*if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
+            if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
             if (config.EventsCounter.Count() > 0) this.EventsCounter = config.EventsCounter;
             if (config.UtcOffset > 0)
             {
                 this.UtcOffset = config.UtcOffset;
             }
             else
-            {*/
-            //Original line GetTimezoneOffset() * 60;  
-            //this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
-            //}
+            {
+                //Original line GetTimezoneOffset() * 60;  
+                this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
+            }
             
             this.Proxy = proxy ?? String.Empty;
             int timeout = 20 * 1000;
-            //if (config.TimeOut > 0)
-            //{
-            //    timeout = config.TimeOut;
-            //}
+            if (config.TimeOut > 0)
+            {
+                timeout = config.TimeOut;
+            }
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, Convert.ToUInt32(this.ProtocolVersion));
 
@@ -120,7 +122,7 @@ namespace DracoLib.Core
             {
                 deviceModel = "iPhone8,1",
                 iOsAdvertisingTrackingEnabled = false,
-                language = "English",// config.Lang ?? "English",
+                language = config.Lang ?? "English",
                 platform = "IPhonePlayer",
                 platformVersion = "iOS 11.2.6",
                 revision = this.ClientVersion,

@@ -3,6 +3,7 @@ using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
 using DracoLib.Core.Text;
+using System.Collections.Generic;
 
 namespace GetMapUpdate
 {
@@ -21,7 +22,16 @@ namespace GetMapUpdate
                 Login = "GOOGLE"
             };
 
-            var draco = new DracoClient();
+            Config options = new Config()
+            {
+                CheckProtocol = true,
+                EventsCounter = new Dictionary<string, int>(),
+                Lang = "English",
+                TimeOut = 0,
+                UtcOffset = 7200
+            };
+
+            var draco = new DracoClient(null, options);
 
             Console.WriteLine("Ping...");
             var ping = draco.Ping();
