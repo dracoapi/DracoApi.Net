@@ -62,6 +62,8 @@ namespace DracoLib.Core.Extensions
 
         public string Decode(string token, string key, bool verify)
         {
+            //TODO: need observation
+            key = key ?? String.Empty;
             var parts = token.Split('.');
             var header = parts[0];
             var payload = parts[1];

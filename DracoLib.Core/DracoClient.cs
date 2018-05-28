@@ -282,7 +282,7 @@ namespace DracoLib.Core
                     Reg = "gl",
                     ProfileId = "?",
                 };
-                this.GoogleLogin();
+                this.GoogleLogin().Wait();
             }            
             else if (this.User.Login == "FACEBOOK")
             {
@@ -307,12 +307,16 @@ namespace DracoLib.Core
             return response;
         }
 
-        public async void GoogleLogin()
+        public async Task GoogleLogin()
         {
-            //this.Event("StartGoogleSignIn");
-            var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
-            this.Auth.TokenId = login["Auth"]; //["Token"];
-            this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, true);
+            await Task.Run(async () =>
+            {
+                //this.Event("StartGoogleSignIn");
+                var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
+                this.Auth.TokenId = login["Auth"]; //["Token"];
+                //TODO: if verify false bug need observation
+                this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, true);
+            });
         }
 
         public void Load()

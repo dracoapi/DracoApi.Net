@@ -8,13 +8,9 @@ namespace DracoLib.Core.Providers
     public class Google
     {
         const string GOOGLE_LOGIN_ANDROID_ID = "9774d56d682e549c";
-        //const string GOOGLE_LOGIN_SERVICE = "audience:server:client_id:142464098123-ihdru24fmqkb6pgdg5n3v6an5b4a664i.apps.googleusercontent.com";
-        //const string GOOGLE_LOGIN_APP = "net.elyland.DraconiusGO";
-        //const string GOOGLE_LOGIN_CLIENT_SIG = "fc0e7d31361f6c8722135af1024355d5a86b0689";
-
-        const string GOOGLE_LOGIN_SERVICE = "audience:server:client_id:848232511240-7so421jotr2609rmqakceuu1luuq0ptb.apps.googleusercontent.com";
+        const string GOOGLE_LOGIN_SERVICE = "audience:server:client_id:142464098123-ihdru24fmqkb6pgdg5n3v6an5b4a664i.apps.googleusercontent.com";
         const string GOOGLE_LOGIN_APP = "net.elyland.DraconiusGO";
-        const string GOOGLE_LOGIN_CLIENT_SIG = "321187995bc7cdc2b5fc91b11a96e2baa8602c62";
+        const string GOOGLE_LOGIN_CLIENT_SIG = "fc0e7d31361f6c8722135af1024355d5a86b0689";
 
         internal async Task<Dictionary<string, string>> Login(string username, string password)
         {
