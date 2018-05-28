@@ -178,7 +178,7 @@ namespace DracoLib.Core
             var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
             var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
             if (dcportal != null) this.Dcportal = dcportal;
-            if (protocolVersion != this.ProtocolVersion)
+            if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
             {
                 throw new Exception("Incorrect protocol version received: " + protocolVersion);
             }
@@ -296,7 +296,7 @@ namespace DracoLib.Core
             var response = this.Call("AuthService", "trySingIn", new object[] { 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg),// { age = "", gender = "", socialId = "", email = this.User.Username, regType = this.Auth.Reg },
+                new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
             }) as FAuthData;
 
             if (response != null && response.info != null)
@@ -363,7 +363,7 @@ namespace DracoLib.Core
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 nickname,
                 this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg),// { age = "", gender = "", socialId = "", email = this.User.Username, regType = this.Auth.Reg },
+                new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
             }) as FAuthData;
 
             this.User.Id = data.info.userId;
@@ -403,7 +403,7 @@ namespace DracoLib.Core
 
         public object SelectAlliance(AllianceType alliance, int bonus)
         {
-            return this.Call("PlayerService", "selectAlliance", new object[] {"AllianceType", alliance, bonus });
+            return this.Call("PlayerService", "selectAlliance", new object[] { "AllianceType", alliance, bonus });
         }
 
         public object AcknowledgeNotification(string type)
@@ -445,8 +445,7 @@ namespace DracoLib.Core
 
         public object UseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng)
         {
-            return this.Call("MapService", "tryUseBuilding", new object[]
-            {
+            return this.Call("MapService", "tryUseBuilding", new object[] {
                 new FClientRequest
                 {
                     time = 0,
@@ -481,19 +480,19 @@ namespace DracoLib.Core
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call("MapService", "leaveDungeon", new object[]
+            {
+                new FClientRequest
                 {
-                    new FClientRequest
+                    time = 0,
+                    currentUtcOffsetSeconds = this.UtcOffset,
+                    coordsWithAccuracy = new GeoCoordsWithAccuracy
                     {
-                        time = 0,
-                        currentUtcOffsetSeconds = this.UtcOffset,
-                        coordsWithAccuracy = new GeoCoordsWithAccuracy
-                        {
-                            latitude = latitude,
-                            longitude = longitude,
-                            horizontalAccuracy = horizontalAccuracy,
-                        },
+                        latitude = latitude,
+                        longitude = longitude,
+                        horizontalAccuracy = horizontalAccuracy,
                     },
-                });
+                },
+            });
         }
 
         // utils
