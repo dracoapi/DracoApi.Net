@@ -1,7 +1,6 @@
 ﻿using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
-using DracoLib.Core.Utils;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
@@ -68,7 +67,7 @@ namespace DracoLib.Core
         private Auth Auth { get; set; }
         private sbyte ConfigHash { get; set; }
 
-        public Dictionary<string, int> EventsCounter { get; set; }
+        public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
         public int UtcOffset;
 
         /*
@@ -95,7 +94,7 @@ namespace DracoLib.Core
                 this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
             }
             
-            this.Proxy = proxy ?? String.Empty;
+            this.Proxy = proxy;
             int timeout = 20 * 1000;
             if (config.TimeOut > 0)
             {
@@ -173,13 +172,13 @@ namespace DracoLib.Core
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new Exception("Invalid status received: " + response.StatusDescription);
+                throw new DracoError("Invalid status received: " + response.StatusDescription);
             }
 
             var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
             var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
             if (dcportal != null) this.Dcportal = dcportal;
-            if (protocolVersion != serializer.protocolVersion.ToString())
+            if (protocolVersion != this.ProtocolVersion)
             {
                 throw new Exception("Incorrect protocol version received: " + protocolVersion);
             }
@@ -209,7 +208,7 @@ namespace DracoLib.Core
         {
             int eventCounter = 1;
 
-            if (this.EventsCounter[name] > 0)
+            if (this.EventsCounter.ContainsKey(name))
                 eventCounter = this.EventsCounter[name];
 
             this.Call("ClientEventService", "onEventWithCounter", new object[]
@@ -243,7 +242,7 @@ namespace DracoLib.Core
             }*/
             //this.Event("LoadingScreenPercent", "100");
             //this.Event("Initialized");
-            return this.GetConfig();
+            return null; //this.GetConfig();
         }
 
         public object GetConfig()
@@ -271,7 +270,7 @@ namespace DracoLib.Core
                     Name = "DEVICE",
                     Type = AuthType.DEVICE,
                     Reg = "dv",
-                    ProfileId = this.User.DeviceId
+                    ProfileId = this.User.DeviceId,
                 };
             }
             else if (this.User.Login == "GOOGLE")
@@ -293,12 +292,11 @@ namespace DracoLib.Core
             {
                 throw new Exception("Unsupported login type: " + this.User.Login);
             }
-            //this.event('TrySingIn', this.auth.name);
-            var response = this.Call("AuthService", "trySingIn", new object[]
-            {
+            //this.Event("TrySingIn", this.Auth.Name);
+            var response = this.Call("AuthService", "trySingIn", new object[] { 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
-                new FRegistrationInfo () { email = this.User.Username, regType = this.Auth.Reg },
+                new FRegistrationInfo(this.Auth.Reg),// { age = "", gender = "", socialId = "", email = this.User.Username, regType = this.Auth.Reg },
             }) as FAuthData;
 
             if (response != null && response.info != null)
@@ -311,22 +309,21 @@ namespace DracoLib.Core
 
         public async void GoogleLogin()
         {
-            //this.event('StartGoogleSignIn');
-            var login = new Google();
-            this.Auth.TokenId = await login.Login(this.User.Username, this.User.Password);           
-            var decoder = new CustomJsonWebToken();
-            this.Auth.ProfileId = decoder.Decode(this.Auth.TokenId, null, true);
+            //this.Event("StartGoogleSignIn");
+            var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
+            this.Auth.TokenId = login["Auth"]; //["Token"];
+            this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, true);
         }
 
         public void Load()
         {
             if (this.User.Avatar == 0 ) throw new Exception("Please login first.");
 
-            // this.event('LoadingScreenPercent', '100');
-            // this.event('CreateAvatarByType', 'MageMale');
-            // this.event('LoadingScreenPercent', '100');
-            // this.event('AvatarUpdateView', this.user.avatar.toString());
-            // this.event('InitPushNotifications', 'False');
+            // this.Event("LoadingScreenPercent", "100");
+            // this.Event("CreateAvatarByType", "MageMale");
+            // this.Event("LoadingScreenPercent", "100");
+            // this.Event("AvatarUpdateView", this.user.avatar.toString());
+            // this.Event("InitPushNotifications", "False");
         }
 
         public object ValidateNickName(string nickname, bool takeSuggested = true)
@@ -366,7 +363,7 @@ namespace DracoLib.Core
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 nickname,
                 this.ClientInfo,
-                new FRegistrationInfo() { regType = this.Auth.Reg },
+                new FRegistrationInfo(this.Auth.Reg),// { age = "", gender = "", socialId = "", email = this.User.Username, regType = this.Auth.Reg },
             }) as FAuthData;
 
             this.User.Id = data.info.userId;
