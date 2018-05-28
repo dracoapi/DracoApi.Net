@@ -13,18 +13,22 @@ namespace DracoLib.Core.Extensions
             "iJIZdodyhKZQrNWp5nKJ3srRXcUW+F1BD3baEVGcmEgqaLZUNBjm057pK" + 
             "RI16kB0YppeGx5qIQ5QjKzsR8ETQbKLNWgRY0QRNVz34kMJR3P/LgHax/" + 
             "6rmf5AAAAAwEAAQ==";
-        private const string Version = "0.0.5";
+        //private const string Version = "0.0.5";
         private const string AuthUrl = "https://android.clients.google.com/auth";
-        private const string UserAgent = "GPSOAuthSharp/" + Version;
+        //private const string UserAgent = "GPSOAuthSharp/" + Version;
+        private const string UserAgent = "Mozilla/5.0 (Linux; Android 5.1.1; Andromax I56D2G Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/64.0.3282.123 Mobile Safari/537.36";
+        //private const string UserAgent = "Dalvik/2.1.0 (Linux; U; Android 5.1.1; Andromax I56D2G Build/LMY47V)";
 
         private readonly RsaKeyParameters _androidKey = GoogleKeyUtils.KeyFromB64(B64Key);
         private readonly string _email;
         private readonly string _password;
+        private readonly string _androidId;
 
-        public GPSOAuthClient(string email, string password)
+        public GPSOAuthClient(string email, string password, string androidId = null)
         {
             _email = email;
             _password = password;
+            _androidId = androidId;
         }
         
         private static async Task<Dictionary<string, string>> PerformAuthRequest(Dictionary<string, string> data)
@@ -50,6 +54,7 @@ namespace DracoLib.Core.Extensions
                 { "EncryptedPasswd",  signature},
                 { "service", service },
                 { "source", "android" },
+                { "androidId", _androidId },
                 { "device_country", deviceCountry },
                 { "operatorCountry", operatorCountry },
                 { "lang", lang },
@@ -68,6 +73,7 @@ namespace DracoLib.Core.Extensions
                 { "EncryptedPasswd",  masterToken},
                 { "service", service },
                 { "source", "android" },
+                { "androidId", _androidId },
                 { "app", app },
                 { "client_sig", clientSig },
                 { "device_country", deviceCountry },

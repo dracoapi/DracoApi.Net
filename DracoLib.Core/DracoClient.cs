@@ -65,7 +65,7 @@ namespace DracoLib.Core
         private string Dcportal { get; set; }
         private bool CheckProtocol { get; set; }
         private Auth Auth { get; set; }
-        private sbyte ConfigHash { get; set; }
+        private sbyte[] ConfigHash { get; set; }
 
         public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
         public int UtcOffset;
@@ -185,7 +185,6 @@ namespace DracoLib.Core
 
             var data = serializer.Deserialize(response.RawBytes);
             (data ?? "").ToString();
-
             return data;
         }
 
@@ -242,7 +241,7 @@ namespace DracoLib.Core
             }*/
             //this.Event("LoadingScreenPercent", "100");
             //this.Event("Initialized");
-            return null; //this.GetConfig();
+            return this.GetConfig();
         }
 
         public object GetConfig()
@@ -257,7 +256,8 @@ namespace DracoLib.Core
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();
             byte[] hash = md5.ComputeHash(buffer);
-            this.ConfigHash = Convert.ToSByte(hash);
+            sbyte[] signed = Array.ConvertAll(hash, b => unchecked((sbyte)b));
+            this.ConfigHash = signed;
             return this.ConfigHash;
         }
 
@@ -292,6 +292,7 @@ namespace DracoLib.Core
             {
                 throw new Exception("Unsupported login type: " + this.User.Login);
             }
+
             //this.Event("TrySingIn", this.Auth.Name);
             var response = this.Call("AuthService", "trySingIn", new object[] { 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
@@ -315,7 +316,7 @@ namespace DracoLib.Core
                 var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
                 //TODO: if verify false bug need observation
-                this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, true);
+                this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false);
             });
         }
 

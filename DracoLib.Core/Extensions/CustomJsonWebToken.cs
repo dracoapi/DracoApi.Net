@@ -64,6 +64,7 @@ namespace DracoLib.Core.Extensions
         {
             //TODO: need observation
             key = key ?? String.Empty;
+
             var parts = token.Split('.');
             var header = parts[0];
             var payload = parts[1];

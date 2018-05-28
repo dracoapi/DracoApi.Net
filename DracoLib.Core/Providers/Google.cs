@@ -14,7 +14,7 @@ namespace DracoLib.Core.Providers
 
         internal async Task<Dictionary<string, string>> Login(string username, string password)
         {
-            var googleClient = new GPSOAuthClient(username, password);
+            var googleClient = new GPSOAuthClient(username, password, GOOGLE_LOGIN_ANDROID_ID);
             var masterLoginResponse = await googleClient.PerformMasterLogin();
 
             if (masterLoginResponse.ContainsKey("Error"))
