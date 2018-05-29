@@ -76,9 +76,6 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
 | 1.0.4        | 1.8                         | first tested              |
-| 1.0.3        | 1.8                         |                           |
-| 1.0.2        | 1.8                         | Sync from DracoApi        |
-| 1.0.1        | 1.8   (11808-389771870)     | beta                      |
 
 #### `CREDITS`
 [DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)
