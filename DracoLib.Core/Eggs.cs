@@ -4,14 +4,14 @@ namespace DracoLib.Core
 {
     public class Eggs
     {
-        private DracoClient dracoClient;
+        private readonly DracoClient dracoClient;
 
         public Eggs(DracoClient dracoClient)
         {
             this.dracoClient = dracoClient;
         }
 
-        public object GetHatchingInfo()
+        public FUserHatchingInfo GetHatchingInfo()
         {
             return this.dracoClient.Call("UserCreatureService", "getHatchingInfo", new object[] { }) as FUserHatchingInfo;
         }

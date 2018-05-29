@@ -4,21 +4,21 @@ namespace DracoLib.Core
 {
     public class Fight    
     {
-        private DracoClient dracoClient;
+        private readonly DracoClient dracoClient;
 
         public Fight(DracoClient dracoClient)
         {
             this.dracoClient = dracoClient;
         }
 
-        public object Start(FStartEncounterRequest attack)
+        public FEncounterUpdate Start(FStartEncounterRequest attack)
         {
-            return dracoClient.Call("EncounterService", "startEncounter", new object[] { attack }) as FEncounterUpdate;
+            return this.dracoClient.Call("EncounterService", "startEncounter", new object[] { attack }) as FEncounterUpdate;
         }
 
         public object GiveUp()
         {
-            return dracoClient.Call("EncounterService", "giveUpEncounter", new object[] { });
+            return this.dracoClient.Call("EncounterService", "giveUpEncounter", new object[] { });
         }
     }
 }

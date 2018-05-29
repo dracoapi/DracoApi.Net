@@ -2,7 +2,6 @@
 using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
-using DracoLib.Core.Text;
 using System.Collections.Generic;
 
 namespace GetMapUpdate
@@ -75,21 +74,23 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            var map = draco.GetMapUpdate(45.469896, 9.180439, 20) as FUpdate;
-            FCreatureUpdate creatures = (FCreatureUpdate)map.items.Find(o => o.GetType() == typeof(FCreatureUpdate));
-            FHatchedEggs hatched = (FHatchedEggs)map.items.Find(o => o.GetType() == typeof(FHatchedEggs));
-            FChestUpdate chests = (FChestUpdate)map.items.Find(o => o.GetType() == typeof(FChestUpdate));
-            FAvaUpdate avatar = (FAvaUpdate)map.items.Find(o => o.GetType() == typeof(FAvaUpdate));
-            FBuildingUpdate buildings = (FBuildingUpdate)map.items.Find(o => o.GetType() == typeof(FBuildingUpdate));
+            FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20) as FUpdate;
+            FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
+            FHatchedEggs hatched = map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
+            FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
+            FAvaUpdate avatar = map.items.Find(o => o.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
+            FBuildingUpdate buildings = map.items.Find(o => o.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;
 
             Console.WriteLine($"  { creatures.inRadar.Count} creature(s) in radar");
             foreach (var creature in creatures.inRadar)
             {
                 var id = creature.id;
-                var name = English.Load[creature.name.ToString()];
+                var name = creature.name.ToString();
                 Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, ${ creature.coords.longitude })");
             }
-            Console.WriteLine("Done.");
+
+            Console.WriteLine("Done.\r\nPress one key to exit...");
+            Console.ReadKey();
         }
     }
 }

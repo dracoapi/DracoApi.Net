@@ -1,5 +1,4 @@
 ﻿using DracoLib.Core;
-using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Objects;
 using System;
@@ -69,13 +68,14 @@ namespace GetCreatures
             draco.Load();
 
             Console.WriteLine("Get creatures...");
-            var response = draco.Inventory.GetUserCreatures() as FUserCreaturesList;
+            var response = draco.Inventory.GetUserCreatures();
             foreach (var creature in response.userCreatures) {
-                var name = creature.alias ??  English.Load[creature.name.ToString()];
+                var name = creature.alias ??  creature.name.ToString();
                 Console.WriteLine($"  { name } lvl { creature.level}, cp= {creature.cp}");
              }
 
-            Console.WriteLine("Done.");
+            Console.WriteLine("Done.\r\nPress one key to exit...");
+            Console.ReadKey();
         }
     }
 }

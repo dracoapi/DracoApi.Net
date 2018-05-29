@@ -5,14 +5,14 @@ namespace DracoLib.Core
 {
     public class Creatures
     {
-        private DracoClient dracoClient;
+        private readonly DracoClient dracoClient;
 
         public Creatures(DracoClient dracoClient)
         {
             this.dracoClient = dracoClient;
         }
 
-        public object Encounter(string id)
+        public FCatchingCreature Encounter(string id)
         {
             var response = this.dracoClient.Call("GamePlayService", "startCatchingCreature", new object[]
                 {
@@ -36,7 +36,7 @@ namespace DracoLib.Core
             return this.dracoClient.Call("GamePlayService", "tryCatchCreature", new object[] { id, ball, quality, spin });
         }
 
-        public object Release(string[] ids)//: Promise<objects.FUpdate> 
+        public FUpdate Release(string[] ids)
         {
             //if (!Array.isArray(ids)) ids = [ids];
             return this.dracoClient.Call("UserCreatureService", "convertCreaturesToCandies", new object[] { ids, false }) as FUpdate;

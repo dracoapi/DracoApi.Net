@@ -225,7 +225,7 @@ namespace DracoLib.Core
             this.EventsCounter[name] = eventCounter + 1;
         }
 
-        public object Boot(User clientinfo)
+        public FConfig Boot(User clientinfo)
         {
             this.User.Id = clientinfo.Id;
             this.User.DeviceId = clientinfo.DeviceId;
@@ -244,14 +244,14 @@ namespace DracoLib.Core
             return this.GetConfig();
         }
 
-        public object GetConfig()
+        public FConfig GetConfig()
         {
-            var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language });
+            var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language }) as FConfig;
             this.BuildConfigHash(config);
             return config;
         }
 
-        public object BuildConfigHash(object config)
+        public sbyte[] BuildConfigHash(FConfig config)
         {
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();
@@ -261,7 +261,7 @@ namespace DracoLib.Core
             return this.ConfigHash;
         }
 
-        public object Login()
+        public FAuthData Login()
         {
             if (this.User.Login == "DEVICE")
             {
@@ -315,15 +315,16 @@ namespace DracoLib.Core
                 //this.Event("StartGoogleSignIn");
                 var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
-                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.None);
+                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                string profileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",", "");
 
                 /*
                  * ref only
                  foreach (var word in sub)
                     Console.WriteLine(word);
-                */
+                //*/
 
-                this.Auth.ProfileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",","");// profileID;
+                this.Auth.ProfileId = profileId;
             });
         }
 
@@ -338,20 +339,20 @@ namespace DracoLib.Core
             // this.Event("InitPushNotifications", "False");
         }
 
-        public object ValidateNickName(string nickname, bool takeSuggested = true)
+        public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
             var result = this.Call("AuthService", "validateNickname", new object[] { nickname }) as FNicknameValidationResult;
-            if (result == null) return nickname;
+            if (result == null) return result;
             else if (result.error == FNicknameValidationError.DUPLICATE)
             {
                 this.Event("ValidateNicknameError", "DUPLICATE");
                 if (takeSuggested) return ValidateNickName(result.suggestedNickname, true);
-                else return null;
+                else return result;
             }
             else
             {
-                return null;
+                return result;
             }
         }
 
@@ -366,7 +367,7 @@ namespace DracoLib.Core
             return this.Call("AuthService", "acceptLicence", new object[] { licence });
         }
 
-        public object Register(string nickname)
+        public FAuthData Register(string nickname)
         {
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
@@ -423,7 +424,7 @@ namespace DracoLib.Core
             return this.Call("PlayerService", "acknowledgeNotification", new object[] { type });
         }
 
-        public object GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
+        public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>();

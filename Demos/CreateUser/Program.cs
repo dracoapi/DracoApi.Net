@@ -78,11 +78,11 @@ namespace CreateUser
 
             Console.WriteLine("Generate nickname...");
             var nickname = GenerateNickname();
-            var response = draco.ValidateNickName(nickname) as FNicknameValidationResult;
+            var response = draco.ValidateNickName(nickname);
             while (response != null && response.error == FNicknameValidationError.DUPLICATE)
             {
                 nickname = response.suggestedNickname;
-                response = draco.ValidateNickName(nickname) as FNicknameValidationResult;
+                response = draco.ValidateNickName(nickname);
             }
             if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
             Console.WriteLine("  nickname: " + nickname);
@@ -99,7 +99,8 @@ namespace CreateUser
             Console.WriteLine("Load...");
             draco.Load();
 
-            Console.WriteLine("Done.");
+            Console.WriteLine("Done.\r\nPress one key to exit...");
+            Console.ReadKey();
         }
     }
 }

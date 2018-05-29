@@ -1,4 +1,5 @@
 ﻿using DracoLib.Core;
+using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Objects;
 using System;
@@ -15,8 +16,8 @@ namespace GetItems
             Console.WriteLine("Creating new Configuration...");
             User config = new User()
             {
-                Username = "xxxxxxxxx@gmail.com",
-                Password = "xxxxxxxxx",
+                Username = "xxxxxxx@gmail.com",
+                Password = "xxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
                 Login = "GOOGLE"
             };
@@ -68,12 +69,13 @@ namespace GetItems
             draco.Load();
 
             Console.WriteLine("Get user items...");
-            var response = draco.Inventory.GetUserItems() as FBagUpdate;
+            var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
                 Console.WriteLine($"Item type { item.type }, count = { item.count}");
             }
 
-            Console.WriteLine("Done.");
+            Console.WriteLine("Done.\r\nPress one key to exit...");
+            Console.ReadKey();
         }
     }
 }

@@ -4,26 +4,26 @@ namespace DracoLib.Core
 {
     public class Inventory
     {
-        private DracoClient dracoClient;
+        private readonly DracoClient dracoClient;
 
         public Inventory(DracoClient dracoClient)
         {
             this.dracoClient = dracoClient;
         }
 
-        public object GetCreadex()
+        public FCreadex GetCreadex()
         {
-            return this.dracoClient.Call("UserCreatureService", "getCreadex", new object[] { });
+            return this.dracoClient.Call("UserCreatureService", "getCreadex", new object[] { }) as FCreadex;
         }
 
-        public object GetUserCreatures()
+        public FUserCreaturesList GetUserCreatures()
         {
             return this.dracoClient.Call("UserCreatureService", "getUserCreatures", new object[] { }) as FUserCreaturesList;
         }
 
-        public object GetUserItems()
+        public FBagUpdate GetUserItems()
         {
-            return this.dracoClient.Call("ItemService", "getUserItems", new object[] { });
+            return this.dracoClient.Call("ItemService", "getUserItems", new object[] { }) as FBagUpdate;
         }
 
         public object DiscardItem(int id, int count)
@@ -31,12 +31,12 @@ namespace DracoLib.Core
             return this.dracoClient.Call("ItemService", "discardItems", new object[] { id, count });
         }
 
-        public object useIncense()//: Promise<objects.FAvaUpdate> 
+        public FAvaUpdate UseIncense()
         {
             return this.dracoClient.Call("ItemService", "useIncense", new object[] { }) as FAvaUpdate;
         }
 
-        public object UseShovel(float latitude, float longitude, float horizontalAccuracy = 20)
+        public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 20)
         {
             return this.dracoClient.Call("ItemService", "useShovel", new object[]
                 {
@@ -53,7 +53,7 @@ namespace DracoLib.Core
             }) as FUpdate;
         }
 
-        public object UseSuperVision(float latitude, float longitude)
+        public FAvaUpdate UseSuperVision(double latitude, double longitude)
         {
             return this.dracoClient.Call("ItemService", "useSuperVision", new object[]
             {
@@ -65,7 +65,7 @@ namespace DracoLib.Core
             }) as FAvaUpdate;
         }
 
-        public object UseExperienceBooster()
+        public FAvaUpdate UseExperienceBooster()
         {
             return this.dracoClient.Call("ItemService", "useExperienceBooster", new object[] { }) as FAvaUpdate;
         }
