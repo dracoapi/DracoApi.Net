@@ -15,8 +15,8 @@ namespace GetItems
             Console.WriteLine("Creating new Configuration...");
             User config = new User()
             {
-                Username = "xxxxxxx@gmail.com",
-                Password = "xxxxxxx",
+                Username = "xxxxxxxxx@gmail.com",
+                Password = "xxxxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
                 Login = "GOOGLE"
             };

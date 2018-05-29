@@ -315,8 +315,15 @@ namespace DracoLib.Core
                 //this.Event("StartGoogleSignIn");
                 var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
-                //TODO: if verify false bug need observation
-                this.Auth.ProfileId = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false);
+                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.None);
+
+                /*
+                 * ref only
+                 foreach (var word in sub)
+                    Console.WriteLine(word);
+                */
+
+                this.Auth.ProfileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",","");// profileID;
             });
         }
 

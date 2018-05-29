@@ -1,7 +1,6 @@
 ﻿using DracoLib.Core;
 using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
-using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using System;
 using System.Collections.Generic;

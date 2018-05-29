@@ -16,7 +16,7 @@ var response = draco.Call("AuthService", "trySingIn", new object[]
 {
     new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
     this.ClientInfo,
-    new FRegistrationInfo () { email = this.User.Username, regType = this.Auth.Reg },
+    new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username },
 }) as FAuthData;
 ```
 
@@ -75,6 +75,7 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
+| 1.0.4        | 1.8                         | first tested              |
 | 1.0.3        | 1.8                         |                           |
 | 1.0.2        | 1.8                         | Sync from DracoApi        |
 | 1.0.1        | 1.8   (11808-389771870)     | beta                      |

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DracoProtos.Core.Enums;
-using DracoProtos.Core.Objects;
+﻿using System.Collections.Generic;
 
 namespace DracoLib.Core.Text
 {
