@@ -261,7 +261,7 @@ namespace DracoLib.Core
             return this.ConfigHash;
         }
 
-        public FAuthData Login()
+        public async Task<FAuthData> Login()
         {
             if (this.User.Login == "DEVICE")
             {
@@ -282,7 +282,7 @@ namespace DracoLib.Core
                     Reg = "gl",
                     ProfileId = "?",
                 };
-                this.GoogleLogin().Wait();
+                await this.GoogleLogin();
             }            
             else if (this.User.Login == "FACEBOOK")
             {
@@ -313,7 +313,10 @@ namespace DracoLib.Core
             await Task.Run(async () =>
             {
                 //this.Event("StartGoogleSignIn");
-                var login = await new Google().Login(this.User.Username, this.User.Password) ?? throw new DracoError("Unable to login");
+                
+                var login = await new Google().Login(this.User.Username, this.User.Password) ;
+                if (login == null)
+                     throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
                 var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                 string profileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",", "");
