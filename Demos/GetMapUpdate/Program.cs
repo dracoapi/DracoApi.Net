@@ -1,4 +1,4 @@
-﻿using DracoLib.Core;
+using DracoLib.Core;
 using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
@@ -40,7 +40,7 @@ namespace GetMapUpdate
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-            var login = draco.Login() as FAuthData;
+            var login = draco.Login().Result as FAuthData;
             if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;
