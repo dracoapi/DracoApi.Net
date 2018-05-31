@@ -3,6 +3,7 @@ using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
 using System.Collections.Generic;
+using DracoLib.Core.Text;
 
 namespace GetMapUpdate
 {
@@ -74,7 +75,7 @@ namespace GetMapUpdate
             }
 
             Console.WriteLine("Get map update");
-            FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20) as FUpdate;
+            FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
             FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
             FHatchedEggs hatched = map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
             FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
@@ -85,8 +86,8 @@ namespace GetMapUpdate
             foreach (var creature in creatures.inRadar)
             {
                 var id = creature.id;
-                var name = creature.name.ToString();
-                Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, ${ creature.coords.longitude })");
+                var name = English.Load["creature." + creature.name.ToString()];
+                Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, ${ creature.coords.longitude }) [id: { id }]");
             }
 
             Console.WriteLine("Done.\r\nPress one key to exit...");
