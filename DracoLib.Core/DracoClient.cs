@@ -83,7 +83,7 @@ namespace DracoLib.Core
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString() ?? "389771870";
             this.ClientVersion = FGameObjects.ClientVersion.ToString() ?? "11808";
             if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
-            if (config.EventsCounter.Count() > 0) this.EventsCounter = config.EventsCounter;
+            if (config.EventsCounter.Any()) this.EventsCounter = config.EventsCounter;
             if (config.UtcOffset > 0)
             {
                 this.UtcOffset = config.UtcOffset;
@@ -91,7 +91,7 @@ namespace DracoLib.Core
             else
             {
                 //Original line GetTimezoneOffset() * 60;  
-                this.UtcOffset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow).GetHashCode() * 60;
+                this.UtcOffset = (int)TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
             }
             
             this.Proxy = proxy;
