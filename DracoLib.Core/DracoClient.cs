@@ -430,14 +430,14 @@ namespace DracoLib.Core
         public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            tilescache = tilescache ?? new Dictionary<FTile, long>();
+            tilescache = tilescache ?? new Dictionary<FTile, long>() { };
             var data = this.Call("MapService", "getUpdate", new object[] {
                 new FUpdateRequest()
                 {
                     clientRequest = new FClientRequest()
                     {
-                        time = 0,                        
-                        currentUtcOffsetSeconds = this.UtcOffset, 
+                        time = 0,
+                        currentUtcOffsetSeconds = this.UtcOffset,
                         coordsWithAccuracy = new GeoCoordsWithAccuracy()
                         {
                             latitude = latitude,
@@ -446,6 +446,7 @@ namespace DracoLib.Core
                         },
                     },
                     configCacheHash = this.ConfigHash,
+                    language = this.ClientInfo.language,
                     clientPlatform = ClientPlatform.IOS,
                     tilesCache = tilescache,
                 }
