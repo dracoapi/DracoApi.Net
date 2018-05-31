@@ -41,7 +41,7 @@ namespace GetCreatures
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-            var login = draco.Login().Result as FAuthData;
+            var login = draco.Login().Result;
             if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;

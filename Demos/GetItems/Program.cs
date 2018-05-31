@@ -41,7 +41,7 @@ namespace GetItems
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-            var login = draco.Login().Result as FAuthData; 
+            var login = draco.Login().Result; 
             if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;
@@ -71,7 +71,7 @@ namespace GetItems
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
-                Console.WriteLine($"Item type { item.type }, count = { item.count}");
+                Console.WriteLine($"  item = { English.Load["key.item." + item.type.ToString()]}, count = { item.count}");
             }
 
             Console.WriteLine("Done.\r\nPress one key to exit...");

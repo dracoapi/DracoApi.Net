@@ -41,7 +41,7 @@ namespace GetMapUpdate
             draco.Boot(config);
 
             Console.WriteLine("Login...");
-            var login = draco.Login().Result as FAuthData;
+            var login = draco.Login().Result;
             if (login == null) throw new Exception("Unable to login");
 
             var newLicence = login.info.newLicense;
@@ -71,9 +71,9 @@ namespace GetMapUpdate
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems() as FBagUpdate;
             foreach (var item in response.items) {
-                Console.WriteLine($"  item type { item.type}, count = { item.count}");
+                Console.WriteLine($"  item = { English.Load["key.item."+ item.type.ToString()]}, count = { item.count}");
             }
-
+            
             Console.WriteLine("Get map update");
             FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
             FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
@@ -89,7 +89,7 @@ namespace GetMapUpdate
                 var name = English.Load["creature." + creature.name.ToString()];
                 Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, ${ creature.coords.longitude }) [id: { id }]");
             }
-
+            
             Console.WriteLine("Done.\r\nPress one key to exit...");
             Console.ReadKey();
         }
