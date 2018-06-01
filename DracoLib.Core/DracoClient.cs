@@ -91,7 +91,7 @@ namespace DracoLib.Core
             else
             {
                 //Original line GetTimezoneOffset() * 60;  
-                this.UtcOffset = (int)TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
+                this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
             }
             
             this.Proxy = proxy;
