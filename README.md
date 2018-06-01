@@ -24,6 +24,7 @@ More high level methods also exists, here is a more complete example that get us
 
 ```CSharp
 using DracoLib.Core;
+using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Objects;
 using System;
@@ -47,7 +48,7 @@ draco.Load();
 
 var response = draco.Inventory.GetUserItems() as FBagUpdate;
 foreach (var item in response.items) {
-	Console.WriteLine($"Item type { item.type }, count = { item.count}");
+	Console.WriteLine($"  item = { English.Load["key.item." + item.type.ToString()]}, count = { item.count}");
 }
 ```
 
