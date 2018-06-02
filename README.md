@@ -43,7 +43,7 @@ Config options = new Config()
     EventsCounter = new Dictionary<string, int>(),
     Lang = "English",
     TimeOut = 0,
-     UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
+    UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
 };
 
 string my_proxy = "http://localhost:8888";
@@ -58,9 +58,9 @@ draco.Login();
 draco.Load();
 
 var response = draco.Inventory.GetUserItems();
-foreach (var item in response.items) {
-	Console.WriteLine($"  item = { English.Load["key.item." + item.type.ToString()]}, count = { item.count}");
-}
+foreach (var item in response.items) 
+    Console.WriteLine($"  item = { English.Load["key.item." + item.type.ToString()]}, count = { item.count}");
+
 ```
 
 More example can be found here: https://github.com/Furtif/DracoLib/tree/master/Demos
