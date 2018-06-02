@@ -88,7 +88,7 @@ namespace GetMapUpdate
             {
                 var id = creature.id;
                 var name = English.Load["creature." + creature.name.ToString()];
-                Console.WriteLine($"    creature { name } ({ creature.coords.latitude }, { creature.coords.longitude }) [id: { id }]");
+                Console.WriteLine($"   Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
             }
             
             Console.WriteLine("Done.\r\nPress one key to exit...");
