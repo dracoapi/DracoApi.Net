@@ -28,7 +28,7 @@ namespace GetCreatures
                 EventsCounter = new Dictionary<string, int>(),
                 Lang = "English",
                 TimeOut = 0,
-                UtcOffset = 7200
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
             };
 
             var draco = new DracoClient(null, options);
