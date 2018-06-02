@@ -10,14 +10,14 @@ using DracoLib.Core;
 using DracoProtos.Core.Objects;
 using System;
 
-DracoClient draco = new DracoClient(/*"http://localhost:8888"*/); //Proxys here
+DracoClient draco = new DracoClient();
 
 var response = draco.Call("AuthService", "trySingIn", new object[]
 {
     new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
     this.ClientInfo,
     new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username },
-}) as FAuthData;
+});
 ```
 
 More high level methods also exists, here is a more complete example that get user items:
@@ -37,7 +37,18 @@ User config = new User()
     Login = "GOOGLE"
 };
 
-var draco = new DracoClient(/*"http://localhost:8888"*/); //Proxys here
+Config options = new Config()
+{
+    CheckProtocol = true,
+    EventsCounter = new Dictionary<string, int>(),
+    Lang = "English",
+    TimeOut = 0,
+     UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
+};
+
+string my_proxy = "http://localhost:8888";
+
+var draco = new DracoClient(my_proxy, options);
 
 if (!draco.Ping())
     throw new Exception();
@@ -46,7 +57,7 @@ draco.Boot(config);
 draco.Login();
 draco.Load();
 
-var response = draco.Inventory.GetUserItems() as FBagUpdate;
+var response = draco.Inventory.GetUserItems();
 foreach (var item in response.items) {
 	Console.WriteLine($"  item = { English.Load["key.item." + item.type.ToString()]}, count = { item.count}");
 }
