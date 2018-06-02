@@ -54,6 +54,15 @@ foreach (var item in response.items) {
 
 More example can be found here: https://github.com/Furtif/DracoLib/tree/master/Demos
 
+## `Developers and Contributors`
+
+### `Requirements`
+
+To contribute to development, you will need to download and install the required software first.
+
+- [Git](https://git-scm.com/downloads)
+- [Visual Studio 2017](https://www.visualstudio.com/vs/whatsnew/) - We are using C# 7.0 code so Visual Studio 2017 is required to compile. Visual Studio 2015 or older will not be able to compile the code.
+
 #### `Cloning Source Code`
 
 Next, you need to get the source code.  This source code repository uses git submodules. So when you clone the source code, you will need to clone recursively:
