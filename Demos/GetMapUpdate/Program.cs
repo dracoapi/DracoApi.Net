@@ -71,7 +71,7 @@ namespace GetMapUpdate
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
-                Console.WriteLine($"  item = { draco.Strings.Load("key.item."+ item.type.ToString())}, count = { item.count}");
+                Console.WriteLine($"    Item = { draco.Strings.Load($"key.item.{ item.type.ToString() }") }, count = { item.count }");
             }
             
             Console.WriteLine("Get map update");
@@ -82,12 +82,15 @@ namespace GetMapUpdate
             FAvaUpdate avatar = map.items.Find(o => o?.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
             FBuildingUpdate buildings = map.items.Find(o => o?.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;
 
-            Console.WriteLine($"  { creatures.inRadar.Count} creature(s) in radar");
-            foreach (var creature in creatures.inRadar)
+            if (creatures?.inRadar.Count > 0)
             {
-                var id = creature.id;
-                var name = draco.Strings.Load("creature." + creature.name.ToString());
-                Console.WriteLine($"   Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
+                Console.WriteLine($"    { creatures.inRadar.Count} creature(s) in radar");
+                foreach (var creature in creatures.inRadar)
+                {
+                    var id = creature.id;
+                    var name = draco.Strings.Load($"creature.{ creature.name.ToString() }");
+                    Console.WriteLine($"    Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
+                }
             }
             
             Console.WriteLine("Done.\r\nPress one key to exit...");

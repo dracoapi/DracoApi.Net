@@ -85,7 +85,7 @@ namespace CreateUser
                 response = draco.ValidateNickName(nickname);
             }
             if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
-            Console.WriteLine("  nickname: " + nickname);
+            Console.WriteLine(" Nickname: " + nickname);
 
             Console.WriteLine("Accept tos...");
             draco.AcceptToS();

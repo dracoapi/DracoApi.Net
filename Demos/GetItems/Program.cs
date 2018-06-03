@@ -70,7 +70,7 @@ namespace GetItems
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
-                Console.WriteLine($"  item = { draco.Strings.Load("key.item." + item.type.ToString())}, count = { item.count}");
+                Console.WriteLine($"    Item = { draco.Strings.Load($"key.item.{ item.type.ToString() }") }, count = { item.count}");
             }
 
             Console.WriteLine("Done.\r\nPress one key to exit...");

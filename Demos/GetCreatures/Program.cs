@@ -70,8 +70,8 @@ namespace GetCreatures
             Console.WriteLine("Get creatures...");
             var response = draco.Inventory.GetUserCreatures();
             foreach (var creature in response.userCreatures) {
-                var name = creature.alias ?? draco.Strings.Load("creature." + creature.name.ToString());
-                Console.WriteLine($"  { name } lvl= { creature.level }, cp= { creature.cp }");
+                var name = creature.alias ?? draco.Strings.Load($"creature.{ creature.name.ToString() }");
+                Console.WriteLine($"    { name } lvl= { creature.level }, cp= { creature.cp }");
              }
 
             Console.WriteLine("Done.\r\nPress one key to exit...");
