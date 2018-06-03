@@ -72,7 +72,7 @@ More example can be found here: https://github.com/Furtif/DracoLib/tree/master/D
 To contribute to development, you will need to download and install the required software first.
 
 - [Git](https://git-scm.com/downloads)
-- [NET Core >= 2.0 SDK](https://www.microsoft.com/net/download/windows)
+- [NET Core (>= 2.0) SDK](https://www.microsoft.com/net/download/windows)
 - [Visual Studio 2017](https://www.visualstudio.com/vs/whatsnew/) - We are using C# 7.0 code so Visual Studio 2017 is required to compile. Visual Studio 2015 or older will not be able to compile the code.
 
 #### `Cloning Source Code`
