@@ -27,7 +27,7 @@ namespace DracoLib.Core
         public string Password { get; set; }
     }
 
-    public class Auth
+    internal class Auth
     {
         public string Name { get; set; }
         public AuthType Type { get; set; }
@@ -57,11 +57,11 @@ namespace DracoLib.Core
         public Inventory Inventory { get; private set; }
         public Eggs Eggs { get; private set; }
         public Creatures Creatures { get; private set; }
+
+        public string ProtocolVersion { get; private set; }
+        public string ClientVersion { get; private set; }
         // Text
         public Strings Strings { get; private set; }
-
-        public string ProtocolVersion;
-        public string ClientVersion;
 
         private RestRequest Request { get; set; }
         private string Proxy { get; set; }
@@ -78,18 +78,19 @@ namespace DracoLib.Core
          */
         private SerializerContext serializer;
         private RestClient client;
+        internal Config Config { get; set; }
 
         public DracoClient(string proxy = null, Config config = null)
         {
-            config = config ?? new Config();
+            this.Config = config ?? new Config();
 
-            this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString() ?? "389771870";
-            this.ClientVersion = FGameObjects.ClientVersion.ToString() ?? "11808";
-            if (config.CheckProtocol) this.CheckProtocol = config.CheckProtocol;
-            if (config.EventsCounter.Any()) this.EventsCounter = config.EventsCounter;
-            if (config.UtcOffset > 0)
+            this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString(); //Use vars "389771870";
+            this.ClientVersion = FGameObjects.ClientVersion.ToString(); //Use vars "11808";
+            if (this.Config.CheckProtocol) this.CheckProtocol = this.Config.CheckProtocol;
+            if (this.Config.EventsCounter.Any()) this.EventsCounter = this.Config.EventsCounter;
+            if (this.Config.UtcOffset > 0)
             {
-                this.UtcOffset = config.UtcOffset;
+                this.UtcOffset = this.Config.UtcOffset;
             }
             else
             {
@@ -99,12 +100,12 @@ namespace DracoLib.Core
             
             this.Proxy = proxy;
             int timeout = 20 * 1000;
-            if (config.TimeOut > 0)
+            if (this.Config.TimeOut > 0)
             {
-                timeout = config.TimeOut;
+                timeout = this.Config.TimeOut;
             }
 
-            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, Convert.ToUInt32(this.ProtocolVersion));
+            this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
 
             this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
@@ -124,7 +125,7 @@ namespace DracoLib.Core
             {
                 deviceModel = "iPhone8,1",
                 iOsAdvertisingTrackingEnabled = false,
-                language = config.Lang,
+                language = this.Config.Lang,
                 platform = "IPhonePlayer",
                 platformVersion = "iOS 11.2.6",
                 revision = this.ClientVersion,
@@ -231,18 +232,18 @@ namespace DracoLib.Core
             this.EventsCounter[name] = eventCounter + 1;
         }
 
-        public FConfig Boot(User clientinfo)
+        public FConfig Boot(User userinfo)
         {
-            this.User.Id = clientinfo.Id;
-            this.User.DeviceId = clientinfo.DeviceId;
-            this.User.Login = (clientinfo.Login ?? "DEVICE").ToUpper();
-            this.User.Username = clientinfo.Username;
-            this.User.Password = clientinfo.Password;
-            this.ClientInfo.iOsVendorIdentifier = clientinfo.DeviceId;
+            this.User.Id = userinfo.Id;
+            this.User.DeviceId = userinfo.DeviceId;
+            this.User.Login = (userinfo.Login ?? "DEVICE").ToUpper();
+            this.User.Username = userinfo.Username;
+            this.User.Password = userinfo.Password;
+            this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
             /*foreach (var key in this.ClientInfo) {
                 if (this.ClientInfo.GetHashCode(key))
                 {
-                    this.ClientInfo[key] = clientinfo[key];
+                    this.ClientInfo[key] = userinfo[key];
                 }
             }*/
             //this.Event("LoadingScreenPercent", "100");
@@ -250,14 +251,14 @@ namespace DracoLib.Core
             return this.GetConfig();
         }
 
-        public FConfig GetConfig()
+        private FConfig GetConfig()
         {
             var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language }) as FConfig;
             this.BuildConfigHash(config);
             return config;
         }
 
-        public sbyte[] BuildConfigHash(FConfig config)
+        private sbyte[] BuildConfigHash(FConfig config)
         {
             byte[] buffer = serializer.Serialize(config);
             MD5 md5 = MD5.Create();
@@ -314,7 +315,7 @@ namespace DracoLib.Core
             return response;
         }
 
-        public async Task GoogleLogin()
+        private async Task GoogleLogin()
         {
             await Task.Run(async () =>
             {
@@ -460,7 +461,7 @@ namespace DracoLib.Core
 
             if (data.items != null)
             {
-                var config = data.items.Select(i => i.GetType() == typeof(FConfig)) as FConfig;
+                var config = data.items.Find(i => i.GetType() == typeof(FConfig)) as FConfig;
                 if (config != null) this.BuildConfigHash(config);
             }
             return data;
@@ -519,7 +520,7 @@ namespace DracoLib.Core
         }
 
         // utils
-        public async Task Delay(int ms)
+        internal async Task Delay(int ms)
         {
             await Task.Delay(ms);
         }

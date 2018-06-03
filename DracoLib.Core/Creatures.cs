@@ -1,5 +1,6 @@
 ﻿using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
+using System.Threading.Tasks;
 
 namespace DracoLib.Core
 {
@@ -23,10 +24,13 @@ namespace DracoLib.Core
                     },
                 }) as FCatchingCreature;
 
-            //if (this.dracoClient.Config.Delay > 0) this.dracoClient.Config.Delay = 1000 + Math.Round(1000 * 1500) * 1500;
+            if (this.dracoClient.Config.Delay > 0)
+            {
+                var delay = this.dracoClient.Config.Delay * 1500;
+                Task.Run(async() => await this.dracoClient.Delay(delay));
+            }
 
-            //await this.dracoClient.delay(options.delay);
-            // await this.event("IsArAvailable", "False");
+            //this.dracoClient.Event("IsArAvailable", "False");
 
             return response;
         }

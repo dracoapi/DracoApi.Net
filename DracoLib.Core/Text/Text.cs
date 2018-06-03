@@ -1,7 +1,4 @@
 ﻿using DracoLib.Core.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DracoLib.Core.Text
 {
