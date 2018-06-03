@@ -461,7 +461,7 @@ namespace DracoLib.Core
 
             if (data.items != null)
             {
-                var config = data.items.Find(i => i.GetType() == typeof(FConfig)) as FConfig;
+                var config = data.items.Find(i => i?.GetType() == typeof(FConfig)) as FConfig;
                 if (config != null) this.BuildConfigHash(config);
             }
             return data;

@@ -26,8 +26,9 @@ namespace GetMapUpdate
                 CheckProtocol = true,
                 EventsCounter = new Dictionary<string, int>(),
                 Lang = "English",
-                TimeOut = 0,
-                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
+                TimeOut = 20 * 1000,
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds,
+                Delay = 1000
             };
 
             var draco = new DracoClient(null, options);
@@ -68,16 +69,15 @@ namespace GetMapUpdate
             draco.Load();
 
             Console.WriteLine("Get user items...");
-            var response = draco.Inventory.GetUserItems() as FBagUpdate;
+            var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
                 Console.WriteLine($"  item = { draco.Strings.Load("key.item."+ item.type.ToString())}, count = { item.count}");
             }
             
             Console.WriteLine("Get map update");
             FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
-            FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
-            FHatchedEggs hatched = map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
-            //TODO: need review
+            FCreatureUpdate creatures = map.items.Find(o => o?.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
+            FHatchedEggs hatched = map.items.Find(o => o?.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
             FChestUpdate chests = map.items.Find(o => o?.GetType() == typeof(FChestUpdate)) as FChestUpdate;
             FAvaUpdate avatar = map.items.Find(o => o?.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
             FBuildingUpdate buildings = map.items.Find(o => o?.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;

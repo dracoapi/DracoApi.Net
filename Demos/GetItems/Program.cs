@@ -25,8 +25,9 @@ namespace GetItems
                 CheckProtocol = true,
                 EventsCounter = new Dictionary<string, int>(),
                 Lang = "English",
-                TimeOut = 0,
-                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
+                TimeOut = 20 * 1000,
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds,
+                Delay = 1000
             };
 
             var draco = new DracoClient(null, options);

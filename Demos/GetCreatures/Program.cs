@@ -25,8 +25,9 @@ namespace GetCreatures
                 CheckProtocol = true,
                 EventsCounter = new Dictionary<string, int>(),
                 Lang = "English",
-                TimeOut = 0,
-                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
+                TimeOut = 20 * 1000,
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds,
+                Delay = 1000
             };
 
             var draco = new DracoClient(null, options);
@@ -70,7 +71,7 @@ namespace GetCreatures
             var response = draco.Inventory.GetUserCreatures();
             foreach (var creature in response.userCreatures) {
                 var name = creature.alias ?? draco.Strings.Load("creature." + creature.name.ToString());
-                Console.WriteLine($"  { name } lvl { creature.level}, cp= {creature.cp}");
+                Console.WriteLine($"  { name } lvl= { creature.level }, cp= { creature.cp }");
              }
 
             Console.WriteLine("Done.\r\nPress one key to exit...");
