@@ -2,9 +2,9 @@
 
 namespace DracoLib.Core.Text
 {
-    public static class German
+    internal static class German
     {
-        public static readonly Dictionary<string, string> Load = new Dictionary<string, string>()
+        internal static readonly Dictionary<string, string> Load = new Dictionary<string, string>()
         {
                 { "creature.MONSTER_EARTH_22", "Blümtier" },
     { "creature.MONSTER_EARTH_21", "Erdbien" },

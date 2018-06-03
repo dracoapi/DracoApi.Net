@@ -1,6 +1,7 @@
 ﻿using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
+using DracoLib.Core.Text;
 using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
@@ -50,12 +51,14 @@ namespace DracoLib.Core
 
     public class DracoClient
     {
-        public FClientInfo ClientInfo { get; set; }
-        public User User { get; set; }
-        public Fight Fight { get; set; }
-        public Inventory Inventory { get; set; }
-        public Eggs Eggs { get; set; }
-        public Creatures Creatures { get; set; }
+        public FClientInfo ClientInfo { get; private set; }
+        public User User { get; private set; }
+        public Fight Fight { get; private set; }
+        public Inventory Inventory { get; private set; }
+        public Eggs Eggs { get; private set; }
+        public Creatures Creatures { get; private set; }
+        // Text
+        public Strings Strings { get; private set; }
 
         public string ProtocolVersion;
         public string ClientVersion;
@@ -67,8 +70,8 @@ namespace DracoLib.Core
         private Auth Auth { get; set; }
         private sbyte[] ConfigHash { get; set; }
 
-        public Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        public int UtcOffset;
+        private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
+        internal int UtcOffset;
 
         /*
          * Vars c#
@@ -121,7 +124,7 @@ namespace DracoLib.Core
             {
                 deviceModel = "iPhone8,1",
                 iOsAdvertisingTrackingEnabled = false,
-                language = config.Lang ?? "English",
+                language = config.Lang,
                 platform = "IPhonePlayer",
                 platformVersion = "iOS 11.2.6",
                 revision = this.ClientVersion,
@@ -134,6 +137,9 @@ namespace DracoLib.Core
             this.Inventory = new Inventory(this);
             this.Eggs = new Eggs(this);
             this.Creatures = new Creatures(this);
+
+            // Text
+            this.Strings = new Strings(this);
         }
 
         private float GetAccuracy() {

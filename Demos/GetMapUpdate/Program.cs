@@ -71,7 +71,7 @@ namespace GetMapUpdate
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems() as FBagUpdate;
             foreach (var item in response.items) {
-                Console.WriteLine($"  item = { English.Load["key.item."+ item.type.ToString()]}, count = { item.count}");
+                Console.WriteLine($"  item = { draco.Strings.Load("key.item."+ item.type.ToString())}, count = { item.count}");
             }
             
             Console.WriteLine("Get map update");
@@ -87,7 +87,7 @@ namespace GetMapUpdate
             foreach (var creature in creatures.inRadar)
             {
                 var id = creature.id;
-                var name = English.Load["creature." + creature.name.ToString()];
+                var name = draco.Strings.Load("creature." + creature.name.ToString());
                 Console.WriteLine($"   Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
             }
             
