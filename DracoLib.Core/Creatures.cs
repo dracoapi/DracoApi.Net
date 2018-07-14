@@ -1,4 +1,4 @@
-﻿using DracoProtos.Core.Enums;
+﻿using DracoProtos.Core.Base;
 using DracoProtos.Core.Objects;
 using System.Threading.Tasks;
 

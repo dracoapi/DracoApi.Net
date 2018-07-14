@@ -4,8 +4,6 @@ using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoLib.Core.Text;
-using DracoProtos.Core.Classes;
-using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
 using System;
@@ -14,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using DracoProtos.Core.Base;
 
 namespace DracoLib.Core
 {
@@ -87,7 +86,7 @@ namespace DracoLib.Core
             this.Config = config ?? new Config();
 
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString(); //Use vars "389771870";
-            this.ClientVersion = FGameObjects.ClientVersion.ToString(); //Use vars "11808";
+            this.ClientVersion = "11808";
             if (this.Config.CheckProtocol) this.CheckProtocol = this.Config.CheckProtocol;
             if (this.Config.EventsCounter.Any()) this.EventsCounter = this.Config.EventsCounter;
             if (this.Config.UtcOffset > 0)
@@ -513,15 +512,7 @@ namespace DracoLib.Core
                     },
                 },
 
-                new FBuildingRequest
-                {
-                    coords =  new GeoCoords
-                    {
-                        latitude = buildingLat,
-                        longitude = buildingLng,
-                    },
-                    id = buildingId,
-                },
+                new FBuildingRequest (buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, "")
             });
         }
 
