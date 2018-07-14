@@ -127,14 +127,15 @@ namespace DracoLib.Core
             this.client.BaseAddress = new Uri("https://us.draconiusgo.com");
 
             this.client.DefaultRequestHeaders.Clear();
-            this.client.DefaultRequestHeaders.Add("Host", "us.draconiusgo.com");
-            this.client.DefaultRequestHeaders.Add("X-Unity-Version", "2017.1.3f1");
-            this.client.DefaultRequestHeaders.Add("Accept", "*/*");
+            this.client.DefaultRequestHeaders.Host = "us.draconiusgo.com";
+            this.client.DefaultRequestHeaders.TryAddWithoutValidation("X-Unity-Version", "2017.1.3f1");
+            this.client.DefaultRequestHeaders.Accept.TryParseAdd("*/*");
             this.client.DefaultRequestHeaders.Add("Protocol-Version", this.ProtocolVersion);
             this.client.DefaultRequestHeaders.Add("Client-Version", this.ClientVersion);
-            this.client.DefaultRequestHeaders.Add("Accept-Language", "en-us");
-            this.client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-            this.client.DefaultRequestHeaders.Add("User-Agent", $"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0");
+            this.client.DefaultRequestHeaders.AcceptLanguage.TryParseAdd("en-us");
+            this.client.DefaultRequestHeaders.AcceptEncoding.TryParseAdd("gzip");
+            this.client.DefaultRequestHeaders.UserAgent.TryParseAdd($"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0");
+            this.client.Timeout.Add(TimeSpan.FromMilliseconds(timeout));
 
             /*encoding: null,
                         gzip: true,
