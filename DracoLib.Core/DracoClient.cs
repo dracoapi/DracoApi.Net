@@ -321,7 +321,7 @@ namespace DracoLib.Core
             {
                 //this.Event("StartGoogleSignIn");
                 
-                var login = await new Google().Login(this.User.Username, this.User.Password) ;
+                var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
                      throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
@@ -340,7 +340,7 @@ namespace DracoLib.Core
 
         public void Load()
         {
-            if (this.User.Avatar == 0 ) throw new Exception("Please login first.");
+            if (this.User.Avatar == 0) throw new Exception("Please login first.");
 
             // this.Event("LoadingScreenPercent", "100");
             // this.Event("CreateAvatarByType", "MageMale");
@@ -455,7 +455,7 @@ namespace DracoLib.Core
                     configCacheHash = this.ConfigHash,
                     language = this.ClientInfo.language,
                     clientPlatform = ClientPlatform.IOS,
-                    //tilesCache =  tilescache,
+                    tilesCache =  tilescache,
                 }
             }) as FUpdate;
 
