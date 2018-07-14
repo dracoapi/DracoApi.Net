@@ -1,4 +1,6 @@
-﻿using DracoLib.Core.Exceptions;
+﻿using System.Net.Http;
+using System.Net.Http.Headers;
+using DracoLib.Core.Exceptions;
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoLib.Core.Text;
@@ -6,7 +8,6 @@ using DracoProtos.Core.Classes;
 using DracoProtos.Core.Enums;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +64,7 @@ namespace DracoLib.Core
         // Text
         public Strings Strings { get; private set; }
 
-        private RestRequest Request { get; set; }
+        private HttpRequestHeader Request { get; set; }
         private string Proxy { get; set; }
         private string Dcportal { get; set; }
         private bool CheckProtocol { get; set; }
@@ -77,7 +78,8 @@ namespace DracoLib.Core
          * Vars c#
          */
         private SerializerContext serializer;
-        private RestClient client;
+        private HttpClient client;
+        private HttpClientHandler clientHandler;
         internal Config Config { get; set; }
 
         public DracoClient(string proxy = null, Config config = null)
@@ -97,7 +99,7 @@ namespace DracoLib.Core
                 //Original line GetTimezoneOffset() * 60;  
                 this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
             }
-            
+
             this.Proxy = proxy;
             int timeout = 20 * 1000;
             if (this.Config.TimeOut > 0)
@@ -106,24 +108,40 @@ namespace DracoLib.Core
             }
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
+            this.clientHandler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                AllowAutoRedirect = true,
+                UseProxy = !string.IsNullOrEmpty(this.Proxy),
+                Proxy = (string.IsNullOrEmpty(this.Proxy)) ? null : new WebProxy(this.Proxy),
+                UseCookies = true,
+                CookieContainer = new CookieContainer()
+            };
+            //this.clientHandler.;
 
-            this.client = new RestClient("https://us.draconiusgo.com");
-            this.client.ClearHandlers();
-            if (!string.IsNullOrEmpty(this.Proxy))
-                this.client.Proxy = new WebProxy(this.Proxy);
-            this.client.AddDefaultHeader("X-Unity-Version", "2017.1.3f1");
-            this.client.AddDefaultHeader("Accept", "*/*");
-            this.client.AddDefaultHeader("Protocol-Version", this.ProtocolVersion);
-            this.client.AddDefaultHeader("Client-Version", this.ClientVersion);
-            this.client.AddDefaultHeader("Accept-Language", "en-us");
-            this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0";
-            this.client.AddDefaultHeader("Accept-Encoding", "gzip");
-            this.client.CookieContainer = new CookieContainer();
-            this.client.Timeout = timeout;
+            clientHandler.CookieContainer.Add(new Uri("https://us.draconiusgo.com"), new Cookie("path", "/"));
+            clientHandler.CookieContainer.Add(new Uri("https://us.draconiusgo.com"), new Cookie("Path", "/"));
+            clientHandler.CookieContainer.Add(new Uri("https://us.draconiusgo.com"), new Cookie("domain", ".draconiusgo.com"));
 
-            this.client.AddDefaultParameter("Path", "/", ParameterType.Cookie);
-            this.client.AddDefaultParameter("path", "/", ParameterType.Cookie);
-            this.client.AddDefaultParameter("domain", ".draconiusgo.com", ParameterType.Cookie);
+            this.client = new HttpClient(clientHandler);
+            this.client.BaseAddress = new Uri("https://us.draconiusgo.com");
+
+            this.client.DefaultRequestHeaders.Clear();
+            this.client.DefaultRequestHeaders.Add("Host", "us.draconiusgo.com");
+            this.client.DefaultRequestHeaders.Add("X-Unity-Version", "2017.1.3f1");
+            this.client.DefaultRequestHeaders.Add("Accept", "*/*");
+            this.client.DefaultRequestHeaders.Add("Protocol-Version", this.ProtocolVersion);
+            this.client.DefaultRequestHeaders.Add("Client-Version", this.ClientVersion);
+            this.client.DefaultRequestHeaders.Add("Accept-Language", "en-us");
+            this.client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+            this.client.DefaultRequestHeaders.Add("User-Agent", $"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0");
+
+            /*encoding: null,
+                        gzip: true,
+                        jar: cookies,
+                        simple: false,
+                        resolveWithFullResponse: true,
+            timeout,*/
 
             this.ClientInfo = new FClientInfo
             {
@@ -147,66 +165,76 @@ namespace DracoLib.Core
             this.Strings = new Strings(this);
         }
 
-        private float GetAccuracy() {
+        private float GetAccuracy()
+        {
             double random = new Random().Next(20, 65) * 2;
             return (float)Math.Floor(random);
         }
-        
+
         public bool Ping()
         {
-            Request = new RestRequest("ping", Method.POST);
-            Request.AddHeader("Content-Type", "application /x-www-form-urlencoded");
-            var response = client.Execute(Request);
-
+            var content = new FormUrlEncodedContent(new[] {
+                new KeyValuePair<string, string>("", "")
+            });
+            var response = client.PostAsync("ping", content).Result;
             return response.StatusCode == HttpStatusCode.OK;
         }
 
         public object Call(string service, string method, object body)
         {
-            var rawbody = serializer.Serialize(body);
+            var multiContent = new MultipartFormDataContent();
+            var strService = new StringContent(service);
+            strService.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            strService.Headers.Add("charset", "utf-8");
+            multiContent.Add(strService, "service");
+            var strmethod = new StringContent(service);
+            strmethod.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            strmethod.Headers.Add("charset", "utf-8");
+            multiContent.Add(strmethod, "method");
+            var filecontent = new ByteArrayContent(serializer.Serialize(body));
+            filecontent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            multiContent.Add(filecontent, "args", "args.dat");
 
-            Request = new RestRequest("serviceCall", Method.POST);
-            Request.AddHeader("Protocol-Version", this.ProtocolVersion);
             if (this.Dcportal != null)
             {
-                Request.AddHeader("dcportal", this.Dcportal);
+                multiContent.Headers.Add("dcportal", this.Dcportal);
             }
-            Request.AddParameter("service", service);
-            Request.AddParameter("method", method);
-            Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
 
-            var response = this.client.Execute(Request);
+
+            var response = client.PostAsync("serviceCall", multiContent).Result;
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new DracoError("Invalid status received: " + response.StatusDescription);
+                throw new DracoError("Invalid status received: " + response.StatusCode);
             }
 
-            var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
-            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
+            var protocolVersion = response.Headers.ToList().Find(x => x.Key == "Protocol-Version" || x.Key == "protocol-version").Value.ToString();
+            var dcportal = response.Headers.ToList().Find(x => x.Key == "dcportal").Value.ToString();
             if (dcportal != null) this.Dcportal = dcportal;
             if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
             {
                 throw new Exception("Incorrect protocol version received: " + protocolVersion);
             }
 
-            var data = serializer.Deserialize(response.RawBytes);
+            var data = serializer.Deserialize(response.Content.ReadAsByteArrayAsync().Result);
             (data ?? "").ToString();
             return data;
         }
 
         public void Post(string url, object data)
         {
-            var _client = new RestClient(url);
-            var _request = new RestRequest(Method.POST);
-            _request.AddHeader("dcportal", this.Dcportal);
-            _request.AddObject(data);
-
-            var response = _client.Execute(_request);
+            var arrData = new List<KeyValuePair<string, string>>();
+            foreach (var element in data.GetType().GetProperties())
+            {
+                arrData.Add(new KeyValuePair<string, string>(element.Name, (string)element.GetValue(data)));
+            }
+            var content = new FormUrlEncodedContent(arrData);
+            content.Headers.Add("dcportal", this.Dcportal);
+            var response = client.PostAsync(url, content).Result;
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new Exception("Invalid status received: " + response.StatusDescription);
+                throw new Exception("Invalid status received: " + response.StatusCode);
             }
         }
 
@@ -290,7 +318,7 @@ namespace DracoLib.Core
                     ProfileId = "?",
                 };
                 await this.GoogleLogin();
-            }            
+            }
             else if (this.User.Login == "FACEBOOK")
             {
                 throw new FacebookLoginException("Facebook login not implemented.");
@@ -301,7 +329,7 @@ namespace DracoLib.Core
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call("AuthService", "trySingIn", new object[] { 
+            var response = this.Call("AuthService", "trySingIn", new object[] {
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
@@ -320,10 +348,10 @@ namespace DracoLib.Core
             await Task.Run(async () =>
             {
                 //this.Event("StartGoogleSignIn");
-                
-                var login = await new Google().Login(this.User.Username, this.User.Password) ;
+
+                var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
-                     throw new DracoError("Unable to login");
+                    throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
                 var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                 string profileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",", "");
@@ -340,7 +368,7 @@ namespace DracoLib.Core
 
         public void Load()
         {
-            if (this.User.Avatar == 0 ) throw new Exception("Please login first.");
+            if (this.User.Avatar == 0) throw new Exception("Please login first.");
 
             // this.Event("LoadingScreenPercent", "100");
             // this.Event("CreateAvatarByType", "MageMale");
