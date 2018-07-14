@@ -117,9 +117,13 @@ namespace DracoLib.Core
             this.client.AddDefaultHeader("Client-Version", this.ClientVersion);
             this.client.AddDefaultHeader("Accept-Language", "en-us");
             this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/897.15 Darwin/17.5.0";
+            this.client.AddDefaultHeader("Accept-Encoding", "gzip");
             this.client.CookieContainer = new CookieContainer();
-            //this.client.Encoding = null;
             this.client.Timeout = timeout;
+
+            this.client.AddDefaultParameter("Path", "/", ParameterType.Cookie);
+            this.client.AddDefaultParameter("path", "/", ParameterType.Cookie);
+            this.client.AddDefaultParameter("domain", ".draconiusgo.com", ParameterType.Cookie);
 
             this.ClientInfo = new FClientInfo
             {
@@ -153,10 +157,6 @@ namespace DracoLib.Core
             Request = new RestRequest("ping", Method.POST);
             Request.AddHeader("Content-Type", "application /x-www-form-urlencoded");
             var response = client.Execute(Request);
-
-            this.client.AddDefaultParameter("Path", "/", ParameterType.Cookie);
-            this.client.AddDefaultParameter("path", "/", ParameterType.Cookie);
-            this.client.AddDefaultParameter("domain", ".draconiusgo.com", ParameterType.Cookie);
 
             return response.StatusCode == HttpStatusCode.OK;
         }
