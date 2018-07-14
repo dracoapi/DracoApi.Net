@@ -123,8 +123,10 @@ namespace DracoLib.Core
             clientHandler.CookieContainer.Add(new Uri("https://us.draconiusgo.com"), new Cookie("Path", "/"));
             clientHandler.CookieContainer.Add(new Uri("https://us.draconiusgo.com"), new Cookie("domain", ".draconiusgo.com"));
 
-            this.client = new HttpClient(clientHandler);
-            this.client.BaseAddress = new Uri("https://us.draconiusgo.com");
+            this.client = new HttpClient(clientHandler)
+            {
+                BaseAddress = new Uri("https://us.draconiusgo.com")
+            };
 
             this.client.DefaultRequestHeaders.Clear();
             this.client.DefaultRequestHeaders.Host = "us.draconiusgo.com";
