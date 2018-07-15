@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace DracoLib.Core
@@ -260,11 +259,7 @@ namespace DracoLib.Core
 
         private sbyte[] BuildConfigHash(FConfig config)
         {
-            byte[] buffer = serializer.Serialize(config);
-            MD5 md5 = MD5.Create();
-            byte[] hash = md5.ComputeHash(buffer);
-            sbyte[] signed = Array.ConvertAll(hash, b => unchecked((sbyte)b));
-            this.ConfigHash = signed;
+            this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
             return this.ConfigHash;
         }
 
