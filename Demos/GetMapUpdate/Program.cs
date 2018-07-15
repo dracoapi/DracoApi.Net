@@ -76,15 +76,15 @@ namespace GetMapUpdate
             
             Console.WriteLine("Get map update");
             FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
-            FCreatureUpdate creatures = map.items.Find(o => o?.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
-            FHatchedEggs hatched = map.items.Find(o => o?.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
-            FChestUpdate chests = map.items.Find(o => o?.GetType() == typeof(FChestUpdate)) as FChestUpdate;
-            FAvaUpdate avatar = map.items.Find(o => o?.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
-            FBuildingUpdate buildings = map.items.Find(o => o?.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;
+            FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
+            FHatchedEggs hatched = map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
+            FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
+            FAvaUpdate avatar = map.items.Find(o => o.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
+            FBuildingUpdate buildings = map.items.Find(o => o.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;
 
-            if (creatures?.inRadar.Count > 0)
+            if (creatures.inRadar.Count > 0)
             {
-                Console.WriteLine($"    { creatures.inRadar.Count} creature(s) in radar");
+                Console.WriteLine($"    { creatures.inRadar.Count } creature(s) in radar");
                 foreach (var creature in creatures.inRadar)
                 {
                     var id = creature.id;
@@ -92,7 +92,40 @@ namespace GetMapUpdate
                     Console.WriteLine($"    Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
                 }
             }
-            
+
+            if (hatched != null)
+            {
+                Console.WriteLine($"Hatched(s): { hatched.loot.lootList.Count }");
+            }
+
+            if (chests.chests.Count > 0)
+            {
+                Console.WriteLine($"{ chests.chests.Count} chest(s) in radar");
+                foreach (var chest in chests.chests)
+                {
+                    var id = chest.id;
+                    Console.WriteLine($"Chest: { id } ({ chest.coords.latitude }, { chest.coords.longitude })");
+                }
+            }
+
+            if (avatar != null)
+            {
+                if (avatar.dungeonId != null)
+                {
+                    Console.WriteLine($" Avatar: { avatar.altarCoords.longitude }, { avatar.altarCoords.longitude } in radar");
+                }
+            }
+
+            if (buildings.tileBuildings.Count > 0)
+            {
+                Console.WriteLine($"{ buildings.tileBuildings.Count} buildings(s) in radar");
+                foreach (var building in buildings.tileBuildings)
+                {
+                    var id = building.Key.dungeonId;
+                    Console.WriteLine($"    Building: { id } ({ building.Key.tile.ToUserString() })");
+                }
+            }
+
             Console.WriteLine("Done.\r\nPress one key to exit...");
             Console.ReadKey();
         }
