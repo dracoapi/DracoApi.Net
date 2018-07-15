@@ -83,7 +83,7 @@ namespace DracoLib.Core
         {
             this.Config = config ?? new Config();
 
-            this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString(); //Use vars "389771870";
+            this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString();
             this.ClientVersion = "12047";
             if (this.Config.CheckProtocol) this.CheckProtocol = this.Config.CheckProtocol;
             if (this.Config.EventsCounter.Any()) this.EventsCounter = this.Config.EventsCounter;
