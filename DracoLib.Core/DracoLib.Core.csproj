@@ -9,7 +9,8 @@
     <RepositoryUrl>https://github.com/Furtif/DracoLib</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
