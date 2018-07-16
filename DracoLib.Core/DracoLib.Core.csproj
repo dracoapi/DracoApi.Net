@@ -10,7 +10,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
     <Version>1.0.9</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
