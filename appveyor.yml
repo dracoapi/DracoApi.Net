@@ -67,18 +67,18 @@ after_build:
         New-Item -ItemType Directory -Force -Path "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)";
         if ($env:PLATFORM -eq "x86")
         {
-            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib\bin\$($env:PLATFORM)\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib" -Force;
+            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib.Core\bin\$($env:PLATFORM)\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib.Core" -Force;
         }  
         elseif ($env:PLATFORM -eq "x64")
         {
-            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib\bin\$($env:PLATFORM)\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib" -Force;
+            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib.Core\bin\$($env:PLATFORM)\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib.Core" -Force;
         }
         elseif ($env:PLATFORM -eq "Any CPU")
         {
-            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib\bin\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib" -Force;
+            Move-Item -Path "$($env:APPVEYOR_BUILD_FOLDER)\DracoLib.Core\bin\$($env:CONFIGURATION)" -Destination "$($env:APPVEYOR_BUILD_FOLDER)\$($env:PLATFORM)\$($env:CONFIGURATION)\DracoLib.Core" -Force;
         }
   
 artifacts:
 
-  - path: '\$(PLATFORM)\$(CONFIGURATION)\DracoLib'
-    name: DracoLib
+  - path: '\$(PLATFORM)\$(CONFIGURATION)\DracoLib.Core'
+    name: DracoLib.Core
