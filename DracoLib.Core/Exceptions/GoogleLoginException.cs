@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace DracoLib.Core.Exceptions
 {
     [Serializable]
-    internal class GoogleLoginException : Exception
+    public class GoogleLoginException : Exception
     {
         public GoogleLoginException()
         {

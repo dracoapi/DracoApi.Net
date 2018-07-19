@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace DracoLib.Core.Exceptions
 {
     [Serializable]
-    internal class DracoError : Exception
+    public class DracoError : Exception
     {
         public DracoError()
         {

@@ -1,6 +1,4 @@
-﻿using DracoLib.Core.Enums;
-
-namespace DracoLib.Core.Text
+﻿namespace DracoLib.Core.Text
 {
     public class Strings
     {
@@ -11,7 +9,7 @@ namespace DracoLib.Core.Text
             this.dracoClient = dracoClient;
         }
 
-        public string Load(string obj)
+        private string Load(string obj)
         {
             var lang = dracoClient.ClientInfo.language.ToUpper();
             if (lang == Langues.ENGLISH.ToString())
@@ -32,6 +30,16 @@ namespace DracoLib.Core.Text
             }
 
             return English.Load[obj];
+        }
+
+        public string GetCreatureName(string obj)
+        {
+            return Load($"creature.{ obj }");
+        }
+
+        public string GetItemName(string obj)
+        {
+            return Load($"key.item.{ obj }");
         }
     }
 }

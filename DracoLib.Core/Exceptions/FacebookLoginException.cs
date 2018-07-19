@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace DracoLib.Core.Exceptions
 {
     [Serializable]
-    internal class FacebookLoginException : Exception
+    public class FacebookLoginException : Exception
     {
         public FacebookLoginException()
         {

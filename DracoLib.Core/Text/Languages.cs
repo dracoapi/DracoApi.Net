@@ -1,4 +1,4 @@
-﻿namespace DracoLib.Core.Enums
+﻿namespace DracoLib.Core.Text
 {
     public enum Langues
     {
