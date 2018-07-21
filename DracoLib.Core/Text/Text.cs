@@ -1,4 +1,6 @@
-﻿namespace DracoLib.Core.Text
+﻿using System;
+
+namespace DracoLib.Core.Text
 {
     public class Strings
     {
@@ -11,25 +13,32 @@
 
         private string Load(string obj)
         {
-            var lang = dracoClient.ClientInfo.language.ToUpper();
-            if (lang == Langues.ENGLISH.ToString())
+            try
             {
+                var lang = dracoClient.ClientInfo.language.ToUpper();
+                if (lang == Langues.ENGLISH.ToString())
+                {
+                    return English.Load[obj];
+                }
+                else if (lang == Langues.FRENCH.ToString())
+                {
+                    return French.Load[obj];
+                }
+                else if (lang == Langues.GERMAN.ToString())
+                {
+                    return German.Load[obj];
+                }
+                else if (lang == Langues.SPANISH.ToString())
+                {
+                    return Spanish.Load[obj];
+                }
+
                 return English.Load[obj];
             }
-            else if (lang == Langues.FRENCH.ToString())
+            catch (Exception)
             {
-                return French.Load[obj];
+                return obj;
             }
-            else if (lang == Langues.GERMAN.ToString())
-            {
-                return German.Load[obj];
-            }
-            else if (lang == Langues.SPANISH.ToString())
-            {
-                return Spanish.Load[obj];
-            }
-
-            return English.Load[obj];
         }
 
         public string GetCreatureName(string obj)

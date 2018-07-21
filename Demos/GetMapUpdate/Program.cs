@@ -88,7 +88,7 @@ namespace GetMapUpdate
                 foreach (var creature in creatures.inRadar)
                 {
                     var id = creature.id;
-                    var name = draco.Strings.GetItemName(creature.name.ToString());
+                    var name = draco.Strings.GetCreatureName(creature.name.ToString());
                     Console.WriteLine($"    Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
                 }
             }
