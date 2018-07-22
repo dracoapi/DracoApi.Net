@@ -50,5 +50,11 @@ namespace DracoLib.Core.Text
         {
             return Load($"key.item.{ obj }");
         }
+
+        public string GetString(string obj)
+        {
+            return Load(obj);
+        }
+
     }
 }
