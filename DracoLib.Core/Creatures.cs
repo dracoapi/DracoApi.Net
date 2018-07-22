@@ -35,9 +35,9 @@ namespace DracoLib.Core
             return response;
         }
 
-        public object Catch(string id, int ball, int quality, bool spin, object options)
+        public FCatchCreatureResult Catch(string id, ItemType ball, float quality, bool spin, object options = null)
         {
-            return this.dracoClient.Call("GamePlayService", "tryCatchCreature", new object[] { id, ball, quality, spin });
+            return this.dracoClient.Call("GamePlayService", "tryCatchCreature", new object[] { id, ball, quality, spin }) as FCatchCreatureResult;
         }
 
         public FUpdate Release(string[] ids)
