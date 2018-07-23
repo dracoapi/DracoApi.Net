@@ -462,7 +462,7 @@ namespace DracoLib.Core
             return data;
         }
 
-        public object UseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
+        public FUpdate UseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
         {
             return this.Call("MapService", "tryUseBuilding", new object[] {
                 new FClientRequest
@@ -478,7 +478,7 @@ namespace DracoLib.Core
                 },
 
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
-            });
+            }) as FUpdate;
         }
 
         public object OpenChest(object chest)
