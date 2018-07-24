@@ -71,15 +71,13 @@ namespace GetMapUpdate
             Console.WriteLine("Get user items...");
             var response = draco.Inventory.GetUserItems();
             foreach (var item in response.items) {
-                Console.WriteLine($"    Item = { draco.Strings.GetItemName(item.type.ToString()) }, count = { item.count }");
+                Console.WriteLine($"    Item = { draco.Strings.GetItemName(item.type) }, count = { item.count }");
             }
             
             Console.WriteLine("Get map update");
             FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
             FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
-            FHatchedEggs hatched = map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) as FHatchedEggs;
             FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
-            FAvaUpdate avatar = map.items.Find(o => o.GetType() == typeof(FAvaUpdate)) as FAvaUpdate;
             FBuildingUpdate buildings = map.items.Find(o => o.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;
 
             if (creatures.inRadar.Count > 0)
@@ -88,12 +86,12 @@ namespace GetMapUpdate
                 foreach (var creature in creatures.inRadar)
                 {
                     var id = creature.id;
-                    var name = draco.Strings.GetCreatureName(creature.name.ToString());
+                    var name = draco.Strings.GetCreatureName(creature.name);
                     Console.WriteLine($"    Creature: { name } ({ creature.coords.latitude }, { creature.coords.longitude } [id: { id }])");
                 }
             }
 
-            if (hatched != null)
+            if (map.items.Find(o => o.GetType() == typeof(FHatchedEggs)) is FHatchedEggs hatched)
             {
                 Console.WriteLine($"Hatched(s): { hatched.loot.lootList.Count }");
             }
@@ -108,7 +106,7 @@ namespace GetMapUpdate
                 }
             }
 
-            if (avatar != null)
+            if (map.items.Find(o => o.GetType() == typeof(FAvaUpdate)) is FAvaUpdate avatar)
             {
                 if (avatar.dungeonId != null)
                 {

@@ -59,7 +59,7 @@ draco.Load();
 
 var response = draco.Inventory.GetUserItems();
 foreach (var item in response.items) 
-    Console.WriteLine($"    Item = { draco.Strings.Load($"key.item.{ item.type.ToString() }") }, count = { item.count}");
+    Console.WriteLine($"    Item = { draco.Strings.GetItemName(item.type) }, count = { item.count}");
 
 ```
 
