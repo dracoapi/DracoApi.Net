@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DracoProtos.Core.Base;
+using System;
 
 namespace DracoLib.Core.Text
 {
@@ -41,12 +42,24 @@ namespace DracoLib.Core.Text
             }
         }
 
+        [System.Obsolete("use GetCreatureName(CreatureType obj) instead")]
         public string GetCreatureName(string obj)
         {
             return Load($"creature.{ obj }");
         }
 
+        public string GetCreatureName(CreatureType obj)
+        {
+            return Load($"creature.{ obj }");
+        }
+
+        [System.Obsolete("use GetItemName(ItemType obj) instead")]
         public string GetItemName(string obj)
+        {
+            return Load($"key.item.{ obj }");
+        }
+
+        public string GetItemName(ItemType obj)
         {
             return Load($"key.item.{ obj }");
         }

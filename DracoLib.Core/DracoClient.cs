@@ -159,6 +159,47 @@ namespace DracoLib.Core
             return response.StatusCode == HttpStatusCode.OK;
         }
 
+        public T Call<T>( DracoProtos.Core.Extensions.Async<T> request)
+        {
+            var service = request.GetType().GetField("v1", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
+            var method = request.GetType().GetField("v2", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
+            var body = request.GetType().GetField("v3", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
+
+            var rawbody = this.serializer.Serialize(body);
+
+            Request = new RestRequest("serviceCall", Method.POST);
+            Request.AddHeader("Protocol-Version", this.ProtocolVersion);
+            Request.AddHeader("Client-Version", this.ClientVersion);
+            if (this.Dcportal != null)
+            {
+                Request.AddHeader("dcportal", this.Dcportal);
+            }
+            Request.AddParameter("service", service);
+            Request.AddParameter("method", method);
+            Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
+
+            var response = this.client.Execute(Request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new DracoError("Invalid status received: " + response.StatusDescription);
+            }
+
+            var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
+            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
+            if (dcportal != null) this.Dcportal = dcportal;
+            if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
+            {
+                throw new Exception("Incorrect protocol version received: " + protocolVersion);
+            }
+
+            var data = this.serializer.Deserialize(response.RawBytes);
+            (data ?? "").ToString();
+            return (T) data;
+            
+        }
+
+        [System.Obsolete("use Call( Async<T> request) instead")]
         public object Call(string service, string method, object body)
         {
             var rawbody = this.serializer.Serialize(body);
@@ -216,8 +257,7 @@ namespace DracoLib.Core
             if (this.EventsCounter.ContainsKey(name))
                 eventCounter = this.EventsCounter[name];
 
-            this.Call("ClientEventService", "onEventWithCounter", new object[]
-            {
+            this.Call(new ClientEventService().OnEventWithCounter(
                 name,
                 this.User.Id,
                 this.ClientInfo,
@@ -227,7 +267,7 @@ namespace DracoLib.Core
                 three,
                 null,
                 null
-            });
+           ));
             this.EventsCounter[name] = eventCounter + 1;
         }
 
@@ -252,7 +292,7 @@ namespace DracoLib.Core
 
         private FConfig GetConfig()
         {
-            var config = this.Call("AuthService", "getConfig", new object[] { this.ClientInfo.language }) as FConfig;
+            var config = this.Call( new AuthService().GetConfig( this.ClientInfo.language ));
             this.BuildConfigHash(config);
             return config;
         }
@@ -296,11 +336,11 @@ namespace DracoLib.Core
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call("AuthService", "trySingIn", new object[] { 
+            var response = this.Call( new AuthService().TrySingIn( 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
-            }) as FAuthData;
+            ));
 
             if (response != null && response.info != null)
             {
@@ -347,7 +387,7 @@ namespace DracoLib.Core
         public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
-            var result = this.Call("AuthService", "validateNickname", new object[] { nickname }) as FNicknameValidationResult;
+            var result = this.Call(new AuthService().ValidateNickname( nickname ));
             if (result == null) return result;
             else if (result.error == FNicknameValidationError.DUPLICATE)
             {
@@ -367,22 +407,22 @@ namespace DracoLib.Core
             //this.Event("LicenceAccepted");
         }
 
-        public object AcceptLicence(object licence)
+        public FUserInfo AcceptLicence(int licence)
         {
-            return this.Call("AuthService", "acceptLicence", new object[] { licence });
+            return this.Call(new AuthService().AcceptLicence( licence ));
         }
 
         public FAuthData Register(string nickname)
         {
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
-            var data = this.Call("AuthService", "register", new object[]
-            {
+            var data = this.Call(new AuthService().Register(
+
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 nickname,
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
-            }) as FAuthData;
+            ));
 
             this.User.Id = data.info.userId;
 
@@ -391,9 +431,9 @@ namespace DracoLib.Core
             return data;
         }
 
-        public object GetNews(string lastSeen)
+        public FNewsArticle GetNews(string lastSeen)
         {
-            return this.Call("AuthService", "getNews", new object[] { this.ClientInfo.language, lastSeen });
+            return this.Call( new AuthService().GetNews( this.ClientInfo.language, lastSeen ));
         }
 
         //TODO: look this
@@ -416,43 +456,42 @@ namespace DracoLib.Core
             this.User.Avatar = avatar;
             //this.Event("AvatarPlayerGenderRace", "1", "1");
             //this.Event("AvatarPlayerSubmit", avatar.ToString());
-            return this.Call("PlayerService", "saveUserSettings", new object[] { this.User.Avatar });
+            return this.Call(new PlayerService().SaveUserSettings( this.User.Avatar ));
         }
 
-        public object SelectAlliance(AllianceType alliance, int bonus)
+        public FUpdate SelectAlliance(AllianceType alliance, int bonus)
         {
-            return this.Call("PlayerService", "selectAlliance", new object[] { "AllianceType", alliance, bonus });
+            return this.Call(new PlayerService().SelectAlliance(alliance, bonus));
         }
 
         public object AcknowledgeNotification(string type)
         {
-            return this.Call("PlayerService", "acknowledgeNotification", new object[] { type });
+            return this.Call( new PlayerService().AcknowledgeNotification( type ));
         }
 
         public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
-            var data = this.Call("MapService", "getUpdate", new object[] {
-                new FUpdateRequest()
+
+            var data = this.Call(new MapService().GetUpdate(new FUpdateRequest()
+            {
+                clientRequest = new FClientRequest()
                 {
-                    clientRequest = new FClientRequest()
+                    time = 0,
+                    currentUtcOffsetSeconds = this.UtcOffset,
+                    coordsWithAccuracy = new GeoCoordsWithAccuracy()
                     {
-                        time = 0,
-                        currentUtcOffsetSeconds = this.UtcOffset,
-                        coordsWithAccuracy = new GeoCoordsWithAccuracy()
-                        {
-                            latitude = latitude,
-                            longitude = longitude,
-                            horizontalAccuracy = horizontalAccuracy,
-                        },
+                        latitude = latitude,
+                        longitude = longitude,
+                        horizontalAccuracy = horizontalAccuracy,
                     },
-                    configCacheHash = this.ConfigHash,
-                    language = this.ClientInfo.language,
-                    clientPlatform = ClientPlatform.IOS,
-                    tilesCache =  tilescache,
-                }
-            }) as FUpdate;
+                },
+                configCacheHash = this.ConfigHash,
+                language = this.ClientInfo.language,
+                clientPlatform = ClientPlatform.IOS,
+                tilesCache = tilescache,
+            }));
 
             if (data.items != null)
             {
@@ -461,11 +500,10 @@ namespace DracoLib.Core
             }
             return data;
         }
-
-        public FUpdate UseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
+        
+        public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
         {
-            return this.Call("MapService", "tryUseBuilding", new object[] {
-                new FClientRequest
+            return this.Call(new MapService().TryUseBuilding(new FClientRequest
                 {
                     time = 0,
                     currentUtcOffsetSeconds = this.UtcOffset,
@@ -476,34 +514,30 @@ namespace DracoLib.Core
                         horizontalAccuracy = this.GetAccuracy(),
                     },
                 },
-
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
-            }) as FUpdate;
+            ));
         }
 
-        public object OpenChest(object chest)
+        public FOpenChestResult OpenChest(FChest chest)
         {
-            this.Call("MapService", "startOpeningChest", new object[] { chest });
-            return this.Call("MapService", "openChestResult", new object[] { chest });
+            this.Call(new MapService().StartOpeningChest(chest));
+            return this.Call(new MapService().OpenChestResult(chest));
         }
 
-        public object LeaveDungeon(double latitude, double longitude, float horizontalAccuracy)
+        public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            return this.Call("MapService", "leaveDungeon", new object[]
+            return this.Call(new MapService().LeaveDungeon(new FClientRequest
             {
-                new FClientRequest
+                time = 0,
+                currentUtcOffsetSeconds = this.UtcOffset,
+                coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
-                    time = 0,
-                    currentUtcOffsetSeconds = this.UtcOffset,
-                    coordsWithAccuracy = new GeoCoordsWithAccuracy
-                    {
-                        latitude = latitude,
-                        longitude = longitude,
-                        horizontalAccuracy = horizontalAccuracy,
-                    },
+                    latitude = latitude,
+                    longitude = longitude,
+                    horizontalAccuracy = horizontalAccuracy,
                 },
-            });
+            }));
         }
 
         // utils
