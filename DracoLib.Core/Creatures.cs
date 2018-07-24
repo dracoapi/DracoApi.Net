@@ -1,5 +1,6 @@
 ﻿using DracoProtos.Core.Base;
 using DracoProtos.Core.Objects;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DracoLib.Core
@@ -15,14 +16,13 @@ namespace DracoLib.Core
 
         public FCatchingCreature Encounter(string id)
         {
-            var response = this.dracoClient.Call("GamePlayService", "startCatchingCreature", new object[]
-                {
-                    new FCreatureRequest
-                    {
-                        id = id,
-                        //veryFirst = true
-                    },
-                }) as FCatchingCreature;
+            var request = new FCreatureRequest
+            {
+                id = id,
+                //veryFirst = true
+            };
+
+            var response = this.dracoClient.Call(new GamePlayService().StartCatchingCreature(request));
 
             if (this.dracoClient.Config.Delay > 0)
             {
@@ -37,18 +37,17 @@ namespace DracoLib.Core
 
         public FCatchCreatureResult Catch(string id, ItemType ball, float quality, bool spin, object options = null)
         {
-            return this.dracoClient.Call("GamePlayService", "tryCatchCreature", new object[] { id, ball, quality, spin }) as FCatchCreatureResult;
+            return this.dracoClient.Call(new GamePlayService().TryCatchCreature(id, ball, quality, spin));
         }
 
-        public FUpdate Release(string[] ids)
+        public FUpdate Release(List<string> ids)
         {
-            //if (!Array.isArray(ids)) ids = [ids];
-            return this.dracoClient.Call("UserCreatureService", "convertCreaturesToCandies", new object[] { ids, false }) as FUpdate;
+            return this.dracoClient.Call(new UserCreatureService().ConvertCreaturesToCandies(ids, false));
         }
 
-        public object Evolve(string id, CreatureType toType)
+        public FUserCreatureUpdate Evolve(string id, CreatureType toType)
         {
-            return this.dracoClient.Call("UserCreatureService", "evolveCreature", new object[] { id, toType });
+            return this.dracoClient.Call(new UserCreatureService().EvolveCreature(id, toType));
         }
     }
 }

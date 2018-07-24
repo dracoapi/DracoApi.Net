@@ -1,4 +1,5 @@
-﻿using DracoProtos.Core.Objects;
+﻿using DracoProtos.Core.Base;
+using DracoProtos.Core.Objects;
 
 namespace DracoLib.Core
 {
@@ -13,12 +14,12 @@ namespace DracoLib.Core
 
         public FEncounterUpdate Start(FStartEncounterRequest attack)
         {
-            return this.dracoClient.Call("EncounterService", "startEncounter", new object[] { attack }) as FEncounterUpdate;
+            return this.dracoClient.Call(new EncounterService().StartEncounter(attack));
         }
 
         public object GiveUp()
         {
-            return this.dracoClient.Call("EncounterService", "giveUpEncounter", new object[] { });
+            return this.dracoClient.Call(new EncounterService().GiveUpEncounter());
         }
     }
 }
