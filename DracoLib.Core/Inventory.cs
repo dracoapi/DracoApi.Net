@@ -3,38 +3,40 @@ using DracoProtos.Core.Objects;
 
 namespace DracoLib.Core
 {
-    public class Inventory
+    public class Inventory : ItemService
     {
-        private readonly DracoClient dracoClient;
+        private readonly DracoClient client;
+        private readonly UserCreatureService userCreatureService;
 
         public Inventory(DracoClient dracoClient)
         {
-            this.dracoClient = dracoClient;
+            this.client = dracoClient;
+            userCreatureService = new UserCreatureService();
         }
 
         public FCreadex GetCreadex()
         {
-            return this.dracoClient.Call(new UserCreatureService().GetCreadex());
+            return client.Call(userCreatureService.GetCreadex());
         }
 
         public FUserCreaturesList GetUserCreatures()
         {
-            return this.dracoClient.Call(new UserCreatureService().GetUserCreatures());
+            return client.Call(userCreatureService.GetUserCreatures());
         }
 
-        public FBagUpdate GetUserItems()
+        public new FBagUpdate GetUserItems()
         {
-            return this.dracoClient.Call(new ItemService().GetUserItems());
+            return client.Call(base.GetUserItems());
         }
 
-        public object DiscardItem(ItemType id, int count)
+        public new object DiscardItems(ItemType id, int count)
         {
-            return this.dracoClient.Call(new ItemService().DiscardItems(id, count));
+            return client.Call(base.DiscardItems(id, count));
         }
 
-        public FAvaUpdate UseIncense()
+        public new FAvaUpdate UseIncense()
         {
-            return this.dracoClient.Call(new ItemService().UseIncense());
+            return client.Call(base.UseIncense());
         }
 
         public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 20)
@@ -42,7 +44,7 @@ namespace DracoLib.Core
             var request = new FClientRequest
             {
                 time = 0,
-                currentUtcOffsetSeconds = this.dracoClient.UtcOffset,
+                currentUtcOffsetSeconds = client.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
                     latitude = latitude,
@@ -51,7 +53,7 @@ namespace DracoLib.Core
                 },
             };
 
-            return this.dracoClient.Call(new ItemService().UseShovel(request));
+            return client.Call(base.UseShovel(request));
         }
 
         public FAvaUpdate UseSuperVision(double latitude, double longitude)
@@ -62,12 +64,12 @@ namespace DracoLib.Core
                 longitude = longitude,
             };
 
-            return this.dracoClient.Call(new ItemService().UseSuperVision(request));
+            return client.Call(base.UseSuperVision(request));
          }
 
-        public FAvaUpdate UseExperienceBooster()
+        public new FAvaUpdate UseExperienceBooster()
         {
-            return this.dracoClient.Call(new ItemService().UseExperienceBooster());
+            return client.Call(base.UseExperienceBooster());
         }
     }
 }

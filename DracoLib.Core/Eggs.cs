@@ -3,34 +3,34 @@ using DracoProtos.Core.Objects;
 
 namespace DracoLib.Core
 {
-    public class Eggs
+    public class Eggs : UserCreatureService
     {
-        private readonly DracoClient dracoClient;
+        private readonly DracoClient client;
 
         public Eggs(DracoClient dracoClient)
         {
-            this.dracoClient = dracoClient;
+            client = dracoClient;
         }
 
-        public FUserHatchingInfo GetHatchingInfo()
+        public new FUserHatchingInfo GetHatchingInfo()
         {
-            return this.dracoClient.Call(new UserCreatureService().GetHatchingInfo());
+            return client.Call(base.GetHatchingInfo());
         }
 
-        public FHatchingResult OpenHatchedEgg(string incubatorId)
+        public new FHatchingResult OpenHatchedEgg(string incubatorId)
         {
-            return this.dracoClient.Call(new UserCreatureService().OpenHatchedEgg(incubatorId));
+            return client.Call(base.OpenHatchedEgg(incubatorId));
         }
 
-        public object StartHatchingEgg(string eggId, string incubatorId)
+        public new object StartHatchingEgg(string eggId, string incubatorId)
         {
-            this.dracoClient.Call(new UserCreatureService().StartHatchingEgg(eggId, incubatorId));
-            return this.GetHatchingInfo();
+            client.Call(base.StartHatchingEgg(eggId, incubatorId));
+            return GetHatchingInfo();
         }
 
-        public object StartHatchingEggInRoost(string eggId, FBuildingRequest roost, int slot)
+        public new object StartHatchingEggInRoost(string eggId, FBuildingRequest roost, int slot)
         {
-            return this.dracoClient.Call(new UserCreatureService().StartHatchingEggInRoost(eggId, roost, slot));
+            return client.Call(base.StartHatchingEggInRoost(eggId, roost, slot));
         }
     }
 }

@@ -77,9 +77,14 @@ namespace DracoLib.Core
         private SerializerContext serializer;
         private RestClient client;
         internal Config Config { get; set; }
+        private PlayerService playerService;
+        private AuthService authService;
 
         public DracoClient(string proxy = null, Config config = null)
         {
+            playerService = new PlayerService();
+            authService = new AuthService();
+
             this.Config = config ?? new Config();
 
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString();
@@ -139,6 +144,7 @@ namespace DracoLib.Core
 
             // Text
             this.Strings = new Strings(this);
+
         }
 
         private float GetAccuracy() {
@@ -292,7 +298,7 @@ namespace DracoLib.Core
 
         private FConfig GetConfig()
         {
-            var config = this.Call( new AuthService().GetConfig( this.ClientInfo.language ));
+            var config = this.Call(authService.GetConfig( this.ClientInfo.language ));
             this.BuildConfigHash(config);
             return config;
         }
@@ -336,7 +342,7 @@ namespace DracoLib.Core
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call( new AuthService().TrySingIn( 
+            var response = this.Call(authService.TrySingIn( 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
@@ -387,7 +393,7 @@ namespace DracoLib.Core
         public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
-            var result = this.Call(new AuthService().ValidateNickname( nickname ));
+            var result = this.Call(authService.ValidateNickname( nickname ));
             if (result == null) return result;
             else if (result.error == FNicknameValidationError.DUPLICATE)
             {
@@ -409,14 +415,14 @@ namespace DracoLib.Core
 
         public FUserInfo AcceptLicence(int licence)
         {
-            return this.Call(new AuthService().AcceptLicence( licence ));
+            return this.Call(authService.AcceptLicence( licence ));
         }
 
         public FAuthData Register(string nickname)
         {
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
-            var data = this.Call(new AuthService().Register(
+            var data = this.Call(authService.Register(
 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 nickname,
@@ -433,7 +439,7 @@ namespace DracoLib.Core
 
         public FNewsArticle GetNews(string lastSeen)
         {
-            return this.Call( new AuthService().GetNews( this.ClientInfo.language, lastSeen ));
+            return this.Call(authService.GetNews( this.ClientInfo.language, lastSeen ));
         }
 
         //TODO: look this
@@ -456,17 +462,17 @@ namespace DracoLib.Core
             this.User.Avatar = avatar;
             //this.Event("AvatarPlayerGenderRace", "1", "1");
             //this.Event("AvatarPlayerSubmit", avatar.ToString());
-            return this.Call(new PlayerService().SaveUserSettings( this.User.Avatar ));
+            return this.Call(playerService.SaveUserSettings( this.User.Avatar ));
         }
 
         public FUpdate SelectAlliance(AllianceType alliance, int bonus)
         {
-            return this.Call(new PlayerService().SelectAlliance(alliance, bonus));
+            return this.Call(playerService.SelectAlliance(alliance, bonus));
         }
 
         public object AcknowledgeNotification(string type)
         {
-            return this.Call( new PlayerService().AcknowledgeNotification( type ));
+            return this.Call(playerService.AcknowledgeNotification( type ));
         }
 
         public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)

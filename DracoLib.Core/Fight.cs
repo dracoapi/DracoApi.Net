@@ -3,7 +3,7 @@ using DracoProtos.Core.Objects;
 
 namespace DracoLib.Core
 {
-    public class Fight    
+    public class Fight : EncounterService
     {
         private readonly DracoClient dracoClient;
 
@@ -11,15 +11,26 @@ namespace DracoLib.Core
         {
             this.dracoClient = dracoClient;
         }
-
         public FEncounterUpdate Start(FStartEncounterRequest attack)
         {
-            return this.dracoClient.Call(new EncounterService().StartEncounter(attack));
+            return dracoClient.Call(base.StartEncounter(attack));
         }
 
         public object GiveUp()
         {
-            return this.dracoClient.Call(new EncounterService().GiveUpEncounter());
+            return dracoClient.Call(base.GiveUpEncounter());
         }
+
+        // To hide base methods
+        private new FEncounterUpdate StartEncounter(FStartEncounterRequest attack)
+        {
+            return null;
+        }
+        private new object GiveUpEncounter()
+        {
+            return null;
+        }
+
+
     }
 }

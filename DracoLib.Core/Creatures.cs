@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 
 namespace DracoLib.Core
 {
-    public class Creatures
+    public class Creatures : UserCreatureService
     {
-        private readonly DracoClient dracoClient;
+        private readonly DracoClient client;
+        private readonly GamePlayService gamePlayService;
 
-        public Creatures(DracoClient dracoClient)
+        public Creatures(DracoClient dclient)
         {
-            this.dracoClient = dracoClient;
+            client = dclient;
+            gamePlayService = new GamePlayService();
         }
 
         public FCatchingCreature Encounter(string id)
@@ -22,12 +24,12 @@ namespace DracoLib.Core
                 //veryFirst = true
             };
 
-            var response = this.dracoClient.Call(new GamePlayService().StartCatchingCreature(request));
+            var response = client.Call(gamePlayService.StartCatchingCreature(request));
 
-            if (this.dracoClient.Config.Delay > 0)
+            if (client.Config.Delay > 0)
             {
-                var delay = this.dracoClient.Config.Delay * 1500;
-                Task.Run(async() => await this.dracoClient.Delay(delay));
+                var delay = client.Config.Delay * 1500;
+                Task.Run(async() => await client.Delay(delay));
             }
 
             //this.dracoClient.Event("IsArAvailable", "False");
@@ -37,17 +39,26 @@ namespace DracoLib.Core
 
         public FCatchCreatureResult Catch(string id, ItemType ball, float quality, bool spin, object options = null)
         {
-            return this.dracoClient.Call(new GamePlayService().TryCatchCreature(id, ball, quality, spin));
+            return client.Call(gamePlayService.TryCatchCreature(id, ball, quality, spin));
         }
 
         public FUpdate Release(List<string> ids)
         {
-            return this.dracoClient.Call(new UserCreatureService().ConvertCreaturesToCandies(ids, false));
+            return client.Call(base.ConvertCreaturesToCandies(ids, false));
         }
 
         public FUserCreatureUpdate Evolve(string id, CreatureType toType)
         {
-            return this.dracoClient.Call(new UserCreatureService().EvolveCreature(id, toType));
+            return client.Call(base.EvolveCreature(id, toType));
+        }
+        // to hide base methods
+        private new FUserCreatureUpdate EvolveCreature(string id, CreatureType toType)
+        {
+            return null;
+        }
+        private new FUpdate ConvertCreaturesToCandies(List<string> ids, bool sendUpdate)
+        {
+            return null;
         }
     }
 }
