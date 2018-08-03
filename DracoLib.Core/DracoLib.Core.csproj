@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/Account-Managers/DracoLib</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
-    <Version>1.1.7</Version>
+    <Version>1.1.14</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>Acount Manager's</Company>
     <Copyright>2018</Copyright>
@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DracoProtos.Core" Version="1.9.1" />
+    <PackageReference Include="DracoProtos.Core" Version="1.9.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
     <PackageReference Include="RestSharp" Version="106.3.1" />
