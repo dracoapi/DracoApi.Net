@@ -51,14 +51,10 @@ namespace DracoLib.Core
         {
             return client.Call(base.EvolveCreature(id, toType));
         }
-        // to hide base methods
-        private new FUserCreatureUpdate EvolveCreature(string id, CreatureType toType)
-        {
-            return null;
-        }
+
         private new FUpdate ConvertCreaturesToCandies(List<string> ids, bool sendUpdate)
         {
-            return null;
+           return client.Call(base.ConvertCreaturesToCandies(ids, sendUpdate));
         }
     }
 }

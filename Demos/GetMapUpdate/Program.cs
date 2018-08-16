@@ -3,7 +3,6 @@ using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
 using System.Collections.Generic;
-using System.IO;
 
 namespace GetMapUpdate
 {
@@ -40,20 +39,6 @@ namespace GetMapUpdate
 
             Console.WriteLine("Boot...");
             var fconf = draco.Boot(config);
-
-            /*
-             * extract langs
-             * 
-            string text = null;
-
-            foreach (var x in fconf.clientTexts)
-                text += "{ \"" + x.Key + "\", \"" + x.Value.Replace("\n\r", "").Replace("\n", "") + "\" },\n";
-
-            if (!string.IsNullOrEmpty(text))
-            {
-                File.WriteAllText(options.Lang, text);
-            }
-            */
 
             Console.WriteLine("Login...");
             var login = draco.Login().Result;
