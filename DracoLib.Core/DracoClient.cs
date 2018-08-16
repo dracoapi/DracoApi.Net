@@ -88,7 +88,7 @@ namespace DracoLib.Core
             this.Config = config ?? new Config();
 
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString();
-            this.ClientVersion = "12583";
+            this.ClientVersion = "12626";
             if (this.Config.CheckProtocol) this.CheckProtocol = this.Config.CheckProtocol;
             if (this.Config.EventsCounter.Any()) this.EventsCounter = this.Config.EventsCounter;
             if (this.Config.UtcOffset > 0)
@@ -98,7 +98,10 @@ namespace DracoLib.Core
             else
             {
                 //Original line GetTimezoneOffset() * 60;  
-                this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+                this.UtcOffset = (int)TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalSeconds;
+#pragma warning restore CS0618 // Le type ou le membre est obsolète
+                //this.UtcOffset = (int)TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
             }
             
             this.Proxy = proxy;

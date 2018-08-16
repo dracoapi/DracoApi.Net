@@ -97,7 +97,7 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
-| 1.1.x        | 1.9.2                       |                           |
+| 1.1.x        | 1.9.3                       |                           |
 | 1.0.x        | 1.8.1                       | first tested              |
 
 #### `CREDITS`
