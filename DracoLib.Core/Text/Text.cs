@@ -19,13 +19,13 @@ namespace DracoLib.Core.Text
                 var lang = dracoClient.ClientInfo.language;
 
                 if (lang == Langues.Bulgarian.ToString())
-                    return English.Load[obj];
+                    return Bulgarian.Load[obj];
                 else if (lang == Langues.English.ToString())
-                    return French.Load[obj];
+                    return English.Load[obj];
                 else if (lang == Langues.Russian.ToString())
-                    return German.Load[obj];
+                    return Russian.Load[obj];
                 else if (lang == Langues.Czech.ToString())
-                    return Spanish.Load[obj];
+                    return Czech.Load[obj];
                 else if (lang == Langues.German.ToString())
                     return German.Load[obj];
                 else if (lang == Langues.Spanish.ToString())
