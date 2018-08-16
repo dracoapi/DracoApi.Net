@@ -16,50 +16,48 @@ namespace DracoLib.Core.Text
         {
             try
             {
-                var lan = new Langues();
-                switch (lan)
-                {
-                    case Langues.Bulgarian:
-                        return Bulgarian.Load[obj];
-                    case Langues.English:
-                        return English.Load[obj];
-                    case Langues.Russian:
-                        return Russian.Load[obj];
-                    case Langues.Czech:
-                        return Czech.Load[obj];
-                    case Langues.German:
-                        return German.Load[obj];
-                    case Langues.Spanish:
-                        return Spanish.Load[obj];
-                    case Langues.French:
-                        return French.Load[obj];
-                    case Langues.Italian:
-                        return Italian.Load[obj];
-                    case Langues.Dutch:
-                        return Dutch.Load[obj];
-                    case Langues.Polish:
-                        return Polish.Load[obj];
-                    case Langues.Serbo:
-                        return Serbo.Load[obj];
-                    case Langues.Turkish:
-                        return Turkish.Load[obj];
-                    case Langues.Slovenian:
-                        return Slovenian.Load[obj];
-                    case Langues.Slovak:
-                        return Slovak.Load[obj];
-                    case Langues.Hungarian:
-                        return Hungarian.Load[obj];
-                    case Langues.Portuguese:
-                        return Portuguese.Load[obj];
-                    case Langues.Ukrainian:
-                        return Ukrainian.Load[obj];
-                    case Langues.Japanese:
-                        return Japanese.Load[obj];
-                    case Langues.Korean:
-                        return Korean.Load[obj];
-                    default:
-                        return English.Load[obj];
-                }
+                var lang = dracoClient.ClientInfo.language;
+
+                if (lang == Langues.Bulgarian.ToString())
+                    return English.Load[obj];
+                else if (lang == Langues.English.ToString())
+                    return French.Load[obj];
+                else if (lang == Langues.Russian.ToString())
+                    return German.Load[obj];
+                else if (lang == Langues.Czech.ToString())
+                    return Spanish.Load[obj];
+                else if (lang == Langues.German.ToString())
+                    return German.Load[obj];
+                else if (lang == Langues.Spanish.ToString())
+                    return Spanish.Load[obj];
+                else if (lang == Langues.French.ToString())
+                    return French.Load[obj];
+                else if (lang == Langues.Italian.ToString())
+                    return Italian.Load[obj];
+                else if (lang == Langues.Dutch.ToString())
+                    return Dutch.Load[obj];
+                else if (lang == Langues.Polish.ToString())
+                    return Polish.Load[obj];
+                else if (lang == Langues.Serbo.ToString())
+                    return Serbo.Load[obj];
+                else if (lang == Langues.Turkish.ToString())
+                    return Turkish.Load[obj];
+                else if (lang == Langues.Slovenian.ToString())
+                    return Slovenian.Load[obj];
+                else if (lang == Langues.Slovak.ToString())
+                    return Slovak.Load[obj];
+                else if (lang == Langues.Hungarian.ToString())
+                    return Hungarian.Load[obj];
+                else if (lang == Langues.Portuguese.ToString())
+                    return Portuguese.Load[obj];
+                else if (lang == Langues.Ukrainian.ToString())
+                    return Ukrainian.Load[obj];
+                else if (lang == Langues.Japanese.ToString())
+                    return Japanese.Load[obj];
+                else if (lang == Langues.Korean.ToString())
+                    return Korean.Load[obj];
+
+                return English.Load[obj];
             }
             catch (Exception)
             {
