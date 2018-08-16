@@ -284,7 +284,7 @@ namespace DracoLib.Core
         {
             this.User.Id = userinfo.Id;
             this.User.DeviceId = userinfo.DeviceId;
-            this.User.Login = (userinfo.Login ?? "DEVICE").ToUpper();
+            this.User.Login = (userinfo.Login ?? "GOOGLE").ToUpper();
             this.User.Username = userinfo.Username;
             this.User.Password = userinfo.Password;
             this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
