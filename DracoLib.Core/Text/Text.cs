@@ -38,8 +38,8 @@ namespace DracoLib.Core.Text
                     return Dutch.Load[obj];
                 else if (lang == Langues.Polish.ToString())
                     return Polish.Load[obj];
-                else if (lang == Langues.Serbo.ToString())
-                    return Serbo.Load[obj];
+                else if (lang == Langues.SerboCroatian.ToString())
+                    return SerboCroatian.Load[obj];
                 else if (lang == Langues.Turkish.ToString())
                     return Turkish.Load[obj];
                 else if (lang == Langues.Slovenian.ToString())

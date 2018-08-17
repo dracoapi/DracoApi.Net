@@ -12,7 +12,7 @@
         Italian,
         Dutch,
         Polish,
-        Serbo,
+        SerboCroatian,
         Turkish,
         Slovenian,
         Slovak,
