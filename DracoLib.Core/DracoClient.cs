@@ -34,19 +34,6 @@ namespace DracoLib.Core
         public string TokenId { get; set; }
     }
 
-    /*
-     * Exeption on exeptions
-     * 
-    class DracoError //extends Error
-    {
-        readonly object details;
-        //constructor(message?, details?) {
-        //    super(message);
-        //    Object.setPrototypeOf(this, DracoError.prototype);
-        //    this.details = details;
-    }
-    */
-
     public class DracoClient
     {
         public FClientInfo ClientInfo { get; private set; }
@@ -55,10 +42,8 @@ namespace DracoLib.Core
         public Inventory Inventory { get; private set; }
         public Eggs Eggs { get; private set; }
         public Creatures Creatures { get; private set; }
-
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
-        // Text
         public Strings Strings { get; private set; }
 
         private RestRequest Request { get; set; }
@@ -67,24 +52,28 @@ namespace DracoLib.Core
         private bool CheckProtocol { get; set; }
         private Auth Auth { get; set; }
         private sbyte[] ConfigHash { get; set; }
-
         private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        internal int UtcOffset;
-
-        /*
-         * Vars c#
-         */
         private SerializerContext serializer;
         private RestClient client;
+
+        internal int UtcOffset;
         internal Config Config { get; set; }
-        private PlayerService playerService;
-        private AuthService authService;
+        internal readonly AuthService auth = new AuthService();
+        internal readonly MapService map = new MapService();
+        internal readonly PlayerService player = new PlayerService();
+        internal readonly UserCreatureService userCreature = new UserCreatureService();
+        internal readonly BattleService battle = new BattleService();
+        internal readonly DevModeService devMode = new DevModeService();
+        internal readonly MagicService magic = new MagicService();
+        internal readonly ContestMapService contest = new ContestMapService();
+        internal readonly GamePlayService gamePlay = new GamePlayService();
+        internal readonly EncounterService encounter = new EncounterService();
+        internal readonly ItemService Item = new ItemService();
+        internal readonly ClientEventService clientEvent = new ClientEventService();
+        //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
         public DracoClient(string proxy = null, Config config = null)
         {
-            playerService = new PlayerService();
-            authService = new AuthService();
-
             this.Config = config ?? new Config();
 
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString();
@@ -146,8 +135,7 @@ namespace DracoLib.Core
             this.Creatures = new Creatures(this);
 
             // Text
-            this.Strings = new Strings(this);
-
+            this.Strings = new Strings(config.Lang);
         }
 
         private float GetAccuracy() {
@@ -208,42 +196,6 @@ namespace DracoLib.Core
             
         }
 
-        [System.Obsolete("use Call( Async<T> request) instead")]
-        public object Call(string service, string method, object body)
-        {
-            var rawbody = this.serializer.Serialize(body);
-
-            Request = new RestRequest("serviceCall", Method.POST);
-            Request.AddHeader("Protocol-Version", this.ProtocolVersion);
-            Request.AddHeader("Client-Version", this.ClientVersion);
-            if (this.Dcportal != null)
-            {
-                Request.AddHeader("dcportal", this.Dcportal);
-            }
-            Request.AddParameter("service", service);
-            Request.AddParameter("method", method);
-            Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
-
-            var response = this.client.Execute(Request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new DracoError("Invalid status received: " + response.StatusDescription);
-            }
-
-            var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
-            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
-            if (dcportal != null) this.Dcportal = dcportal;
-            if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
-            {
-                throw new Exception("Incorrect protocol version received: " + protocolVersion);
-            }
-
-            var data = this.serializer.Deserialize(response.RawBytes);
-            (data ?? "").ToString();
-            return data;
-        }
-
         public void Post(string url, object data)
         {
             var _client = new RestClient(url);
@@ -301,7 +253,7 @@ namespace DracoLib.Core
 
         private FConfig GetConfig()
         {
-            var config = this.Call(authService.GetConfig( this.ClientInfo.language ));
+            var config = this.Call(auth.GetConfig( this.ClientInfo.language ));
             this.BuildConfigHash(config);
             return config;
         }
@@ -345,7 +297,7 @@ namespace DracoLib.Core
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call(authService.TrySingIn( 
+            var response = this.Call(auth.TrySingIn( 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
@@ -396,7 +348,7 @@ namespace DracoLib.Core
         public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
-            var result = this.Call(authService.ValidateNickname( nickname ));
+            var result = this.Call(auth.ValidateNickname( nickname ));
             if (result == null) return result;
             else if (result.error == FNicknameValidationError.DUPLICATE)
             {
@@ -418,14 +370,14 @@ namespace DracoLib.Core
 
         public FUserInfo AcceptLicence(int licence)
         {
-            return this.Call(authService.AcceptLicence( licence ));
+            return this.Call(auth.AcceptLicence( licence ));
         }
 
         public FAuthData Register(string nickname)
         {
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
-            var data = this.Call(authService.Register(
+            var data = this.Call(auth.Register(
 
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 nickname,
@@ -442,7 +394,7 @@ namespace DracoLib.Core
 
         public FNewsArticle GetNews(string lastSeen)
         {
-            return this.Call(authService.GetNews( this.ClientInfo.language, lastSeen ));
+            return this.Call(auth.GetNews( this.ClientInfo.language, lastSeen ));
         }
 
         //TODO: look this
@@ -465,17 +417,22 @@ namespace DracoLib.Core
             this.User.Avatar = avatar;
             //this.Event("AvatarPlayerGenderRace", "1", "1");
             //this.Event("AvatarPlayerSubmit", avatar.ToString());
-            return this.Call(playerService.SaveUserSettings( this.User.Avatar ));
+            return this.Call(player.SaveUserSettings( this.User.Avatar ));
         }
 
         public FUpdate SelectAlliance(AllianceType alliance, int bonus)
         {
-            return this.Call(playerService.SelectAlliance(alliance, bonus));
+            return this.Call(player.SelectAlliance(alliance, bonus));
+        }
+
+        public FAvaUpdate SelectBuddy(string creatureid)
+        {
+            return this.Call(player.SelectBuddy(creatureid));
         }
 
         public object AcknowledgeNotification(string type)
         {
-            return this.Call(playerService.AcknowledgeNotification( type ));
+            return this.Call(player.AcknowledgeNotification( type ));
         }
 
         public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
@@ -483,7 +440,7 @@ namespace DracoLib.Core
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
 
-            var data = this.Call(new MapService().GetUpdate(new FUpdateRequest()
+            var data = this.Call(map.GetUpdate(new FUpdateRequest()
             {
                 clientRequest = new FClientRequest()
                 {
@@ -512,7 +469,7 @@ namespace DracoLib.Core
         
         public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
         {
-            return this.Call(new MapService().TryUseBuilding(new FClientRequest
+            return this.Call(map.TryUseBuilding(new FClientRequest
                 {
                     time = 0,
                     currentUtcOffsetSeconds = this.UtcOffset,
@@ -529,14 +486,14 @@ namespace DracoLib.Core
 
         public FOpenChestResult OpenChest(FChest chest)
         {
-            this.Call(new MapService().StartOpeningChest(chest));
-            return this.Call(new MapService().OpenChestResult(chest));
+            this.Call(map.StartOpeningChest(chest));
+            return this.Call(map.OpenChestResult(chest));
         }
 
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            return this.Call(new MapService().LeaveDungeon(new FClientRequest
+            return this.Call(map.LeaveDungeon(new FClientRequest
             {
                 time = 0,
                 currentUtcOffsetSeconds = this.UtcOffset,

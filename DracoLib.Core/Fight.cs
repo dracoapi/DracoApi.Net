@@ -5,32 +5,30 @@ namespace DracoLib.Core
 {
     public class Fight : EncounterService
     {
-        private readonly DracoClient dracoClient;
+        private readonly DracoClient client;
 
         public Fight(DracoClient dracoClient)
         {
-            this.dracoClient = dracoClient;
+            this.client = dracoClient;
         }
         public FEncounterUpdate Start(FStartEncounterRequest attack)
         {
-            return dracoClient.Call(base.StartEncounter(attack));
+            return client.Call(client.encounter.StartEncounter(attack));
         }
 
         public object GiveUp()
         {
-            return dracoClient.Call(base.GiveUpEncounter());
+            return client.Call(client.encounter.GiveUpEncounter());
         }
 
         // To hide base methods
         private new FEncounterUpdate StartEncounter(FStartEncounterRequest attack)
         {
-            return null;
+            return client.Call(client.encounter.StartEncounter(attack));
         }
         private new object GiveUpEncounter()
         {
-            return null;
+            return client.Call(client.encounter.GiveUpEncounter());
         }
-
-
     }
 }

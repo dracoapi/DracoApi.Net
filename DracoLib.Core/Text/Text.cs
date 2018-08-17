@@ -5,56 +5,54 @@ namespace DracoLib.Core.Text
 {
     public class Strings
     {
-        private readonly DracoClient dracoClient;
+        private string language;
 
-        internal Strings(DracoClient dracoClient)
+        public Strings(string language)
         {
-            this.dracoClient = dracoClient;
+            this.language = language;
         }
 
         private string Load(string obj)
         {
             try
             {
-                var lang = dracoClient.ClientInfo.language;
-
-                if (lang == Langues.Bulgarian.ToString())
+                if (language == Langues.Bulgarian.ToString())
                     return Bulgarian.Load[obj];
-                else if (lang == Langues.English.ToString())
+                else if (language == Langues.English.ToString())
                     return English.Load[obj];
-                else if (lang == Langues.Russian.ToString())
+                else if (language == Langues.Russian.ToString())
                     return Russian.Load[obj];
-                else if (lang == Langues.Czech.ToString())
+                else if (language == Langues.Czech.ToString())
                     return Czech.Load[obj];
-                else if (lang == Langues.German.ToString())
+                else if (language == Langues.German.ToString())
                     return German.Load[obj];
-                else if (lang == Langues.Spanish.ToString())
+                else if (language == Langues.Spanish.ToString())
                     return Spanish.Load[obj];
-                else if (lang == Langues.French.ToString())
+                else if (language == Langues.French.ToString())
                     return French.Load[obj];
-                else if (lang == Langues.Italian.ToString())
+                else if (language == Langues.Italian.ToString())
                     return Italian.Load[obj];
-                else if (lang == Langues.Dutch.ToString())
+                else if (language == Langues.Dutch.ToString())
                     return Dutch.Load[obj];
-                else if (lang == Langues.Polish.ToString())
+                else if (language == Langues.Polish.ToString())
                     return Polish.Load[obj];
-                else if (lang == Langues.SerboCroatian.ToString())
+                else if (language == Langues.SerboCroatian.ToString())
                     return SerboCroatian.Load[obj];
-                else if (lang == Langues.Turkish.ToString())
+                else if (language == Langues.Turkish.ToString())
                     return Turkish.Load[obj];
-                else if (lang == Langues.Slovenian.ToString())
+                else if (language == Langues.Slovenian.ToString())
                     return Slovenian.Load[obj];
-                else if (lang == Langues.Slovak.ToString())
+                else if (language == Langues.Slovak.ToString())
                     return Slovak.Load[obj];
-                else if (lang == Langues.Hungarian.ToString())
+                else if (language == Langues.Hungarian.ToString())
                     return Hungarian.Load[obj];
-                else if (lang == Langues.Portuguese.ToString())
+                else if (language == Langues.Portuguese.ToString())
                     return Portuguese.Load[obj];
-                else if (lang == Langues.Ukrainian.ToString())
+                else if (language == Langues.Ukrainian.ToString())
                     return Ukrainian.Load[obj];
-                else if (lang == Langues.Japanese.ToString())
+                else if (language == Langues.Japanese.ToString())
                     return Japanese.Load[obj];
-                else if (lang == Langues.Korean.ToString())
+                else if (language == Langues.Korean.ToString())
                     return Korean.Load[obj];
 
                 return English.Load[obj];

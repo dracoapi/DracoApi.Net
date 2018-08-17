@@ -6,37 +6,35 @@ namespace DracoLib.Core
     public class Inventory : ItemService
     {
         private readonly DracoClient client;
-        private readonly UserCreatureService userCreatureService;
 
         public Inventory(DracoClient dracoClient)
         {
             this.client = dracoClient;
-            userCreatureService = new UserCreatureService();
         }
 
         public FCreadex GetCreadex()
         {
-            return client.Call(userCreatureService.GetCreadex());
+            return client.Call(client.userCreature.GetCreadex());
         }
 
         public FUserCreaturesList GetUserCreatures()
         {
-            return client.Call(userCreatureService.GetUserCreatures());
+            return client.Call(client.userCreature.GetUserCreatures());
         }
 
         public new FBagUpdate GetUserItems()
         {
-            return client.Call(base.GetUserItems());
+            return client.Call(client.Item.GetUserItems());
         }
 
-        public new object DiscardItems(ItemType id, int count)
+        public new bool DiscardItems(ItemType id, int count)
         {
-            return client.Call(base.DiscardItems(id, count));
+            return client.Call(client.Item.DiscardItems(id, count));
         }
 
         public new FAvaUpdate UseIncense()
         {
-            return client.Call(base.UseIncense());
+            return client.Call(client.Item.UseIncense());
         }
 
         public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 20)
@@ -53,7 +51,7 @@ namespace DracoLib.Core
                 },
             };
 
-            return client.Call(base.UseShovel(request));
+            return client.Call(client.Item.UseShovel(request));
         }
 
         public FAvaUpdate UseSuperVision(double latitude, double longitude)
@@ -64,12 +62,12 @@ namespace DracoLib.Core
                 longitude = longitude,
             };
 
-            return client.Call(base.UseSuperVision(request));
+            return client.Call(client.Item.UseSuperVision(request));
          }
 
         public new FAvaUpdate UseExperienceBooster()
         {
-            return client.Call(base.UseExperienceBooster());
+            return client.Call(client.Item.UseExperienceBooster());
         }
     }
 }

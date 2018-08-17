@@ -8,15 +8,13 @@ namespace DracoLib.Core
     public class Creatures : UserCreatureService
     {
         private readonly DracoClient client;
-        private readonly GamePlayService gamePlayService;
 
         public Creatures(DracoClient dclient)
         {
             client = dclient;
-            gamePlayService = new GamePlayService();
         }
 
-        public FCatchingCreature Encounter(string id)
+        public FCatchingCreature StartCatchingCreature(string id)
         {
             var request = new FCreatureRequest
             {
@@ -24,7 +22,7 @@ namespace DracoLib.Core
                 //veryFirst = true
             };
 
-            var response = client.Call(gamePlayService.StartCatchingCreature(request));
+            var response = client.Call(client.gamePlay.StartCatchingCreature(request));
 
             if (client.Config.Delay > 0)
             {
@@ -39,22 +37,37 @@ namespace DracoLib.Core
 
         public FCatchCreatureResult Catch(string id, ItemType ball, float quality, bool spin, object options = null)
         {
-            return client.Call(gamePlayService.TryCatchCreature(id, ball, quality, spin));
+            return client.Call(client.gamePlay.TryCatchCreature(id, ball, quality, spin));
         }
 
-        public FUpdate Release(List<string> ids)
+        public new FUserCreatureUpdate EnhanceCreature(string id)
         {
-            return client.Call(base.ConvertCreaturesToCandies(ids, false));
+            return client.Call(client.userCreature.EnhanceCreature(id));
         }
 
-        public FUserCreatureUpdate Evolve(string id, CreatureType toType)
+        public new FUserCreatureUpdate EvolveCreature(string id, CreatureType toType)
         {
-            return client.Call(base.EvolveCreature(id, toType));
+            return client.Call(client.userCreature.EvolveCreature(id, toType));
         }
 
-        private new FUpdate ConvertCreaturesToCandies(List<string> ids, bool sendUpdate)
+        public new FUpdate ConvertCreaturesToCandies(List<string> ids, bool sendUpdate)
         {
-           return client.Call(base.ConvertCreaturesToCandies(ids, sendUpdate));
+            return client.Call(client.userCreature.ConvertCreaturesToCandies(ids, sendUpdate));
+        }
+
+        public new object AddCreatureToGroup(string id, int group)
+        {
+            return client.Call(client.userCreature.AddCreatureToGroup(id, group));
+        }
+
+        public new FUserCreature SetCreatureAlias(string id, string alias)
+        {
+            return client.Call(client.userCreature.SetCreatureAlias(id, alias));
+        }
+
+        public new FUserCreature RemasterCreature(string id, bool mainSkill)
+        {
+            return client.Call(client.userCreature.RemasterCreature(id, mainSkill));
         }
     }
 }

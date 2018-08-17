@@ -14,23 +14,23 @@ namespace DracoLib.Core
 
         public new FUserHatchingInfo GetHatchingInfo()
         {
-            return client.Call(base.GetHatchingInfo());
+            return client.Call(client.userCreature.GetHatchingInfo());
         }
 
         public new FHatchingResult OpenHatchedEgg(string incubatorId)
         {
-            return client.Call(base.OpenHatchedEgg(incubatorId));
+            return client.Call(client.userCreature.OpenHatchedEgg(incubatorId));
         }
 
         public new object StartHatchingEgg(string eggId, string incubatorId)
         {
-            client.Call(base.StartHatchingEgg(eggId, incubatorId));
+            client.Call(client.userCreature.StartHatchingEgg(eggId, incubatorId));
             return GetHatchingInfo();
         }
 
         public new object StartHatchingEggInRoost(string eggId, FBuildingRequest roost, int slot)
         {
-            return client.Call(base.StartHatchingEggInRoost(eggId, roost, slot));
+            return client.Call(client.userCreature.StartHatchingEggInRoost(eggId, roost, slot));
         }
     }
 }
