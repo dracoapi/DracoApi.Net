@@ -1,6 +1,7 @@
 //=== Auto Genered ===
 
 using System.Collections.Generic;
+
 namespace DracoLib.Core.Text
 {
     internal static class Dutch
