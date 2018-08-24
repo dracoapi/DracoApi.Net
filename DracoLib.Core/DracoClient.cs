@@ -293,7 +293,7 @@ namespace DracoLib.Core
             }
             else
             {
-                throw new Exception("Unsupported login type: " + this.User.Login);
+                throw new DracoError("Unsupported login type: " + this.User.Login);
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
@@ -336,7 +336,7 @@ namespace DracoLib.Core
 
         public void Load()
         {
-            if (this.User.Avatar == 0) throw new Exception("Please login first.");
+            if (this.User.Avatar == 0) throw new DracoError("Please login first.");
 
             // this.Event("LoadingScreenPercent", "100");
             // this.Event("CreateAvatarByType", "MageMale");
@@ -435,7 +435,7 @@ namespace DracoLib.Core
             return this.Call(player.AcknowledgeNotification( type ));
         }
 
-        public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy, Dictionary<FTile, long> tilescache = null)
+        public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy = 0, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
@@ -490,7 +490,7 @@ namespace DracoLib.Core
             return this.Call(map.OpenChestResult(chest));
         }
 
-        public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy)
+        public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call(map.LeaveDungeon(new FClientRequest
