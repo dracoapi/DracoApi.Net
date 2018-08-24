@@ -111,7 +111,7 @@ namespace DracoLib.Core
             this.client.AddDefaultHeader("Protocol-Version", this.ProtocolVersion);
             this.client.AddDefaultHeader("Client-Version", this.ClientVersion);
             this.client.AddDefaultHeader("Accept-Language", "en-us");
-            this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/901.1 Darwin/17.6.0";
+            this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/902.2 Darwin/17.7.0";
             this.client.CookieContainer = new CookieContainer();
             //this.client.Encoding = null;
             this.client.Timeout = timeout;
@@ -122,7 +122,7 @@ namespace DracoLib.Core
                 iOsAdvertisingTrackingEnabled = false,
                 language = this.Config.Lang,
                 platform = "IPhonePlayer",
-                platformVersion = "iOS 11.4",
+                platformVersion = "iOS 11.4.1",
                 revision = this.ClientVersion,
                 screenHeight = 1334,
                 screenWidth = 750,
