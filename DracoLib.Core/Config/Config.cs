@@ -10,6 +10,5 @@ namespace DracoLib.Core
         public int UtcOffset { get; set; } = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds;
         public int TimeOut { get; set; } = 20 * 1000;
         public string Lang { get; set; } = "English";
-        public int Delay { get; set; } = 1000;
     }
 }

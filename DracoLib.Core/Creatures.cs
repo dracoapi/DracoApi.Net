@@ -24,12 +24,6 @@ namespace DracoLib.Core
 
             var response = client.Call(client.gamePlay.StartCatchingCreature(request));
 
-            if (client.Config.Delay > 0)
-            {
-                var delay = client.Config.Delay * 1500;
-                Task.Run(async() => await client.Delay(delay));
-            }
-
             //this.dracoClient.Event("IsArAvailable", "False");
 
             return response;

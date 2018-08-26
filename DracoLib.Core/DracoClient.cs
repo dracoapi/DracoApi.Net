@@ -133,7 +133,7 @@ namespace DracoLib.Core
             this.Strings = new Strings(config.Lang);
         }
 
-        private float GetAccuracy() {
+        public float GetAccuracy() {
             double random = new Random().Next(20, 65) * 2;
             return (float)Math.Floor(random);
         }
@@ -466,8 +466,9 @@ namespace DracoLib.Core
             return data;
         }
         
-        public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId)
+        public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
         {
+            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call(map.TryUseBuilding(new FClientRequest
                 {
                     time = 0,
@@ -476,7 +477,7 @@ namespace DracoLib.Core
                     {
                         latitude = clientLat,
                         longitude = clientLng,
-                        horizontalAccuracy = this.GetAccuracy(),
+                        horizontalAccuracy = horizontalAccuracy
                     },
                 },
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
@@ -503,12 +504,6 @@ namespace DracoLib.Core
                     horizontalAccuracy = horizontalAccuracy,
                 },
             }));
-        }
-
-        // utils
-        internal async Task Delay(int ms)
-        {
-            await Task.Delay(ms);
         }
     }
 }

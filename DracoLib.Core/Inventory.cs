@@ -37,8 +37,9 @@ namespace DracoLib.Core
             return client.Call(client.Item.UseIncense());
         }
 
-        public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 20)
+        public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 0)
         {
+            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : client.GetAccuracy();
             var request = new FClientRequest
             {
                 time = 0,
