@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DracoLib.Core
@@ -86,11 +87,7 @@ namespace DracoLib.Core
             }
             else
             {
-                //Original line GetTimezoneOffset() * 60;  
-#pragma warning disable CS0618 // Le type ou le membre est obsolète
-                this.UtcOffset = (int)TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalSeconds;
-#pragma warning restore CS0618 // Le type ou le membre est obsolète
-                //this.UtcOffset = (int)TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).TotalSeconds;// * 60;
+                this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60; 
             }
             
             this.Proxy = proxy;
@@ -156,15 +153,15 @@ namespace DracoLib.Core
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public T Call<T>( DracoProtos.Core.Extensions.Async<T> request)
+        public T Call<T>(DracoProtos.Core.Extensions.Async<T> request)
         {
-            var service = request.GetType().GetField("v1", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
-            var method = request.GetType().GetField("v2", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
-            var body = request.GetType().GetField("v3", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(request);
+            var service = request.GetType().GetField("service", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
+            var method = request.GetType().GetField("methodName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
+            var body = request.GetType().GetField("args", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
 
             var rawbody = this.serializer.Serialize(body);
 
-            Request = new RestRequest("serviceCall", Method.POST);
+            Request = new RestRequest("serviceCall", Method.POST);            
             Request.AddHeader("Protocol-Version", this.ProtocolVersion);
             Request.AddHeader("Client-Version", this.ClientVersion);
             if (this.Dcportal != null)
@@ -183,12 +180,13 @@ namespace DracoLib.Core
             }
 
             var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
-            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
-            if (dcportal != null) this.Dcportal = dcportal;
             if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
             {
-                throw new Exception("Incorrect protocol version received: " + protocolVersion);
+                throw new DracoError("Incorrect protocol version received: " + protocolVersion);
             }
+
+            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
+            if (dcportal != null) this.Dcportal = dcportal;
 
             var data = this.serializer.Deserialize(response.RawBytes);
             (data ?? "").ToString();
@@ -253,7 +251,7 @@ namespace DracoLib.Core
 
         private FConfig GetConfig()
         {
-            var config = this.Call(auth.GetConfig( this.ClientInfo.language ));
+            var config = this.Call(auth.GetConfig(this.ClientInfo.language));
             this.BuildConfigHash(config);
             return config;
         }
