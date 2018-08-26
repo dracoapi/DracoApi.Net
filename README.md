@@ -101,4 +101,5 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 | 1.0.x        | 1.8.1                       | first tested              |
 
 #### `CREDITS`
-[DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)
+ - [DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)
+ - [AeonLucid](https://github.com/AeonLucid)
