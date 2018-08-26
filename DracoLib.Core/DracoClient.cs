@@ -48,13 +48,13 @@ namespace DracoLib.Core
         public Strings Strings { get; private set; }
 
         private RestRequest Request { get; set; }
-        private string Proxy { get; set; }
+        private IWebProxy Proxy { get; set; }
         private string Dcportal { get; set; }
         private bool CheckProtocol { get; set; }
         private Auth Auth { get; set; }
         private sbyte[] ConfigHash { get; set; }
         private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
-        private SerializerContext serializer;
+        private readonly SerializerContext serializer;
         private RestClient client;
 
         internal int UtcOffset;
@@ -73,7 +73,7 @@ namespace DracoLib.Core
         internal readonly ClientEventService clientEvent = new ClientEventService();
         //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
-        public DracoClient(string proxy = null, Config config = null)
+        public DracoClient(IWebProxy proxy = null, Config config = null)
         {
             this.Config = config ?? new Config();
 
@@ -101,8 +101,6 @@ namespace DracoLib.Core
 
             this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
-            if (!string.IsNullOrEmpty(this.Proxy))
-                this.client.Proxy = new WebProxy(this.Proxy);
             this.client.AddDefaultHeader("X-Unity-Version", "2017.1.3f1");
             this.client.AddDefaultHeader("Accept", "*/*");
             this.client.AddDefaultHeader("Protocol-Version", this.ProtocolVersion);
@@ -171,6 +169,9 @@ namespace DracoLib.Core
             Request.AddParameter("service", service);
             Request.AddParameter("method", method);
             Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
+
+            if (this.Proxy != null)
+                this.client.Proxy = this.Proxy;
 
             var response = this.client.Execute(Request);
 
