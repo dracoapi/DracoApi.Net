@@ -307,6 +307,7 @@ namespace DracoLib.Core
                 this.User.Id = response.info.userId;
                 this.User.Avatar = response.info.avatarAppearanceDetails;
             }
+
             return response;
         }
 
@@ -321,7 +322,7 @@ namespace DracoLib.Core
                      throw new DracoError("Unable to login");
                 this.Auth.TokenId = login["Auth"]; //["Token"];
                 var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                string profileId = sub[3].Replace(" ", "").Replace("email", "").Replace(",", "");
+                string profileId = sub[4].Replace(" ", "").Replace("email", "").Replace(",", "");
 
                 /*
                  * ref only
