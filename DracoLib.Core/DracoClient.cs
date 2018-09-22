@@ -5,6 +5,8 @@ using DracoLib.Core.Text;
 using DracoProtos.Core.Base;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -320,15 +322,10 @@ namespace DracoLib.Core
                 var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
                      throw new DracoError("Unable to login");
+ 
                 this.Auth.TokenId = login["Auth"]; //["Token"];
-                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false).Replace("\"", "").Replace("\r\n", "").Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                string profileId = sub[4].Replace(" ", "").Replace("email", "").Replace(",", "");
-
-                /*
-                 * ref only
-                 foreach (var word in sub)
-                    Console.WriteLine(word);
-                //*/
+                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false);
+                string profileId = JsonConvert.DeserializeObject<JObject>(sub)["sub"].ToString();
 
                 this.Auth.ProfileId = profileId;
             });
