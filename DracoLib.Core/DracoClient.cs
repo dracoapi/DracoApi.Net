@@ -326,6 +326,10 @@ namespace DracoLib.Core
                 this.Auth.TokenId = login["Auth"]; //["Token"];
                 var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false);
                 string profileId = JsonConvert.DeserializeObject<JObject>(sub)["sub"].ToString();
+                string verified = JsonConvert.DeserializeObject<JObject>(sub)["email_verified"].ToString().ToLower();
+
+                if (verified != "true")
+                    throw new DracoError("You mail is not verified, please verify this before.");
 
                 this.Auth.ProfileId = profileId;
             });
