@@ -3,6 +3,7 @@ using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoLib.Core.Text;
 using DracoProtos.Core.Base;
+using DracoProtos.Core.Extensions;
 using DracoProtos.Core.Objects;
 using DracoProtos.Core.Serializer;
 using Newtonsoft.Json;
@@ -101,6 +102,9 @@ namespace DracoLib.Core
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
 
+            if (this.Proxy != null)
+                this.client.Proxy = this.Proxy;
+
             this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
             this.client.AddDefaultHeader("X-Unity-Version", "2017.1.3f1");
@@ -153,7 +157,7 @@ namespace DracoLib.Core
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public T Call<T>(DracoProtos.Core.Extensions.Async<T> request)
+        public T Call<T>(Async<T> request)
         {
             var service = request.GetType().GetField("service", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
             var method = request.GetType().GetField("methodName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
@@ -171,9 +175,6 @@ namespace DracoLib.Core
             Request.AddParameter("service", service);
             Request.AddParameter("method", method);
             Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
-
-            if (this.Proxy != null)
-                this.client.Proxy = this.Proxy;
 
             var response = this.client.Execute(Request);
 
@@ -269,13 +270,14 @@ namespace DracoLib.Core
         {
             if (this.User.Login == "DEVICE")
             {
-                this.Auth = new Auth()
+                /*this.Auth = new Auth()
                 {
                     Name = "DEVICE",
                     Type = AuthType.DEVICE,
                     Reg = "dv",
                     ProfileId = this.User.DeviceId,
-                };
+                };*/
+                throw new DracoError("Unsupported login type: " + this.User.Login);
             }
             else if (this.User.Login == "GOOGLE")
             {
@@ -323,15 +325,19 @@ namespace DracoLib.Core
                 if (login == null)
                      throw new DracoError("Unable to login");
  
-                this.Auth.TokenId = login["Auth"]; //["Token"];
-                var sub = new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false);
-                string profileId = JsonConvert.DeserializeObject<JObject>(sub)["sub"].ToString();
-                string verified = JsonConvert.DeserializeObject<JObject>(sub)["email_verified"].ToString().ToLower();
+                this.Auth.TokenId = login["Auth"];
 
-                if (verified != "true")
+                var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false));
+
+                if (token == null)
+                    throw new DracoError("Unable to get the token.");
+
+                bool verified = (bool)token["email_verified"];
+
+                if (!verified)
                     throw new DracoError("You mail is not verified, please verify this before.");
 
-                this.Auth.ProfileId = profileId;
+                this.Auth.ProfileId = (string)token["sub"];
             });
         }
 
