@@ -46,9 +46,7 @@ Config options = new Config()
     UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
 };
 
-string my_proxy = "http://localhost:8888";
-
-var draco = new DracoClient(my_proxy, options);
+var draco = new DracoClient(null /*WebProxy here*/, options);
 
 if (!draco.Ping())
     throw new Exception();
@@ -97,7 +95,7 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
-| 1.1.x        | 1.9.3                       |                           |
+| 1.1.x        | 1.9.4                       |                           |
 | 1.0.x        | 1.8.1                       | first tested              |
 
 #### `CREDITS`
