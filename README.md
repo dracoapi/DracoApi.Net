@@ -107,3 +107,4 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 #### `CREDITS`
  - [DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)
  - [AeonLucid](https://github.com/AeonLucid)
+ - [Jwt.Net](https://github.com/jwt-dotnet)
