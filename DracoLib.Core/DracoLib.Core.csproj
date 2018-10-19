@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DracoProtos\DracoProtos.Core\DracoProtos.Core.csproj" />
+    <ProjectReference Include="..\..\DracoProtos.Core\DracoProtos.Core\DracoProtos.Core.csproj" />
   </ItemGroup>
 
 </Project>
