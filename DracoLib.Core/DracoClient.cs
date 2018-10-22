@@ -514,5 +514,10 @@ namespace DracoLib.Core
                 },
             }));
         }
+
+        public FCatchingCreature FeedCreature(string creatureId, ItemType item, Tile tile)
+        {
+            return this.Call(gamePlay.FeedCreature(creatureId, item, tile));
+        }
     }
 }

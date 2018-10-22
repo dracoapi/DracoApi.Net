@@ -70,5 +70,10 @@ namespace DracoLib.Core
         {
             return client.Call(client.Item.UseExperienceBooster());
         }
+
+        public float UsePotion(ItemType item, string id)
+        {
+            return client.Call(client.Creatures.UsePotion(item, id));
+        }
     }
 }
