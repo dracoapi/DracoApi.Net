@@ -90,9 +90,9 @@ namespace DracoLib.Core
             }
             else
             {
-                this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60; 
+                this.UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60;
             }
-            
+
             this.Proxy = proxy;
             int timeout = 20 * 1000;
             if (this.Config.TimeOut > 0)
@@ -139,11 +139,12 @@ namespace DracoLib.Core
             this.Strings = new Strings(config.Lang);
         }
 
-        public float GetAccuracy() {
+        public float GetAccuracy()
+        {
             double random = new Random().Next(20, 65) * 2;
             return (float)Math.Floor(random);
         }
-        
+
         public bool Ping()
         {
             Request = new RestRequest("ping", Method.POST);
@@ -165,7 +166,7 @@ namespace DracoLib.Core
 
             var rawbody = this.serializer.Serialize(body);
 
-            Request = new RestRequest("serviceCall", Method.POST);            
+            Request = new RestRequest("serviceCall", Method.POST);
             Request.AddHeader("Protocol-Version", this.ProtocolVersion);
             Request.AddHeader("Client-Version", this.ClientVersion);
             if (this.Dcportal != null)
@@ -194,8 +195,8 @@ namespace DracoLib.Core
 
             var data = this.serializer.Deserialize(response.RawBytes);
             (data ?? "").ToString();
-            return (T) data;
-            
+            return (T)data;
+
         }
 
         public void Post(string url, object data)
@@ -289,7 +290,7 @@ namespace DracoLib.Core
                     ProfileId = "?",
                 };
                 await this.GoogleLogin();
-            }            
+            }
             else if (this.User.Login == "FACEBOOK")
             {
                 throw new FacebookLoginException("Facebook login not implemented.");
@@ -300,7 +301,7 @@ namespace DracoLib.Core
             }
 
             //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call(auth.TrySingIn( 
+            var response = this.Call(auth.TrySingIn(
                 new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
                 this.ClientInfo,
                 new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
@@ -320,11 +321,11 @@ namespace DracoLib.Core
             await Task.Run(async () =>
             {
                 //this.Event("StartGoogleSignIn");
-                
+
                 var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
-                     throw new DracoError("Unable to login");
- 
+                    throw new DracoError("Unable to login");
+
                 this.Auth.TokenId = login["Auth"];
 
                 var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false));
@@ -355,7 +356,7 @@ namespace DracoLib.Core
         public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
-            var result = this.Call(auth.ValidateNickname( nickname ));
+            var result = this.Call(auth.ValidateNickname(nickname));
             if (result == null) return result;
             else if (result.error == FNicknameValidationError.DUPLICATE)
             {
@@ -377,7 +378,7 @@ namespace DracoLib.Core
 
         public FUserInfo AcceptLicence(int licence)
         {
-            return this.Call(auth.AcceptLicence( licence ));
+            return this.Call(auth.AcceptLicence(licence));
         }
 
         public FAuthData Register(string nickname)
@@ -401,7 +402,7 @@ namespace DracoLib.Core
 
         public FNewsArticle GetNews(string lastSeen)
         {
-            return this.Call(auth.GetNews( this.ClientInfo.language, lastSeen ));
+            return this.Call(auth.GetNews(this.ClientInfo.language, lastSeen));
         }
 
         //TODO: look this
@@ -424,7 +425,7 @@ namespace DracoLib.Core
             this.User.Avatar = avatar;
             //this.Event("AvatarPlayerGenderRace", "1", "1");
             //this.Event("AvatarPlayerSubmit", avatar.ToString());
-            return this.Call(player.SaveUserSettings( this.User.Avatar ));
+            return this.Call(player.SaveUserSettings(this.User.Avatar));
         }
 
         public FUpdate SelectAlliance(AllianceType alliance, int bonus)
@@ -439,7 +440,7 @@ namespace DracoLib.Core
 
         public object AcknowledgeNotification(string type)
         {
-            return this.Call(player.AcknowledgeNotification( type ));
+            return this.Call(player.AcknowledgeNotification(type));
         }
 
         public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy = 0, Dictionary<FTile, long> tilescache = null)
@@ -473,21 +474,21 @@ namespace DracoLib.Core
             }
             return data;
         }
-        
+
         public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             return this.Call(map.TryUseBuilding(new FClientRequest
+            {
+                time = 0,
+                currentUtcOffsetSeconds = this.UtcOffset,
+                coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
-                    time = 0,
-                    currentUtcOffsetSeconds = this.UtcOffset,
-                    coordsWithAccuracy = new GeoCoordsWithAccuracy
-                    {
-                        latitude = clientLat,
-                        longitude = clientLng,
-                        horizontalAccuracy = horizontalAccuracy
-                    },
+                    latitude = clientLat,
+                    longitude = clientLng,
+                    horizontalAccuracy = horizontalAccuracy
                 },
+            },
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
             ));
         }
@@ -515,4 +516,3 @@ namespace DracoLib.Core
         }
     }
 }
-

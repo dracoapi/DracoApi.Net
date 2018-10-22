@@ -64,7 +64,7 @@ namespace DracoLib.Core
             };
 
             return client.Call(client.Item.UseSuperVision(request));
-         }
+        }
 
         public new FAvaUpdate UseExperienceBooster()
         {
