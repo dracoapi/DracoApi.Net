@@ -1546,4 +1546,3 @@ namespace DracoLib.Core.Text
         };
     }
 }
-
