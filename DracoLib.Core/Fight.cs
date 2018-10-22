@@ -11,6 +11,7 @@ namespace DracoLib.Core
         {
             this.client = dracoClient;
         }
+
         public FEncounterUpdate Start(FStartEncounterRequest attack)
         {
             return client.Call(client.encounter.StartEncounter(attack));
@@ -26,6 +27,7 @@ namespace DracoLib.Core
         {
             return client.Call(client.encounter.StartEncounter(attack));
         }
+
         private new object GiveUpEncounter()
         {
             return client.Call(client.encounter.GiveUpEncounter());

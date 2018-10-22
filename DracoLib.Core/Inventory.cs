@@ -64,11 +64,16 @@ namespace DracoLib.Core
             };
 
             return client.Call(client.Item.UseSuperVision(request));
-         }
+        }
 
         public new FAvaUpdate UseExperienceBooster()
         {
             return client.Call(client.Item.UseExperienceBooster());
+        }
+
+        public float UsePotion(ItemType item, string id)
+        {
+            return client.Call(client.Creatures.UsePotion(item, id));
         }
     }
 }

@@ -9,9 +9,9 @@ namespace DracoLib.Core.Extensions
     // ReSharper disable once InconsistentNaming
     public class GPSOAuthClient
     {
-        private const string B64Key = "AAAAgMom/1a/v0lblO2Ubrt60J2gcuXSljGFQXgcyZWveWLEwo6prwgi3" + 
-            "iJIZdodyhKZQrNWp5nKJ3srRXcUW+F1BD3baEVGcmEgqaLZUNBjm057pK" + 
-            "RI16kB0YppeGx5qIQ5QjKzsR8ETQbKLNWgRY0QRNVz34kMJR3P/LgHax/" + 
+        private const string B64Key = "AAAAgMom/1a/v0lblO2Ubrt60J2gcuXSljGFQXgcyZWveWLEwo6prwgi3" +
+            "iJIZdodyhKZQrNWp5nKJ3srRXcUW+F1BD3baEVGcmEgqaLZUNBjm057pK" +
+            "RI16kB0YppeGx5qIQ5QjKzsR8ETQbKLNWgRY0QRNVz34kMJR3P/LgHax/" +
             "6rmf5AAAAAwEAAQ==";
         //private const string Version = "0.0.5";
         private const string AuthUrl = "https://android.clients.google.com/auth";
@@ -30,7 +30,7 @@ namespace DracoLib.Core.Extensions
             _password = password;
             _androidId = androidId;
         }
-        
+
         private static async Task<Dictionary<string, string>> PerformAuthRequest(Dictionary<string, string> data)
         {
             using (var client = new HttpClient())
@@ -41,7 +41,7 @@ namespace DracoLib.Core.Extensions
                 return GoogleKeyUtils.ParseAuthResponse(result);
             }
         }
-        
+
         public async Task<Dictionary<string, string>> PerformMasterLogin(string service = "ac2dm",
             string deviceCountry = "us", string operatorCountry = "us", string lang = "en", int sdkVersion = 21)
         {
@@ -62,7 +62,7 @@ namespace DracoLib.Core.Extensions
             };
             return await PerformAuthRequest(dict);
         }
-        
+
         public async Task<Dictionary<string, string>> PerformOAuth(string masterToken, string service, string app, string clientSig,
             string deviceCountry = "us", string operatorCountry = "us", string lang = "en", int sdkVersion = 21)
         {

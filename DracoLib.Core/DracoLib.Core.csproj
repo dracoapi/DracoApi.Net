@@ -5,11 +5,11 @@
     <PackageIconUrl>https://secure.gravatar.com/avatar/d6dddda25a178dc2dd93edae79821fe3?s=512&amp;amp;r=g&amp;amp;d=retro</PackageIconUrl>
     <Authors>--=FurtiF™=-- and Xelwon</Authors>
     <Description>A community-driven DraconiusGo API Library written in C#.  You can read the changelog here https://github.com/Account-Managers/DracoLib/blob/master/README.md.</Description>
-    <PackageProjectUrl>https://github.com/Account-Managers/DracoLib</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Account-Managers/DracoLib</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Account-Managers/DracoLib.Core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Account-Managers/DracoLib.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
-    <Version>1.1.19.5</Version>
+    <Version>1.1.19.6</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>Acount Manager's</Company>
     <Copyright>2018</Copyright>
@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="DracoProtos.Core" Version="1.9.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.3" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.3.37" />
     <PackageReference Include="RestSharp" Version="106.4.2" />
   </ItemGroup>
 

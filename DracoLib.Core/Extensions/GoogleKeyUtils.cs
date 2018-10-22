@@ -24,10 +24,10 @@ namespace DracoLib.Core.Extensions
 
             return new RsaKeyParameters(false, new BigInteger(1, modBytes), new BigInteger(1, expBytes));
         }
-        
+
         public static Dictionary<string, string> ParseAuthResponse(string text)
         {
-            return text.Split(new[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries)
+            return text.Split(new[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Split('='))
                 .ToDictionary(parts => parts[0], parts => parts[1]);
         }
