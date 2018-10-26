@@ -1,6 +1,6 @@
 using DracoLib.Core;
+using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
-using DracoProtos.Core.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,26 +26,32 @@ namespace CreateUser
         static void Main(string[] args)
         {
             Console.WriteLine("Starting...");
+            var nickname = GenerateNickname();
+            Console.WriteLine("Generate nickname: " + nickname);
 
             Console.WriteLine("Creating new Configuration...");
+
             User config = new User()
             {
-                Username = "xxxxxxx@gmail.com",
-                Password = "xxxxxxx",
+                Nickname = nickname,
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                Login = "GOOGLE"
+                Login = "DEVICE"
             };
 
             Config options = new Config()
             {
                 CheckProtocol = true,
                 EventsCounter = new Dictionary<string, int>(),
-                Lang = "English",
+                Lang = Langues.English.ToString(),
                 TimeOut = 20 * 1000,
                 UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60
             };
 
             var draco = new DracoClient(null, options);
+
+            Console.WriteLine("Ping...");
+            var ping = draco.Ping();
+            if (!ping) throw new Exception();
 
             Console.WriteLine("Boot...");
             draco.Boot(config);
@@ -75,22 +81,14 @@ namespace CreateUser
                 draco.AcceptLicence(newLicence);
             }
 
-            Console.WriteLine("Generate nickname...");
-            var nickname = GenerateNickname();
-            var response = draco.ValidateNickName(nickname);
-            while (response != null && response.error == FNicknameValidationError.DUPLICATE)
-            {
-                nickname = response.suggestedNickname;
-                response = draco.ValidateNickName(nickname);
-            }
+            var response = draco.ValidateNickName(config.Nickname);
             if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
-            Console.WriteLine(" Nickname: " + nickname);
 
             Console.WriteLine("Accept tos...");
             draco.AcceptToS();
 
             Console.WriteLine("Register account...");
-            draco.Register(nickname);
+            draco.Register(config.Nickname);
 
             Console.WriteLine("Set avatar...");
             draco.SetAvatar(271891);

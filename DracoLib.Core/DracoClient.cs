@@ -20,12 +20,12 @@ namespace DracoLib.Core
 {
     public class User
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string DeviceId { get; set; }
-        public string Nickname { get; set; }
+        public string Nickname { get; set; } = string.Empty;
         public int Avatar { get; set; }
         public string Login { get; set; }
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
         public string Password { get; set; }
     }
 
@@ -271,14 +271,16 @@ namespace DracoLib.Core
         {
             if (this.User.Login == "DEVICE")
             {
-                /*this.Auth = new Auth()
+                this.Auth = new Auth()
                 {
                     Name = "DEVICE",
                     Type = AuthType.DEVICE,
                     Reg = "dv",
                     ProfileId = this.User.DeviceId,
-                };*/
-                throw new DracoError("Unsupported login type: " + this.User.Login);
+                };
+
+                //return DevSingIn(this.User.Nickname, true, true);
+                throw new DracoError("Device login not implemented.");
             }
             else if (this.User.Login == "GOOGLE")
             {
@@ -302,9 +304,17 @@ namespace DracoLib.Core
 
             //this.Event("TrySingIn", this.Auth.Name);
             var response = this.Call(auth.TrySingIn(
-                new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
+                new AuthData
+                {
+                    authType = this.Auth.Type,
+                    profileId = this.Auth.ProfileId,
+                    tokenId = this.Auth.TokenId
+                },
                 this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
+                new FRegistrationInfo(this.Auth.Reg)
+                {
+                    email = this.User.Username
+                }
             ));
 
             if (response != null && response.info != null)
@@ -321,7 +331,6 @@ namespace DracoLib.Core
             await Task.Run(async () =>
             {
                 //this.Event("StartGoogleSignIn");
-
                 var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
                     throw new DracoError("Unable to login");
@@ -353,16 +362,27 @@ namespace DracoLib.Core
             // this.Event("InitPushNotifications", "False");
         }
 
+        public FAuthData DevSingIn(string login, bool validateNickname, bool asDevice)
+        {
+            return this.Call(auth.DevSingIn(login, validateNickname, asDevice));
+        }
+
         public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
         {
             //this.Event("ValidateNickname", nickname);
             var result = this.Call(auth.ValidateNickname(nickname));
+
             if (result == null) return result;
-            else if (result.error == FNicknameValidationError.DUPLICATE)
+
+            if (result.error == FNicknameValidationError.DUPLICATE)
             {
-                this.Event("ValidateNicknameError", "DUPLICATE");
-                if (takeSuggested) return ValidateNickName(result.suggestedNickname, true);
-                else return result;
+                //this.Event("ValidateNicknameError", "DUPLICATE");
+                if (takeSuggested)
+                {
+                    return ValidateNickName(result.suggestedNickname, true);
+                }
+
+                return result;
             }
             else
             {
@@ -386,11 +406,18 @@ namespace DracoLib.Core
             this.User.Nickname = nickname;
             //this.Event("Register", this.Auth.Name, nickname);
             var data = this.Call(auth.Register(
-
-                new AuthData() { authType = this.Auth.Type, profileId = this.Auth.ProfileId, tokenId = this.Auth.TokenId },
+                new AuthData
+                {
+                    authType = this.Auth.Type,
+                    profileId = this.Auth.ProfileId,
+                    tokenId = this.Auth.TokenId
+                },
                 nickname,
                 this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg) { email = this.User.Username }
+                new FRegistrationInfo(this.Auth.Reg)
+                {
+                    email = this.User.Username
+                }
             ));
 
             this.User.Id = data.info.userId;
@@ -403,6 +430,26 @@ namespace DracoLib.Core
         public FNewsArticle GetNews(string lastSeen)
         {
             return this.Call(auth.GetNews(this.ClientInfo.language, lastSeen));
+        }
+
+        public FNewsArticle GetOffers(string seenNews)
+        {
+            return this.Call(auth.GetOffers(this.ClientInfo.language, seenNews));
+        }
+
+        public FTips GetTips()
+        {
+            return this.Call(auth.GetTips(this.ClientInfo.language));
+        }
+
+        public FAuthData LinkTo(AuthData authData, FClientInfo clientInfo, FRegistrationInfo regInfo, bool force)
+        {
+            return this.Call(auth.LinkTo(authData, clientInfo, regInfo, force));
+        }
+
+        public FTips MarkTip(bool value)
+        {
+            return this.Call(auth.MarkTip(this.ClientInfo.language, value));
         }
 
         //TODO: look this
