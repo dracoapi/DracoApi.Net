@@ -12,25 +12,19 @@ namespace DracoLib.Core
             this.client = dracoClient;
         }
 
-        public FEncounterUpdate Start(FStartEncounterRequest attack)
+        public new FEncounterUpdate StartEncounter(FStartEncounterRequest attack)
         {
             return client.Call(client.encounter.StartEncounter(attack));
         }
 
-        public object GiveUp()
+        public new object GiveUpEncounter()
         {
             return client.Call(client.encounter.GiveUpEncounter());
         }
 
-        // To hide base methods
-        private new FEncounterUpdate StartEncounter(FStartEncounterRequest attack)
+        public new FEncounterBattleResult UpdateEncounterDetails(FFightRequest fightRequest)
         {
-            return client.Call(client.encounter.StartEncounter(attack));
-        }
-
-        private new object GiveUpEncounter()
-        {
-            return client.Call(client.encounter.GiveUpEncounter());
+            return client.Call(client.encounter.UpdateEncounterDetails(fightRequest));
         }
     }
 }
