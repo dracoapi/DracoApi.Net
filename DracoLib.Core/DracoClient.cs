@@ -49,6 +49,7 @@ namespace DracoLib.Core
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
+        public FConfig FConfig { get; private set; }
 
         private RestRequest Request { get; set; }
         private IWebProxy Proxy { get; set; }
@@ -256,9 +257,9 @@ namespace DracoLib.Core
 
         private FConfig GetConfig()
         {
-            var config = this.Call(auth.GetConfig(this.ClientInfo.language));
-            this.BuildConfigHash(config);
-            return config;
+            FConfig = this.Call(auth.GetConfig(this.ClientInfo.language));
+            this.BuildConfigHash(FConfig);
+            return FConfig;
         }
 
         private sbyte[] BuildConfigHash(FConfig config)

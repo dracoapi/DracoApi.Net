@@ -5,15 +5,20 @@ namespace DracoLib.Core.Text
 {
     public class Strings
     {
-        private string language;
+        private readonly string language;
+        private readonly DracoClient DracoClient;
 
-        public Strings(string language)
+        public Strings(string language, DracoClient dracoClient = null)
         {
             this.language = language;
+            this.DracoClient = dracoClient;
         }
 
         private string Load(string obj)
         {
+            if (DracoClient != null && DracoClient.FConfig != null)
+                return DracoClient.FConfig.clientTexts[obj];
+
             try
             {
                 if (language == Langues.Bulgarian.ToString())
