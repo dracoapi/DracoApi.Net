@@ -46,6 +46,7 @@ namespace DracoLib.Core
         public Inventory Inventory { get; private set; }
         public Eggs Eggs { get; private set; }
         public Creatures Creatures { get; private set; }
+        public Battle Battle { get; private set; }
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
@@ -135,6 +136,7 @@ namespace DracoLib.Core
             this.Inventory = new Inventory(this);
             this.Eggs = new Eggs(this);
             this.Creatures = new Creatures(this);
+            this.Battle = new Battle(this);
 
             // Text
             this.Strings = new Strings(config.Lang);
