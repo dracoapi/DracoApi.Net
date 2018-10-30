@@ -20,12 +20,12 @@ namespace DracoLib.Core
 {
     public class User
     {
-        public string Id { get; set; } = string.Empty;
+        public string Id { get; set; }
         public string DeviceId { get; set; }
-        public string Nickname { get; set; } = string.Empty;
+        public string Nickname { get; set; }
         public int Avatar { get; set; }
         public string Login { get; set; }
-        public string Username { get; set; } = string.Empty;
+        public string Username { get; set; }
         public string Password { get; set; }
     }
 
@@ -49,7 +49,6 @@ namespace DracoLib.Core
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
-        public FConfig FConfig { get; private set; }
 
         private RestRequest Request { get; set; }
         private IWebProxy Proxy { get; set; }
@@ -62,7 +61,8 @@ namespace DracoLib.Core
         private RestClient client;
 
         internal int UtcOffset;
-        internal Config Config { get; set; }
+        internal Config Config { get; private set; }
+        internal FConfig FConfig { get; private set; }
         internal readonly AuthService auth = new AuthService();
         internal readonly MapService map = new MapService();
         internal readonly PlayerService player = new PlayerService();
