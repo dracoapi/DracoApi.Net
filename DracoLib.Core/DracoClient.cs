@@ -137,9 +137,7 @@ namespace DracoLib.Core
             this.Eggs = new Eggs(this);
             this.Creatures = new Creatures(this);
             this.Battle = new Battle(this);
-
-            // Text
-            this.Strings = new Strings(config.Lang);
+            this.Strings = new Strings(config.Lang, this);
         }
 
         public float GetAccuracy()
