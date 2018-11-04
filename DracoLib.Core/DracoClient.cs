@@ -264,6 +264,7 @@ namespace DracoLib.Core
 
         private sbyte[] BuildConfigHash(FConfig config)
         {
+            FConfig = config;
             this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
             return this.ConfigHash;
         }
@@ -348,7 +349,12 @@ namespace DracoLib.Core
                 if (!verified)
                     throw new DracoError("You mail is not verified, please verify this before.");
 
-                this.Auth.ProfileId = (string)token["sub"];
+                string sub = (string)token["sub"];
+
+                if (string.IsNullOrEmpty(sub))
+                    throw new DracoError("You mail is not verified, please verify this before.");
+
+                this.Auth.ProfileId = sub;
             });
         }
 
@@ -543,14 +549,17 @@ namespace DracoLib.Core
 
         public FOpenChestResult OpenChest(FChest chest)
         {
-            this.Call(map.StartOpeningChest(chest));
-            return this.Call(map.OpenChestResult(chest));
+            object result = this.Call(map.StartOpeningChest(chest));
+            if (result != null)
+                return this.Call(map.OpenChestResult(chest));
+
+            return result as FOpenChestResult;
         }
 
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            var result = this.Call(map.LeaveDungeon(new FClientRequest
+            FUpdate result = this.Call(map.LeaveDungeon(new FClientRequest
             {
                 time = 0,
                 currentUtcOffsetSeconds = this.UtcOffset,
