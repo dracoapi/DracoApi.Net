@@ -550,7 +550,7 @@ namespace DracoLib.Core
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            return this.Call(map.LeaveDungeon(new FClientRequest
+            var result = this.Call(map.LeaveDungeon(new FClientRequest
             {
                 time = 0,
                 currentUtcOffsetSeconds = this.UtcOffset,
@@ -561,6 +561,11 @@ namespace DracoLib.Core
                     horizontalAccuracy = horizontalAccuracy,
                 },
             }));
+
+            if (result != null)
+                return GetMapUpdate(latitude, longitude, horizontalAccuracy);
+
+            return result;
         }
 
         public FCatchingCreature FeedCreature(string creatureId, ItemType item, Tile tile)
