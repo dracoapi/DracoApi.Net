@@ -78,6 +78,9 @@ namespace DracoLib.Core
         internal readonly ClientEventService clientEvent = new ClientEventService();
         //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
+        //Others
+        internal long timeServer { get; private set; }
+
         public DracoClient(IWebProxy proxy = null, Config config = null)
         {
             this.Config = config ?? new Config();
@@ -114,18 +117,18 @@ namespace DracoLib.Core
             this.client.AddDefaultHeader("Protocol-Version", this.ProtocolVersion);
             this.client.AddDefaultHeader("Client-Version", this.ClientVersion);
             this.client.AddDefaultHeader("Accept-Language", "en-us");
-            this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/902.2 Darwin/17.7.0";
+            this.client.UserAgent = $"DraconiusGO/{this.ClientVersion} CFNetwork/975.0.3 Darwin/18.2.0";
             this.client.CookieContainer = new CookieContainer();
             //this.client.Encoding = null;
             this.client.Timeout = timeout;
 
             this.ClientInfo = new FClientInfo
             {
-                deviceModel = "iPhone8,1",
+                deviceModel = "iPhone9,3",
                 iOsAdvertisingTrackingEnabled = false,
                 language = this.Config.Lang,
                 platform = "IPhonePlayer",
-                platformVersion = "iOS 11.4.1",
+                platformVersion = "iOS 12.1.1",
                 revision = this.ClientVersion,
                 screenHeight = 1334,
                 screenWidth = 750,
@@ -459,21 +462,6 @@ namespace DracoLib.Core
             return this.Call(auth.MarkTip(this.ClientInfo.language, value));
         }
 
-        //TODO: look this
-        /*
-        public void generateAvatar(object options) {
-        return (options.gender || 0) |          // 0 or 1
-               (options.race || 0)     << 1 |   // 0 or 1
-               (options.skin || 0)     << 3 |   //
-               (options.hair || 0)     << 6 |
-               (options.eyes || 0)     << 9 |
-               (options.jacket || 0)   << 12 |
-               (options.trousers || 0) << 15 |
-               (options.shoes || 0)    << 18 |
-               (options.backpack || 0) << 21;
-        }
-        */
-
         public object SetAvatar(int avatar)
         {
             this.User.Avatar = avatar;
@@ -501,12 +489,13 @@ namespace DracoLib.Core
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
+            long _time_sever = this.timeServer <= 0 ?  0 : this.timeServer;
 
             var data = this.Call(map.GetUpdate(new FUpdateRequest()
             {
                 clientRequest = new FClientRequest()
                 {
-                    time = 0,
+                    time = _time_sever,
                     currentUtcOffsetSeconds = this.UtcOffset,
                     coordsWithAccuracy = new GeoCoordsWithAccuracy()
                     {
@@ -521,6 +510,11 @@ namespace DracoLib.Core
                 tilesCache = tilescache,
             }));
 
+            if (data == null)
+                throw new DracoError("Null error no data.");
+
+            this.timeServer = data.serverTime;
+
             if (data.items != null)
             {
                 var config = data.items.Find(i => i?.GetType() == typeof(FConfig)) as FConfig;
@@ -532,9 +526,11 @@ namespace DracoLib.Core
         public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            return this.Call(map.TryUseBuilding(new FClientRequest
+            long _time_sever = this.timeServer <= 0 ? 0 : this.timeServer;
+
+            FUpdate fUpdate = this.Call(map.TryUseBuilding(new FClientRequest
             {
-                time = 0,
+                time = _time_sever,
                 currentUtcOffsetSeconds = this.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
@@ -545,6 +541,9 @@ namespace DracoLib.Core
             },
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
             ));
+
+            this.timeServer = fUpdate.serverTime;
+            return fUpdate;
         }
 
         public FOpenChestResult OpenChest(FChest chest)
@@ -559,9 +558,11 @@ namespace DracoLib.Core
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            FUpdate result = this.Call(map.LeaveDungeon(new FClientRequest
+            long _time_sever = this.timeServer <= 0 ? 0 : this.timeServer;
+
+            FUpdate fUpdate = this.Call(map.LeaveDungeon(new FClientRequest
             {
-                time = 0,
+                time = _time_sever,
                 currentUtcOffsetSeconds = this.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
@@ -571,10 +572,8 @@ namespace DracoLib.Core
                 },
             }));
 
-            if (result != null)
-                return GetMapUpdate(latitude, longitude, horizontalAccuracy);
-
-            return result;
+            this.timeServer = fUpdate.serverTime;
+            return fUpdate;
         }
 
         public FCatchingCreature FeedCreature(string creatureId, ItemType item, Tile tile)
