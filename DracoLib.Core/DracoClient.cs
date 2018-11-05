@@ -50,6 +50,7 @@ namespace DracoLib.Core
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
+        public FConfig FConfig { get; private set; }
 
         private RestRequest Request { get; set; }
         private IWebProxy Proxy { get; set; }
@@ -63,7 +64,6 @@ namespace DracoLib.Core
 
         internal int UtcOffset;
         internal Config Config { get; private set; }
-        internal FConfig FConfig { get; private set; }
         internal readonly AuthService auth = new AuthService();
         internal readonly MapService map = new MapService();
         internal readonly PlayerService player = new PlayerService();
