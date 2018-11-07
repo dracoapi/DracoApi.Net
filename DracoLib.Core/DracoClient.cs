@@ -79,7 +79,7 @@ namespace DracoLib.Core
         //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
         //Others
-        internal long timeServer { get; private set; }
+        internal long TimeServer { get; private set; }
 
         public DracoClient(IWebProxy proxy = null, Config config = null)
         {
@@ -489,13 +489,13 @@ namespace DracoLib.Core
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
-            long _time_sever = this.timeServer <= 0 ?  0 : this.timeServer;
+            long _time_sever = this.TimeServer <= 0 ?  0 : this.TimeServer;
 
             var data = this.Call(map.GetUpdate(new FUpdateRequest()
             {
                 clientRequest = new FClientRequest()
                 {
-                    time = _time_sever,
+                    time = 0, // _time_sever,
                     currentUtcOffsetSeconds = this.UtcOffset,
                     coordsWithAccuracy = new GeoCoordsWithAccuracy()
                     {
@@ -513,7 +513,7 @@ namespace DracoLib.Core
             if (data == null)
                 throw new DracoError("Null error no data.");
 
-            this.timeServer = data.serverTime;
+            this.TimeServer = data.serverTime;
 
             if (data.items != null)
             {
@@ -526,11 +526,11 @@ namespace DracoLib.Core
         public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            long _time_sever = this.timeServer <= 0 ? 0 : this.timeServer;
+            long _time_sever = this.TimeServer <= 0 ? 0 : this.TimeServer;
 
             FUpdate fUpdate = this.Call(map.TryUseBuilding(new FClientRequest
             {
-                time = _time_sever,
+                time = 0, // _time_sever,
                 currentUtcOffsetSeconds = this.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
@@ -542,7 +542,7 @@ namespace DracoLib.Core
                 new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
             ));
 
-            this.timeServer = fUpdate.serverTime;
+            this.TimeServer = fUpdate.serverTime;
             return fUpdate;
         }
 
@@ -558,11 +558,11 @@ namespace DracoLib.Core
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            long _time_sever = this.timeServer <= 0 ? 0 : this.timeServer;
+            long _time_sever = this.TimeServer <= 0 ? 0 : this.TimeServer;
 
             FUpdate fUpdate = this.Call(map.LeaveDungeon(new FClientRequest
             {
-                time = _time_sever,
+                time = 0, //_time_sever,
                 currentUtcOffsetSeconds = this.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
@@ -572,7 +572,7 @@ namespace DracoLib.Core
                 },
             }));
 
-            this.timeServer = fUpdate.serverTime;
+            this.TimeServer = fUpdate.serverTime;
             return fUpdate;
         }
 
