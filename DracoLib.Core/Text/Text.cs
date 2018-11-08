@@ -16,8 +16,8 @@ namespace DracoLib.Core.Text
 
         private string Load(string obj)
         {
-            if (DracoClient != null && DracoClient.FConfig != null)
-                return DracoClient.FConfig.clientTexts[obj];
+            //if (DracoClient != null && DracoClient.FConfig != null)
+            //    return DracoClient.FConfig.clientTexts[obj].Replace("\r", " ").Replace("\n", " ");
 
             try
             {
