@@ -548,11 +548,8 @@ namespace DracoLib.Core
 
         public FOpenChestResult OpenChest(FChest chest)
         {
-            object result = this.Call(map.StartOpeningChest(chest));
-            if (result != null)
-                return this.Call(map.OpenChestResult(chest));
-
-            return result as FOpenChestResult;
+            this.Call(map.StartOpeningChest(chest));
+            return this.Call(map.OpenChestResult(chest));
         }
 
         public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
