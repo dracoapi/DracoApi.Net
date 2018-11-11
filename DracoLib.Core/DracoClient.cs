@@ -207,11 +207,9 @@ namespace DracoLib.Core
                 (data ?? string.Empty).ToString();
                 return (T)data;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // return empty;
-                object err = string.Empty;
-                return (T)err;
+                throw ex;
             }
             finally
             {
