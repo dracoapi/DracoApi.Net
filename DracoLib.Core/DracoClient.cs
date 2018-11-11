@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DracoLib.Core
@@ -61,6 +62,7 @@ namespace DracoLib.Core
         private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
         private readonly SerializerContext serializer;
         private RestClient client;
+        private readonly Semaphore _rpcQueue = new Semaphore(1, 1);
 
         internal int UtcOffset;
         internal Config Config { get; private set; }
@@ -164,43 +166,57 @@ namespace DracoLib.Core
 
         public T Call<T>(Async<T> request)
         {
-            var service = request.GetType().GetField("service", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
-            var method = request.GetType().GetField("methodName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
-            var body = request.GetType().GetField("args", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
-
-            var rawbody = this.serializer.Serialize(body);
-
-            Request = new RestRequest("serviceCall", Method.POST);
-            Request.AddHeader("Protocol-Version", this.ProtocolVersion);
-            Request.AddHeader("Client-Version", this.ClientVersion);
-            if (this.Dcportal != null)
+            try
             {
-                Request.AddHeader("dcportal", this.Dcportal);
+                _rpcQueue.WaitOne();
+
+                var service = request.GetType().GetField("service", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
+                var method = request.GetType().GetField("methodName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
+                var body = request.GetType().GetField("args", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(request);
+
+                var rawbody = this.serializer.Serialize(body);
+
+                Request = new RestRequest("serviceCall", Method.POST);
+                Request.AddHeader("Protocol-Version", this.ProtocolVersion);
+                Request.AddHeader("Client-Version", this.ClientVersion);
+                if (this.Dcportal != null)
+                {
+                    Request.AddHeader("dcportal", this.Dcportal);
+                }
+                Request.AddParameter("service", service);
+                Request.AddParameter("method", method);
+                Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
+
+                var response = this.client.Execute(Request);
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new DracoError("Invalid status received: " + response.StatusDescription);
+                }
+
+                var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
+                if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
+                {
+                    throw new DracoError("Incorrect protocol version received: " + protocolVersion);
+                }
+
+                var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
+                if (dcportal != null) this.Dcportal = dcportal;
+
+                var data = this.serializer.Deserialize(response.RawBytes);
+                (data ?? string.Empty).ToString();
+                return (T)data;
             }
-            Request.AddParameter("service", service);
-            Request.AddParameter("method", method);
-            Request.AddFile("args", rawbody, "args.dat", "application/octet-stream");
-
-            var response = this.client.Execute(Request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
+            catch (Exception)
             {
-                throw new DracoError("Invalid status received: " + response.StatusDescription);
+                // return empty;
+                object err = string.Empty;
+                return (T)err;
             }
-
-            var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
-            if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
+            finally
             {
-                throw new DracoError("Incorrect protocol version received: " + protocolVersion);
+                _rpcQueue.Release();
             }
-
-            var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
-            if (dcportal != null) this.Dcportal = dcportal;
-
-            var data = this.serializer.Deserialize(response.RawBytes);
-            (data ?? "").ToString();
-            return (T)data;
-
         }
 
         public void Post(string url, object data)
@@ -576,6 +592,17 @@ namespace DracoLib.Core
         public FCatchingCreature FeedCreature(string creatureId, ItemType item, Tile tile)
         {
             return this.Call(gamePlay.FeedCreature(creatureId, item, tile));
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        internal void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            _rpcQueue?.Dispose();
         }
     }
 }
