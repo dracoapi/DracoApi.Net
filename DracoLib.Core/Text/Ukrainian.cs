@@ -662,7 +662,7 @@ namespace DracoLib.Core.Text
             { "key.artifact.ARTIFACT_ARENA_XP_FOR_TRAINING_INCREASE_4.description.long", "З цим артефактом союзні Бойовища й Книгозбірні отримують на 50% більше слави, коли Ви їх тренуєте" },
             { "skill.main.SKILL_FIRE_MAIN_BEST_NORMAL", "Вогнемет" },
             { "key.ServiceException.Cause.EMPTY_MENTOR_CODE", "Ви не ввели код Майстра" },
-            { "key.month.10", "ЖЛВТЕНЬ" },
+            { "key.month.10", "ЖОВТЕНЬ" },
             { "key.month.11", "ЛИСТОПАД" },
             { "key.month.12", "ГРУДЕНЬ" },
             { "key.error.quest.tooFar", "Обеліск надто далеко" },
