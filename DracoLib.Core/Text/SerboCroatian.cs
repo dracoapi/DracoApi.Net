@@ -264,7 +264,7 @@ namespace DracoLib.Core.Text
             { "dialog.encounter.result.reward.exp", "Iskustvo" },
             { "stop.personalized.HEALS", "ZELJE ZA LEČENJE" },
             { "key.settings.language", "Srpski" },
-            { "*"key.artifact.ARTIFACT_MORE_TIME_FOR_DODGE_1"", "Šokantno ogledalo" },
+            { "key.artifact.ARTIFACT_MORE_TIME_FOR_DODGE_1", "Šokantno ogledalo" },
             { "key.item.RUNE_5.description", "Magična runa 5. nivoa" },
             { "key.artifact.ARTIFACT_STOP_CD_REDUCE_5.description", "-100 sekudni za ponovo puštanje Stubova Izobilja" },
             { "key.modal.noBtn", "Ne" },
