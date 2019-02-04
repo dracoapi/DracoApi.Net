@@ -17,6 +17,11 @@ namespace DracoLib.Core
             return client.Call(client.userCreature.GetHatchingInfo());
         }
 
+        public new FHatchingResult OpenHatchedEggWithCreature(string incubatorId, CreatureType selectedCreatureType)
+        {
+            return client.Call(client.userCreature.OpenHatchedEggWithCreature(incubatorId, selectedCreatureType));
+        }
+
         public new FHatchingResult OpenHatchedEgg(string incubatorId)
         {
             return client.Call(client.userCreature.OpenHatchedEgg(incubatorId));

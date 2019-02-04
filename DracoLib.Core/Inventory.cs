@@ -55,6 +55,11 @@ namespace DracoLib.Core
             return client.Call(client.Item.UseShovel(request));
         }
 
+        public new FAvaUpdate UseRangeExtender()
+        {
+            return client.Call(client.Item.UseRangeExtender());
+        }
+
         public FAvaUpdate UseSuperVision(double latitude, double longitude)
         {
             var request = new GeoCoords
