@@ -3,6 +3,7 @@ using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
 using System.Collections.Generic;
+using DracoProtos.Core.Base;
 
 namespace GetMapUpdate
 {
@@ -18,7 +19,7 @@ namespace GetMapUpdate
                 Username = "xxxxxxx@gmail.com",
                 Password = "xxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                Login = "GOOGLE"
+                LoginType = AuthType.GOOGLE
             };
 
             Config options = new Config()
@@ -61,7 +62,7 @@ namespace GetMapUpdate
 
             if (newLicence > 0)
             {
-                draco.AcceptLicence(newLicence);
+                draco.Auth.AcceptLicence(newLicence);
             }
 
             Console.WriteLine("Init client...");
@@ -74,7 +75,7 @@ namespace GetMapUpdate
             }
             
             Console.WriteLine("Get map update");
-            FUpdate map = draco.GetMapUpdate(45.469896, 9.180439, 20);
+            FUpdate map = draco.Map.GetMapUpdate(45.469896, 9.180439, 20);
             FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
             FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
             FBuildingUpdate buildings = map.items.Find(o => o.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;

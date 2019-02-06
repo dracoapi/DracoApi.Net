@@ -1,6 +1,8 @@
 using DracoLib.Core;
 using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
+using DracoProtos.Core.Base;
+using DracoProtos.Core.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +37,7 @@ namespace CreateUser
             {
                 Nickname = nickname,
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                Login = "DEVICE"
+                LoginType = AuthType.DEVICE
             };
 
             Config options = new Config()
@@ -78,20 +80,17 @@ namespace CreateUser
 
             if (newLicence > 0)
             {
-                draco.AcceptLicence(newLicence);
+                draco.Auth.AcceptLicence(newLicence);
             }
 
-            var response = draco.ValidateNickName(config.Nickname);
+            var response = draco.Auth.ValidateNickname(config.Nickname);
             if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
 
-            Console.WriteLine("Accept tos...");
-            draco.AcceptToS();
-
             Console.WriteLine("Register account...");
-            draco.Register(config.Nickname);
-
+            //draco.Login();
+                
             Console.WriteLine("Set avatar...");
-            draco.SetAvatar(271891);
+            draco.Player.SaveUserSettings(271891);
 
             Console.WriteLine("Load...");
             draco.Load();

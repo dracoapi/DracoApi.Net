@@ -1,5 +1,6 @@
 using DracoLib.Core;
 using DracoLib.Core.Utils;
+using DracoProtos.Core.Base;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +18,7 @@ namespace GetItems
                 Username = "xxxxxxx@gmail.com",
                 Password = "xxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                Login = "GOOGLE"
+                LoginType = AuthType.GOOGLE
             };
 
             Config options = new Config()
@@ -60,7 +61,7 @@ namespace GetItems
 
             if (newLicence > 0)
             {
-                draco.AcceptLicence(newLicence);
+                draco.Auth.AcceptLicence(newLicence);
             }
 
             Console.WriteLine("Init client...");
