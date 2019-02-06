@@ -110,7 +110,7 @@ namespace DracoLib.Core
             _request.AddObject(new
             {
                 appVersion = this.ClientVersion,
-                deviceInfo = $"platform = iOS\"nos ={ this.ClientInfo.platformVersion }\"ndevice = iPhone 9",
+                deviceInfo = $"platform = iOS\"nos ={ this.ClientInfo.platformVersion }\"ndevice = iPhone 7",
                 userId = this.User.Id,
                 message = "Material doesn\"t have a texture property \"_MainTex\"",
                 stackTrace = "",
