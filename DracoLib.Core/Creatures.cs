@@ -14,54 +14,90 @@ namespace DracoLib.Core
             client = dclient;
         }
 
-        public FCatchingCreature StartCatchingCreature(string id)
+        public new object AddCreatureToGroup(string id, int group)
         {
-            var request = new FCreatureRequest
-            {
-                id = id,
-                //veryFirst = true
-            };
-
-            var response = client.Call(client.gamePlay.StartCatchingCreature(request));
-
-            //this.dracoClient.Event("IsArAvailable", "False");
-
-            return response;
+            return client.Call(client.clientUserCreature.AddCreatureToGroup(id, group));
         }
 
-        public FCatchCreatureResult Catch(string id, ItemType ball, float quality, bool spin, object options = null)
+        public new FUserCreature ChangeCreatureSpecialization(string creatureId)
         {
-            return client.Call(client.gamePlay.TryCatchCreature(id, ball, quality, spin));
-        }
-
-        public new FUserCreatureUpdate EnhanceCreature(string id)
-        {
-            return client.Call(client.userCreature.EnhanceCreature(id));
-        }
-
-        public new FUserCreatureUpdate EvolveCreature(string id, CreatureType toType)
-        {
-            return client.Call(client.userCreature.EvolveCreature(id, toType));
+            return client.Creatures.ChangeCreatureSpecialization(creatureId);
         }
 
         public new FUpdate ConvertCreaturesToCandies(List<string> ids, bool sendUpdate)
         {
-            return client.Call(client.userCreature.ConvertCreaturesToCandies(ids, sendUpdate));
+            return client.Call(client.clientUserCreature.ConvertCreaturesToCandies(ids, sendUpdate));
         }
 
-        public new object AddCreatureToGroup(string id, int group)
+        public new FUserCreatureUpdate EnhanceCreature(string creatureId)
         {
-            return client.Call(client.userCreature.AddCreatureToGroup(id, group));
+            return client.Call(client.clientUserCreature.EnhanceCreature(creatureId));
         }
 
-        public new FUserCreature SetCreatureAlias(string id, string alias)
+        public new FUserCreatureUpdate EvolveCreature(string creatureId, CreatureType toType)
         {
-            return client.Call(client.userCreature.SetCreatureAlias(id, alias));
+            return client.Call(client.clientUserCreature.EvolveCreature(creatureId, toType));
         }
 
-        public new FUserCreature RemasterCreature(string id, bool mainSkill)
+        public new FCreadex GetCreadex()
         {
-            return client.Call(client.userCreature.RemasterCreature(id, mainSkill));
+            return client.Call(client.clientUserCreature.GetCreadex());
+        }
+
+        public new FUserHatchingInfo GetHatchingInfo()
+        {
+            return client.Call(client.clientUserCreature.GetHatchingInfo());
+        }
+
+        public new FResistModifyDetails GetResistDetails(string creatureId)
+        {
+            return client.Call(client.clientUserCreature.GetResistDetails(creatureId));
+        }
+
+        public new FUserCreaturesList GetUserCreatures()
+        {
+            return client.Call(client.clientUserCreature.GetUserCreatures());
+        }
+
+        public new FResistModifyResult ModifyResist(string creatureId, HashSet<string> sacrificeCreatureIds)
+        {
+            return client.Call(client.clientUserCreature.ModifyResist(creatureId, sacrificeCreatureIds));
+        }
+
+        public new FHatchingResult OpenHatchedEgg(string incubatorId)
+        {
+            return client.Call(client.clientUserCreature.OpenHatchedEgg(incubatorId));
+        }
+
+        public new FHatchingResult OpenHatchedEggWithCreature(string incubatorId, CreatureType selectedCreatureType)
+        {
+            return client.Call(client.clientUserCreature.OpenHatchedEggWithCreature(incubatorId, selectedCreatureType));
+        }
+
+        public new FUserCreature RemasterCreature(string creatureId, bool mainSkill)
+        {
+            return client.Call(client.clientUserCreature.RemasterCreature(creatureId, mainSkill));
+        }
+
+        public new FUserCreature SetCreatureAlias(string creatureId, string alias)
+        {
+            return client.Call(client.clientUserCreature.SetCreatureAlias(creatureId, alias));
+        }
+
+        public new object StartHatchingEgg(string eggId, string incubatorId)
+        {
+            client.Call(client.clientUserCreature.StartHatchingEgg(eggId, incubatorId));
+            return GetHatchingInfo();
+        }
+
+        public new object StartHatchingEggInRoost(string eggId, FBuildingRequest roost, int slot)
+        {
+            return client.Call(client.clientUserCreature.StartHatchingEggInRoost(eggId, roost, slot));
+        }
+
+        public new float UsePotion(ItemType type, string creatureId)
+        {
+            return client.Call(client.clientUserCreature.UsePotion(type, creatureId));
         }
     }
 }

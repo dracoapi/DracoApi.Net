@@ -25,14 +25,13 @@ namespace DracoLib.Core
         public string DeviceId { get; set; }
         public string Nickname { get; set; }
         public int Avatar { get; set; }
-        public string Login { get; set; }
+        public AuthType LoginType { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
     }
 
-    internal class Auth
+    internal class ApiAuth
     {
-        public string Name { get; set; }
         public AuthType Type { get; set; }
         public string Reg { get; set; }
         public string ProfileId { get; set; }
@@ -43,45 +42,59 @@ namespace DracoLib.Core
     {
         public FClientInfo ClientInfo { get; private set; }
         public User User { get; private set; }
-        public Fight Fight { get; private set; }
+        public Encounter Encounter { get; private set; }
         public Inventory Inventory { get; private set; }
-        public Eggs Eggs { get; private set; }
+        public Game Game { get; private set; }
+        public Map Map { get; private set; }
+        public Auth Auth { get; private set; }
+        public Event Event { get; private set; }
+        public DevMode DevMode { get; private set; }
+        public Player Player { get; private set; }
+        public Contest Contest { get; private set; }
+        public Magic Magic { get; private set; }
         public Creatures Creatures { get; private set; }
         public Battle Battle { get; private set; }
         public string ProtocolVersion { get; private set; }
         public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
-        public FConfig FConfig { get; private set; }
 
         private RestRequest Request { get; set; }
         private IWebProxy Proxy { get; set; }
         private string Dcportal { get; set; }
         private bool CheckProtocol { get; set; }
-        private Auth Auth { get; set; }
-        private sbyte[] ConfigHash { get; set; }
+        private ApiAuth ApiAuth { get; set; }
         private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
         private readonly SerializerContext serializer;
         private RestClient client;
         private readonly Semaphore _rpcQueue = new Semaphore(1, 1);
 
+        internal FConfig FConfig { get; set; }
+        internal sbyte[] ConfigHash { get; set; }
         internal int UtcOffset;
         internal Config Config { get; private set; }
-        internal readonly AuthService auth = new AuthService();
-        internal readonly MapService map = new MapService();
-        internal readonly PlayerService player = new PlayerService();
-        internal readonly UserCreatureService userCreature = new UserCreatureService();
-        internal readonly BattleService battle = new BattleService();
-        internal readonly DevModeService devMode = new DevModeService();
-        internal readonly MagicService magic = new MagicService();
-        internal readonly ContestMapService contest = new ContestMapService();
-        internal readonly GamePlayService gamePlay = new GamePlayService();
-        internal readonly EncounterService encounter = new EncounterService();
-        internal readonly ItemService Item = new ItemService();
+        internal readonly GamePlayService clientGamePlay = new GamePlayService();
+        internal readonly ContestMapService clientContestMap = new ContestMapService();
+        internal readonly DevModeService clientDevMode = new DevModeService();
         internal readonly ClientEventService clientEvent = new ClientEventService();
+        internal readonly BattleService clientBattle = new BattleService();
+        internal readonly PlayerService clientPlayer = new PlayerService();
+        internal readonly MagicService clientMagic = new MagicService();
+        internal readonly ItemService clientItem = new ItemService();
+        internal readonly EncounterService clientEncounter = new EncounterService();
+        internal readonly MapService clientMap = new MapService();
+        internal readonly UserCreatureService clientUserCreature = new UserCreatureService();
+        internal readonly AuthService clientAuth = new AuthService();
         //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
         //Others
-        internal long TimeServer { get; private set; }
+        internal long TimeServer { get; set; }
+
+        internal sbyte[] BuildConfigHash(FConfig config)
+        {
+            FConfig = config;
+            this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
+            return this.ConfigHash;
+        }
 
         public DracoClient(IWebProxy proxy = null, Config config = null)
         {
@@ -137,9 +150,16 @@ namespace DracoLib.Core
             };
 
             this.User = new User();
-            this.Fight = new Fight(this);
+            this.Encounter = new Encounter(this);
             this.Inventory = new Inventory(this);
-            this.Eggs = new Eggs(this);
+            this.Game = new Game(this);
+            this.Map = new Map(this);
+            this.Auth = new Auth(this);
+            this.Contest = new Contest(this);
+            this.Event = new Event(this);
+            this.DevMode = new DevMode(this);
+            this.Magic = new Magic(this);
+            this.Player = new Player(this);
             this.Creatures = new Creatures(this);
             this.Battle = new Battle(this);
             this.Strings = new Strings(config.Lang, this);
@@ -164,7 +184,7 @@ namespace DracoLib.Core
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public T Call<T>(Async<T> request)
+        internal T Call<T>(Async<T> request)
         {
             try
             {
@@ -232,117 +252,63 @@ namespace DracoLib.Core
             }
         }
 
-        public void Event(string name, string one = null, string two = null, string three = null)
-        {
-            int eventCounter = 1;
-
-            if (this.EventsCounter.ContainsKey(name))
-                eventCounter = this.EventsCounter[name];
-
-            this.Call(new ClientEventService().OnEventWithCounter(
-                name,
-                this.User.Id,
-                this.ClientInfo,
-                eventCounter,
-                one,
-                two,
-                three,
-                null,
-                null
-           ));
-            this.EventsCounter[name] = eventCounter + 1;
-        }
-
         public FConfig Boot(User userinfo)
         {
             this.User.Id = userinfo.Id;
             this.User.DeviceId = userinfo.DeviceId;
-            this.User.Login = (userinfo.Login ?? "GOOGLE").ToUpper();
+            this.User.LoginType = userinfo.LoginType;
             this.User.Username = userinfo.Username;
             this.User.Password = userinfo.Password;
             this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
-            /*foreach (var key in this.ClientInfo) {
-                if (this.ClientInfo.GetHashCode(key))
-                {
-                    this.ClientInfo[key] = userinfo[key];
-                }
-            }*/
-            //this.Event("LoadingScreenPercent", "100");
-            //this.Event("Initialized");
-            return this.GetConfig();
-        }
-
-        private FConfig GetConfig()
-        {
-            FConfig = this.Call(auth.GetConfig(this.ClientInfo.language));
-            this.BuildConfigHash(FConfig);
-            return FConfig;
-        }
-
-        private sbyte[] BuildConfigHash(FConfig config)
-        {
-            FConfig = config;
-            this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
-            return this.ConfigHash;
+            return this.Auth.GetConfig(this.ClientInfo.language);
         }
 
         public async Task<FAuthData> Login()
         {
-            if (this.User.Login == "DEVICE")
+            switch (this.User.LoginType)
             {
-                this.Auth = new Auth()
-                {
-                    Name = "DEVICE",
-                    Type = AuthType.DEVICE,
-                    Reg = "dv",
-                    ProfileId = this.User.DeviceId,
-                };
+                case AuthType.DEV:
+                    break;
 
-                //return DevSingIn(this.User.Nickname, true, true);
-                throw new DracoError("Device login not implemented.");
-            }
-            else if (this.User.Login == "GOOGLE")
-            {
-                this.Auth = new Auth
-                {
-                    Name = "GOOGLE",
-                    Type = AuthType.GOOGLE,
-                    Reg = "gl",
-                    ProfileId = "?",
-                };
-                await this.GoogleLogin();
-            }
-            else if (this.User.Login == "FACEBOOK")
-            {
-                throw new FacebookLoginException("Facebook login not implemented.");
-            }
-            else
-            {
-                throw new DracoError("Unsupported login type: " + this.User.Login);
-            }
+                case AuthType.DEVICE:
+                    //Identifiers.deviceId = this.User.DeviceId;
+                    break;
 
-            //this.Event("TrySingIn", this.Auth.Name);
-            var response = this.Call(auth.TrySingIn(
-                new AuthData
-                {
-                    authType = this.Auth.Type,
-                    profileId = this.Auth.ProfileId,
-                    tokenId = this.Auth.TokenId
-                },
-                this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg)
-                {
-                    email = this.User.Username
-                }
-            ));
+                case AuthType.FACEBOOK:
+                    break;
 
-            if (response != null && response.info != null)
-            {
-                this.User.Id = response.info.userId;
-                this.User.Avatar = response.info.avatarAppearanceDetails;
+                case AuthType.GOOGLE:
+                    this.ApiAuth = new ApiAuth
+                    {
+                        Type = AuthType.GOOGLE,
+                        Reg = "gl",
+                        ProfileId = "?",
+                    };
+
+                    await this.GoogleLogin();
+
+                    var response = this.Auth.TrySingIn(new AuthData
+                    {
+                        authType = this.ApiAuth.Type,
+                        profileId = this.ApiAuth.ProfileId,
+                        tokenId = this.ApiAuth.TokenId
+                    },
+                    this.ClientInfo,
+                    new FRegistrationInfo(this.ApiAuth.Reg)
+                    {
+                        email = this.User.Username
+                    });
+
+                    if (response != null && response.info != null)
+                    {
+                        this.User.Id = response.info.userId;
+                        this.User.Avatar = response.info.avatarAppearanceDetails;
+                    }
+
+                    return response;
             }
 
-            return response;
+            throw new DracoError("Unsupported login type: " + this.User.LoginType.ToString());
         }
 
         private async Task GoogleLogin()
@@ -354,9 +320,9 @@ namespace DracoLib.Core
                 if (login == null)
                     throw new DracoError("Unable to login");
 
-                this.Auth.TokenId = login["Auth"];
+                this.ApiAuth.TokenId = login["Auth"];
 
-                var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.Auth.TokenId, null, false));
+                var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.ApiAuth.TokenId, null, false));
 
                 if (token == null)
                     throw new DracoError("Unable to get the token.");
@@ -371,225 +337,13 @@ namespace DracoLib.Core
                 if (string.IsNullOrEmpty(sub))
                     throw new DracoError("You mail is not verified, please verify this before.");
 
-                this.Auth.ProfileId = sub;
+                this.ApiAuth.ProfileId = sub;
             });
         }
 
         public void Load()
         {
             if (this.User.Avatar == 0) throw new DracoError("Please login first.");
-
-            // this.Event("LoadingScreenPercent", "100");
-            // this.Event("CreateAvatarByType", "MageMale");
-            // this.Event("LoadingScreenPercent", "100");
-            // this.Event("AvatarUpdateView", this.user.avatar.toString());
-            // this.Event("InitPushNotifications", "False");
-        }
-
-        public FAuthData DevSingIn(string login, bool validateNickname, bool asDevice)
-        {
-            return this.Call(auth.DevSingIn(login, validateNickname, asDevice));
-        }
-
-        public FNicknameValidationResult ValidateNickName(string nickname, bool takeSuggested = true)
-        {
-            //this.Event("ValidateNickname", nickname);
-            var result = this.Call(auth.ValidateNickname(nickname));
-
-            if (result == null) return result;
-
-            if (result.error == FNicknameValidationError.DUPLICATE)
-            {
-                //this.Event("ValidateNicknameError", "DUPLICATE");
-                if (takeSuggested)
-                {
-                    return ValidateNickName(result.suggestedNickname, true);
-                }
-
-                return result;
-            }
-            else
-            {
-                return result;
-            }
-        }
-
-        public void AcceptToS()
-        {
-            //this.Event("LicenceShown");
-            //this.Event("LicenceAccepted");
-        }
-
-        public FUserInfo AcceptLicence(int licence)
-        {
-            return this.Call(auth.AcceptLicence(licence));
-        }
-
-        public FAuthData Register(string nickname)
-        {
-            this.User.Nickname = nickname;
-            //this.Event("Register", this.Auth.Name, nickname);
-            var data = this.Call(auth.Register(
-                new AuthData
-                {
-                    authType = this.Auth.Type,
-                    profileId = this.Auth.ProfileId,
-                    tokenId = this.Auth.TokenId
-                },
-                nickname,
-                this.ClientInfo,
-                new FRegistrationInfo(this.Auth.Reg)
-                {
-                    email = this.User.Username
-                }
-            ));
-
-            this.User.Id = data.info.userId;
-
-            //this.Event("ServerAuthSuccess", this.User.Id);
-
-            return data;
-        }
-
-        public FNewsArticle GetNews(string lastSeen)
-        {
-            return this.Call(auth.GetNews(this.ClientInfo.language, lastSeen));
-        }
-
-        public FNewsArticle GetOffers(string seenNews)
-        {
-            return this.Call(auth.GetOffers(this.ClientInfo.language, seenNews));
-        }
-
-        public FTips GetTips()
-        {
-            return this.Call(auth.GetTips(this.ClientInfo.language));
-        }
-
-        public FAuthData LinkTo(AuthData authData, FClientInfo clientInfo, FRegistrationInfo regInfo, bool force)
-        {
-            return this.Call(auth.LinkTo(authData, clientInfo, regInfo, force));
-        }
-
-        public FTips MarkTip(bool value)
-        {
-            return this.Call(auth.MarkTip(this.ClientInfo.language, value));
-        }
-
-        public object SetAvatar(int avatar)
-        {
-            this.User.Avatar = avatar;
-            //this.Event("AvatarPlayerGenderRace", "1", "1");
-            //this.Event("AvatarPlayerSubmit", avatar.ToString());
-            return this.Call(player.SaveUserSettings(this.User.Avatar));
-        }
-
-        public FUpdate SelectAlliance(AllianceType alliance, int bonus)
-        {
-            return this.Call(player.SelectAlliance(alliance, bonus));
-        }
-
-        public FAvaUpdate SelectBuddy(string creatureid)
-        {
-            return this.Call(player.SelectBuddy(creatureid));
-        }
-
-        public object AcknowledgeNotification(string type)
-        {
-            return this.Call(player.AcknowledgeNotification(type));
-        }
-
-        public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy = 0, Dictionary<FTile, long> tilescache = null)
-        {
-            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            tilescache = tilescache ?? new Dictionary<FTile, long>() { };
-            long _time_sever = this.TimeServer <= 0 ?  0 : this.TimeServer;
-
-            var data = this.Call(map.GetUpdate(new FUpdateRequest()
-            {
-                clientRequest = new FClientRequest()
-                {
-                    time = 0, // _time_sever,
-                    currentUtcOffsetSeconds = this.UtcOffset,
-                    coordsWithAccuracy = new GeoCoordsWithAccuracy()
-                    {
-                        latitude = latitude,
-                        longitude = longitude,
-                        horizontalAccuracy = horizontalAccuracy,
-                    },
-                },
-                configCacheHash = this.ConfigHash,
-                language = this.ClientInfo.language,
-                clientPlatform = ClientPlatform.IOS,
-                tilesCache = tilescache,
-            }));
-
-            if (data == null)
-                throw new DracoError("Null error no data.");
-
-            this.TimeServer = data.serverTime;
-
-            if (data.items != null)
-            {
-                var config = data.items.Find(i => i?.GetType() == typeof(FConfig)) as FConfig;
-                if (config != null) this.BuildConfigHash(config);
-            }
-            return data;
-        }
-
-        public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
-        {
-            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            long _time_sever = this.TimeServer <= 0 ? 0 : this.TimeServer;
-
-            FUpdate fUpdate = this.Call(map.TryUseBuilding(new FClientRequest
-            {
-                time = 0, // _time_sever,
-                currentUtcOffsetSeconds = this.UtcOffset,
-                coordsWithAccuracy = new GeoCoordsWithAccuracy
-                {
-                    latitude = clientLat,
-                    longitude = clientLng,
-                    horizontalAccuracy = horizontalAccuracy
-                },
-            },
-                new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
-            ));
-
-            this.TimeServer = fUpdate.serverTime;
-            return fUpdate;
-        }
-
-        public FOpenChestResult OpenChest(FChest chest)
-        {
-            this.Call(map.StartOpeningChest(chest));
-            return this.Call(map.OpenChestResult(chest));
-        }
-
-        public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
-        {
-            horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : this.GetAccuracy();
-            long _time_sever = this.TimeServer <= 0 ? 0 : this.TimeServer;
-
-            FUpdate fUpdate = this.Call(map.LeaveDungeon(new FClientRequest
-            {
-                time = 0, //_time_sever,
-                currentUtcOffsetSeconds = this.UtcOffset,
-                coordsWithAccuracy = new GeoCoordsWithAccuracy
-                {
-                    latitude = latitude,
-                    longitude = longitude,
-                    horizontalAccuracy = horizontalAccuracy,
-                },
-            }));
-
-            this.TimeServer = fUpdate.serverTime;
-            return fUpdate;
-        }
-
-        public FCatchingCreature FeedCreature(string creatureId, ItemType item, Tile tile)
-        {
-            return this.Call(gamePlay.FeedCreature(creatureId, item, tile));
         }
 
         public void Dispose()

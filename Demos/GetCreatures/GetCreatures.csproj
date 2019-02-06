@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DracoProtos.Core" Version="1.10.0.1" />
+    <PackageReference Include="DracoProtos.Core" Version="1.10.1" />
   </ItemGroup>
 
   <ItemGroup>

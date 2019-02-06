@@ -12,29 +12,29 @@ namespace DracoLib.Core
             this.client = dracoClient;
         }
 
-        public FCreadex GetCreadex()
+        public new bool DiscardItems(ItemType type, int count)
         {
-            return client.Call(client.userCreature.GetCreadex());
-        }
-
-        public FUserCreaturesList GetUserCreatures()
-        {
-            return client.Call(client.userCreature.GetUserCreatures());
+            return client.Call(client.clientItem.DiscardItems(type, count));
         }
 
         public new FBagUpdate GetUserItems()
         {
-            return client.Call(client.Item.GetUserItems());
+            return client.Call(client.clientItem.GetUserItems());
         }
 
-        public new bool DiscardItems(ItemType id, int count)
+        public new FAvaUpdate UseExperienceBooster()
         {
-            return client.Call(client.Item.DiscardItems(id, count));
+            return client.Call(client.clientItem.UseExperienceBooster());
         }
 
         public new FAvaUpdate UseIncense()
         {
-            return client.Call(client.Item.UseIncense());
+            return client.Call(client.clientItem.UseIncense());
+        }
+
+        public new FAvaUpdate UseRangeExtender()
+        {
+            return client.Call(client.clientItem.UseRangeExtender());
         }
 
         public FUpdate UseShovel(double latitude, double longitude, float horizontalAccuracy = 0)
@@ -52,33 +52,12 @@ namespace DracoLib.Core
                 },
             };
 
-            return client.Call(client.Item.UseShovel(request));
+            return client.Call(client.clientItem.UseShovel(request));
         }
 
-        public new FAvaUpdate UseRangeExtender()
+        public new FAvaUpdate UseSuperVision(GeoCoords geoCoords)
         {
-            return client.Call(client.Item.UseRangeExtender());
-        }
-
-        public FAvaUpdate UseSuperVision(double latitude, double longitude)
-        {
-            var request = new GeoCoords
-            {
-                latitude = latitude,
-                longitude = longitude,
-            };
-
-            return client.Call(client.Item.UseSuperVision(request));
-        }
-
-        public new FAvaUpdate UseExperienceBooster()
-        {
-            return client.Call(client.Item.UseExperienceBooster());
-        }
-
-        public float UsePotion(ItemType item, string id)
-        {
-            return client.Call(client.Creatures.UsePotion(item, id));
+            return client.Call(client.clientItem.UseSuperVision(geoCoords));
         }
     }
 }

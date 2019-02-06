@@ -1,5 +1,6 @@
 using DracoLib.Core;
 using DracoLib.Core.Utils;
+using DracoProtos.Core.Base;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +18,7 @@ namespace GetCreatures
                 Username = "xxxxxxx@gmail.com",
                 Password = "xxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                Login = "GOOGLE"
+                LoginType = AuthType.GOOGLE
             };
 
             Config options = new Config()
@@ -60,14 +61,14 @@ namespace GetCreatures
 
             if (newLicence > 0)
             {
-                draco.AcceptLicence(newLicence);
+                draco.Auth.AcceptLicence(newLicence);
             }
 
             Console.WriteLine("Init client...");
             draco.Load();
 
             Console.WriteLine("Get creatures...");
-            var response = draco.Inventory.GetUserCreatures();
+            var response = draco.Creatures.GetUserCreatures();
             foreach (var creature in response.userCreatures) {
                 var name = creature.alias ?? draco.Strings.GetCreatureName(creature.name);
                 Console.WriteLine($"    { name } lvl= { creature.level }, cp= { creature.cp }");
