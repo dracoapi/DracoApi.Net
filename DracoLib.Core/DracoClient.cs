@@ -40,8 +40,6 @@ namespace DracoLib.Core
 
     public class DracoClient
     {
-        public FClientInfo ClientInfo { get; private set; }
-        public User User { get; private set; }
         public Encounter Encounter { get; private set; }
         public Inventory Inventory { get; private set; }
         public Game Game { get; private set; }
@@ -54,8 +52,6 @@ namespace DracoLib.Core
         public Magic Magic { get; private set; }
         public Creatures Creatures { get; private set; }
         public Battle Battle { get; private set; }
-        public string ProtocolVersion { get; private set; }
-        public string ClientVersion { get; private set; }
         public Strings Strings { get; private set; }
 
         private RestRequest Request { get; set; }
@@ -68,10 +64,14 @@ namespace DracoLib.Core
         private RestClient client;
         private readonly Semaphore _rpcQueue = new Semaphore(1, 1);
 
+        internal User User { get; set; }
+        internal FClientInfo ClientInfo { get; set; }
+        internal string ClientVersion { get; set; }
+        internal string ProtocolVersion { get; set; }
         internal FConfig FConfig { get; set; }
         internal sbyte[] ConfigHash { get; set; }
         internal int UtcOffset;
-        internal Config Config { get; private set; }
+        internal Config Config { get; set; }
         internal readonly GamePlayService clientGamePlay = new GamePlayService();
         internal readonly ContestMapService clientContestMap = new ContestMapService();
         internal readonly DevModeService clientDevMode = new DevModeService();
@@ -84,16 +84,44 @@ namespace DracoLib.Core
         internal readonly MapService clientMap = new MapService();
         internal readonly UserCreatureService clientUserCreature = new UserCreatureService();
         internal readonly AuthService clientAuth = new AuthService();
-        //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
 
         //Others
         internal long TimeServer { get; set; }
+        //internal readonly List<RequestListener> _listeners = new List<RequestListener>();
+
+        internal float GetAccuracy()
+        {
+            double random = new Random().Next(20, 65) * 2;
+            return (float)Math.Floor(random);
+        }
 
         internal sbyte[] BuildConfigHash(FConfig config)
         {
             FConfig = config;
             this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
             return this.ConfigHash;
+        }
+
+        internal void FixTexture()
+        {
+            var _client = new RestClient("https://us.draconiusgo.com/client-error");
+            var _request = new RestRequest(Method.POST);
+            _request.AddHeader("dcportal", this.Dcportal);
+            _request.AddObject(new
+            {
+                appVersion = this.ClientVersion,
+                deviceInfo = $"platform = iOS\"nos ={ this.ClientInfo.platformVersion }\"ndevice = iPhone 9",
+                userId = this.User.Id,
+                message = "Material doesn\"t have a texture property \"_MainTex\"",
+                stackTrace = "",
+            });
+
+            var response = _client.Execute(_request);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Invalid status received: " + response.StatusDescription);
+            }
         }
 
         public DracoClient(IWebProxy proxy = null, Config config = null)
@@ -122,10 +150,12 @@ namespace DracoLib.Core
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
 
+ 
+            this.client = new RestClient("https://us.draconiusgo.com");
+
             if (this.Proxy != null)
                 this.client.Proxy = this.Proxy;
 
-            this.client = new RestClient("https://us.draconiusgo.com");
             this.client.ClearHandlers();
             this.client.AddDefaultHeader("X-Unity-Version", "2017.1.3f1");
             this.client.AddDefaultHeader("Accept", "*/*");
@@ -165,12 +195,6 @@ namespace DracoLib.Core
             this.Strings = new Strings(config.Lang, this);
         }
 
-        public float GetAccuracy()
-        {
-            double random = new Random().Next(20, 65) * 2;
-            return (float)Math.Floor(random);
-        }
-
         public bool Ping()
         {
             Request = new RestRequest("ping", Method.POST);
@@ -182,6 +206,17 @@ namespace DracoLib.Core
             this.client.AddDefaultParameter("domain", ".draconiusgo.com", ParameterType.Cookie);
 
             return response.StatusCode == HttpStatusCode.OK;
+        }
+
+        public FConfig Boot(User userinfo)
+        {
+            this.User.Id = userinfo.Id;
+            this.User.DeviceId = userinfo.DeviceId;
+            this.User.LoginType = userinfo.LoginType;
+            this.User.Username = userinfo.Username;
+            this.User.Password = userinfo.Password;
+            this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
+            return this.Auth.GetConfig(this.ClientInfo.language);
         }
 
         internal T Call<T>(Async<T> request)
@@ -237,32 +272,6 @@ namespace DracoLib.Core
             }
         }
 
-        public void Post(string url, object data)
-        {
-            var _client = new RestClient(url);
-            var _request = new RestRequest(Method.POST);
-            _request.AddHeader("dcportal", this.Dcportal);
-            _request.AddObject(data);
-
-            var response = _client.Execute(_request);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                throw new Exception("Invalid status received: " + response.StatusDescription);
-            }
-        }
-
-        public FConfig Boot(User userinfo)
-        {
-            this.User.Id = userinfo.Id;
-            this.User.DeviceId = userinfo.DeviceId;
-            this.User.LoginType = userinfo.LoginType;
-            this.User.Username = userinfo.Username;
-            this.User.Password = userinfo.Password;
-            this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
-            return this.Auth.GetConfig(this.ClientInfo.language);
-        }
-
         public async Task<FAuthData> Login()
         {
             switch (this.User.LoginType)
@@ -303,6 +312,8 @@ namespace DracoLib.Core
                     {
                         this.User.Id = response.info.userId;
                         this.User.Avatar = response.info.avatarAppearanceDetails;
+                        // fix for textures
+                        FixTexture();
                     }
 
                     return response;

@@ -69,15 +69,6 @@ namespace CreateUser
                 Console.WriteLine("Send client log is set to true! Please report.");
             }
 
-            draco.Post("https://us.draconiusgo.com/client-error", new
-            {
-                appVersion = draco.ClientVersion,
-                deviceInfo = $"platform = iOS\"nos ={ draco.ClientInfo.platformVersion }\"ndevice = iPhone 6S",
-                userId = draco.User.Id,
-                message = "Material doesn\"t have a texture property \"_MainTex\"",
-                stackTrace = "",
-            });
-
             if (newLicence > 0)
             {
                 draco.Auth.AcceptLicence(newLicence);
