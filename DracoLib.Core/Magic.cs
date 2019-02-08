@@ -1,6 +1,5 @@
 ﻿using DracoProtos.Core.Base;
 using DracoProtos.Core.Objects;
-using System.Collections.Generic;
 
 namespace DracoLib.Core
 {

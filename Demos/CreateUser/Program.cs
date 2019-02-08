@@ -2,7 +2,6 @@ using DracoLib.Core;
 using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Base;
-using DracoProtos.Core.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;

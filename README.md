@@ -83,7 +83,7 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
-| 1.2.0.0      | 1.10                        | Compatible                |
+| 1.2.1.0      | 1.10                        | Compatible                |
 
 #### `CREDITS`
  - [DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)
