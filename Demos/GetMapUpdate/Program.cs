@@ -2,8 +2,8 @@ using DracoLib.Core;
 using DracoProtos.Core.Objects;
 using System;
 using DracoLib.Core.Utils;
-using System.Collections.Generic;
 using DracoProtos.Core.Base;
+using DracoLib.Core.Text;
 
 namespace GetMapUpdate
 {
@@ -14,31 +14,26 @@ namespace GetMapUpdate
             Console.WriteLine("Starting...");
 
             Console.WriteLine("Creating new Configuration...");
-            User config = new User()
+
+            User user = new User()
             {
                 Username = "xxxxxxx@gmail.com",
                 Password = "xxxxxxx",
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                LoginType = AuthType.GOOGLE
+                LoginType = AuthType.GOOGLE,
+                Language = Langues.English.ToString(),
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60,
+                TimeOut = 20 * 1000
             };
 
-            Config options = new Config()
-            {
-                CheckProtocol = true,
-                EventsCounter = new Dictionary<string, int>(),
-                Lang = "English",
-                TimeOut = 20 * 1000,
-                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60
-            };
-
-            var draco = new DracoClient(null, options);
+            var draco = new DracoClient(user, null);
 
             Console.WriteLine("Ping...");
             var ping = draco.Ping();
             if (!ping) throw new Exception();
 
             Console.WriteLine("Boot...");
-            var fconf = draco.Boot(config);
+            var fconf = draco.Boot();
 
             Console.WriteLine("Login...");
             var login = draco.Login().Result;

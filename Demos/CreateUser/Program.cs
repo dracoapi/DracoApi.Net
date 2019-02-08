@@ -3,7 +3,6 @@ using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Base;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace CreateUser
@@ -32,30 +31,24 @@ namespace CreateUser
 
             Console.WriteLine("Creating new Configuration...");
 
-            User config = new User()
+            User user = new User()
             {
-                Nickname = nickname,
+                Username = nickname,
                 DeviceId = DracoUtils.GenerateDeviceId(),
-                LoginType = AuthType.DEVICE
-            };
-
-            Config options = new Config()
-            {
-                CheckProtocol = true,
-                EventsCounter = new Dictionary<string, int>(),
-                Lang = Langues.English.ToString(),
+                LoginType = AuthType.DEVICE,
+                Language = Langues.English.ToString(),
+                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60,
                 TimeOut = 20 * 1000,
-                UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60
             };
 
-            var draco = new DracoClient(null, options);
+            var draco = new DracoClient(user, null);
 
             Console.WriteLine("Ping...");
             var ping = draco.Ping();
             if (!ping) throw new Exception();
 
             Console.WriteLine("Boot...");
-            draco.Boot(config);
+            draco.Boot();
 
             Console.WriteLine("Login...");
             var login = draco.Login().Result;
@@ -73,7 +66,7 @@ namespace CreateUser
                 draco.Auth.AcceptLicence(newLicence);
             }
 
-            var response = draco.Auth.ValidateNickname(config.Nickname);
+            var response = draco.Auth.ValidateNickname(user.Username);
             if (response == null) throw new Exception("Unable to register nickname. Error: " + response.error);
 
             Console.WriteLine("Register account...");

@@ -63,7 +63,7 @@ namespace DracoLib.Core
             return client.Call(client.clientMap.InsertLure(building));
         }
 
-        public FUpdate LeaveDungeon(double latitude, double longitude, float horizontalAccuracy = 0)
+        public FUpdate LeaveDungeon(GeoCoords coords, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : client.GetAccuracy();
             long _time_sever = client.TimeServer <= 0 ? 0 : client.TimeServer;
@@ -74,8 +74,8 @@ namespace DracoLib.Core
                 currentUtcOffsetSeconds = client.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
-                    latitude = latitude,
-                    longitude = longitude,
+                    latitude = coords.latitude,
+                    longitude = coords.longitude,
                     horizontalAccuracy = horizontalAccuracy,
                 },
             }));

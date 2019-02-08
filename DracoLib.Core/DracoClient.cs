@@ -2,6 +2,7 @@
 using DracoLib.Core.Extensions;
 using DracoLib.Core.Providers;
 using DracoLib.Core.Text;
+using DracoLib.Core.Utils;
 using DracoProtos.Core.Base;
 using DracoProtos.Core.Extensions;
 using DracoProtos.Core.Objects;
@@ -10,7 +11,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -21,21 +21,15 @@ namespace DracoLib.Core
 {
     public class User
     {
-        public string Id { get; set; }
-        public string DeviceId { get; set; }
-        public string Nickname { get; set; }
-        public int Avatar { get; set; }
-        public AuthType LoginType { get; set; }
+        internal string Id { get; set; }
+        internal int Avatar { get; set; }
+        public string DeviceId { get; set; } = DracoUtils.GenerateDeviceId();
+        public AuthType LoginType { get; set; } = AuthType.GOOGLE;
         public string Username { get; set; }
         public string Password { get; set; }
-    }
-
-    internal class ApiAuth
-    {
-        public AuthType Type { get; set; }
-        public string Reg { get; set; }
-        public string ProfileId { get; set; }
-        public string TokenId { get; set; }
+        public string Language { get; set; } = Langues.English.ToString();
+        public int UtcOffset { get; set; } = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60;
+        public int TimeOut { get; set; } = 20 * 1000;
     }
 
     public class DracoClient
@@ -57,9 +51,6 @@ namespace DracoLib.Core
         private RestRequest Request { get; set; }
         private IWebProxy Proxy { get; set; }
         private string Dcportal { get; set; }
-        private bool CheckProtocol { get; set; }
-        private ApiAuth ApiAuth { get; set; }
-        private Dictionary<string, int> EventsCounter { get; set; } = new Dictionary<string, int>();
         private readonly SerializerContext serializer;
         private RestClient client;
         private readonly Semaphore _rpcQueue = new Semaphore(1, 1);
@@ -70,7 +61,7 @@ namespace DracoLib.Core
         internal string ProtocolVersion { get; set; }
         internal FConfig FConfig { get; set; }
         internal int UtcOffset;
-        internal Config Config { get; set; }
+        internal string TokenId { get; set; }
         internal readonly GamePlayService clientGamePlay = new GamePlayService();
         internal readonly ContestMapService clientContestMap = new ContestMapService();
         internal readonly DevModeService clientDevMode = new DevModeService();
@@ -116,17 +107,16 @@ namespace DracoLib.Core
             }
         }
 
-        public DracoClient(IWebProxy proxy = null, Config config = null)
+        public DracoClient(User user, IWebProxy proxy = null)
         {
-            this.Config = config ?? new Config();
+            this.User = user ?? throw new DracoError("User data no found");
 
             this.ProtocolVersion = FGameObjects.ProtocolVersion.ToString();
             this.ClientVersion = "12883";
-            if (this.Config.CheckProtocol) this.CheckProtocol = this.Config.CheckProtocol;
-            if (this.Config.EventsCounter.Any()) this.EventsCounter = this.Config.EventsCounter;
-            if (this.Config.UtcOffset > 0)
+
+            if (this.User.UtcOffset > 0)
             {
-                this.UtcOffset = this.Config.UtcOffset;
+                this.UtcOffset = this.User.UtcOffset;
             }
             else
             {
@@ -135,9 +125,9 @@ namespace DracoLib.Core
 
             this.Proxy = proxy;
             int timeout = 20 * 1000;
-            if (this.Config.TimeOut > 0)
+            if (this.User.TimeOut > 0)
             {
-                timeout = this.Config.TimeOut;
+                timeout = this.User.TimeOut;
             }
 
             this.serializer = new SerializerContext("portal", FGameObjects.CLASSES, FGameObjects.ProtocolVersion);
@@ -163,15 +153,15 @@ namespace DracoLib.Core
             {
                 deviceModel = "iPhone9,3",
                 iOsAdvertisingTrackingEnabled = false,
-                language = this.Config.Lang,
+                iOsVendorIdentifier = this.User.DeviceId,
+                language = this.User.Language,
                 platform = "IPhonePlayer",
                 platformVersion = "iOS 12.1.1",
                 revision = this.ClientVersion,
                 screenHeight = 1334,
-                screenWidth = 750,
+                screenWidth = 750
             };
 
-            this.User = new User();
             this.Encounter = new Encounter(this);
             this.Inventory = new Inventory(this);
             this.Game = new Game(this);
@@ -184,7 +174,7 @@ namespace DracoLib.Core
             this.Player = new Player(this);
             this.Creatures = new Creatures(this);
             this.Battle = new Battle(this);
-            this.Strings = new Strings(config.Lang, this);
+            this.Strings = new Strings(this.User.Language, this);
         }
 
         public bool Ping()
@@ -200,15 +190,9 @@ namespace DracoLib.Core
             return response.StatusCode == HttpStatusCode.OK;
         }
 
-        public FConfig Boot(User userinfo)
+        public FConfig Boot()
         {
-            this.User.Id = userinfo.Id;
-            this.User.DeviceId = userinfo.DeviceId;
-            this.User.LoginType = userinfo.LoginType;
-            this.User.Username = userinfo.Username;
-            this.User.Password = userinfo.Password;
-            this.ClientInfo.iOsVendorIdentifier = userinfo.DeviceId;
-            return this.Auth.GetConfig(this.ClientInfo.language);
+            return this.Auth.GetConfig(this.User.Language);
         }
 
         internal T Call<T>(Async<T> request)
@@ -236,32 +220,39 @@ namespace DracoLib.Core
 
                 var response = this.client.Execute(Request);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                if (response != null)
                 {
-                    throw new DracoError("Invalid status received: " + response.StatusDescription);
+                    var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
+                    if (protocolVersion != this.ProtocolVersion)
+                    {
+                        ServerCodeError(HttpStatusCode.Conflict);
+                    }
+
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        ServerCodeError(response.StatusCode);
+                    }
+
+                    var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
+                    if (dcportal != null) this.Dcportal = dcportal;
+
+                    var data = this.serializer.Deserialize(response.RawBytes);
+                    (data ?? string.Empty).ToString();
+                    return (T)data;
                 }
 
-                var protocolVersion = response.Headers.ToList().Find(x => x.Name == "Protocol-Version" || x.Name == "protocol-version").Value.ToString();
-                if (protocolVersion != this.ProtocolVersion && this.CheckProtocol)
-                {
-                    throw new DracoError("Incorrect protocol version received: " + protocolVersion);
-                }
-
-                var dcportal = response.Headers.ToList().Find(x => x.Name == "dcportal").Value.ToString();
-                if (dcportal != null) this.Dcportal = dcportal;
-
-                var data = this.serializer.Deserialize(response.RawBytes);
-                (data ?? string.Empty).ToString();
-                return (T)data;
+                ServerCodeError(HttpStatusCode.NotFound);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                ServerCodeError(HttpStatusCode.Forbidden);
             }
             finally
             {
                 _rpcQueue.Release();
             }
+
+            throw new DracoError("Unknown error.");
         }
 
         public async Task<FAuthData> Login()
@@ -279,23 +270,16 @@ namespace DracoLib.Core
                     break;
 
                 case AuthType.GOOGLE:
-                    this.ApiAuth = new ApiAuth
-                    {
-                        Type = AuthType.GOOGLE,
-                        Reg = "gl",
-                        ProfileId = "?",
-                    };
-
-                    await this.GoogleLogin();
+                    string profileId = await this.GoogleLogin();
 
                     var response = this.Auth.TrySingIn(new AuthData
                     {
-                        authType = this.ApiAuth.Type,
-                        profileId = this.ApiAuth.ProfileId,
-                        tokenId = this.ApiAuth.TokenId
+                        authType = AuthType.GOOGLE,
+                        profileId = profileId,
+                        tokenId = this.TokenId
                     },
                     this.ClientInfo,
-                    new FRegistrationInfo(this.ApiAuth.Reg)
+                    new FRegistrationInfo("gl")
                     {
                         email = this.User.Username
                     });
@@ -314,21 +298,20 @@ namespace DracoLib.Core
             throw new DracoError("Unsupported login type: " + this.User.LoginType.ToString());
         }
 
-        private async Task GoogleLogin()
+        private async Task<string> GoogleLogin()
         {
-            await Task.Run(async () =>
+            return await Task.Run(async () =>
             {
-                //this.Event("StartGoogleSignIn");
                 var login = await new Google().Login(this.User.Username, this.User.Password);
                 if (login == null)
-                    throw new DracoError("Unable to login");
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.AUTH_ERROR"));
 
-                this.ApiAuth.TokenId = login["Auth"];
+                this.TokenId = login["Auth"];
 
-                var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.ApiAuth.TokenId, null, false));
+                var token = JsonConvert.DeserializeObject<JObject>(new CustomJsonWebToken().Decode(this.TokenId, null, false));
 
                 if (token == null)
-                    throw new DracoError("Unable to get the token.");
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.USER_NOT_FOUND"));
 
                 bool verified = (bool)token["email_verified"];
 
@@ -340,8 +323,83 @@ namespace DracoLib.Core
                 if (string.IsNullOrEmpty(sub))
                     throw new DracoError("You mail is not verified, please verify this before.");
 
-                this.ApiAuth.ProfileId = sub;
+                return sub;
             });
+        }
+
+        private void ServerCodeError(HttpStatusCode response)
+        {
+            FServiceError fserviceError = null;
+
+            switch (response)
+            {
+                case HttpStatusCode.BadGateway:
+                    fserviceError = new FServiceError("SERVER_MAINTENANCE", new object[0], false);
+                    break;
+
+                case HttpStatusCode.Conflict:
+                    fserviceError = new FServiceError("PROTOCOL_MISMATCH", new object[0], false);
+                    break;
+
+                case HttpStatusCode.Forbidden:
+                    fserviceError = new FServiceError("USER_BANNED", new object[0], false);
+                    break;
+
+                case HttpStatusCode.InternalServerError:
+                    fserviceError = new FServiceError("TRY_AGAIN_LATER", new object[0], false);
+                    break;
+
+                case HttpStatusCode.NotFound:
+                    fserviceError = new FServiceError("SERVER_DOWN", new object[0], false);
+                    break;
+
+                case HttpStatusCode.Gone:
+                    fserviceError = new FServiceError("SESSION_GONE", new object[0], false);
+                    break;
+
+                case HttpStatusCode.ProxyAuthenticationRequired:
+                    throw new DracoError($"Proxy Authentication Required.");
+
+                case HttpStatusCode.ServiceUnavailable:
+                    fserviceError = new FServiceError("SERVER_MAINTENANCE", new object[0], false);
+                    break;
+            }
+
+            if (fserviceError != null)
+            {
+                if (fserviceError.cause == "SESSION_GONE")
+                {
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.SESSION_GONE"));
+                }
+                else if (fserviceError.cause == "SERVER_DOWN")
+                {
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.SERVER_DOWN"));
+                }
+                else if (fserviceError.cause == "SERVER_MAINTENANCE")
+                {
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.SERVER_MAINTENANCE"));
+                }
+                else if (fserviceError.cause == "USER_BANNED")
+                {
+                    throw new DracoUserBanned(Strings.GetString($"key.ServiceException.Cause.USER_BANNED.Cheating").Replace("{0}", DateTime.Now.AddYears(20).ToString()));
+                }
+                else if (fserviceError.cause == "PROTOCOL_MISMATCH")
+                {
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.PROTOCOL_MISMATCH"));
+                }
+                else if (fserviceError.cause == "TRY_AGAIN_LATER")
+                {
+                    throw new DracoError(Strings.GetString($"key.ServiceException.Cause.TRY_AGAIN_LATER"));
+                }
+                else if (fserviceError.cause == "TOO_HIGH_SPEED_FOR_USE")
+                {
+                    throw new DracoError(Strings.GetString("key.ServiceException.Cause.TOO_HIGH_SPEED_FOR_USE"));
+                }
+            }
+            else
+            {
+                throw new DracoError($"Invalid status received: { response }.");
+            }
         }
 
         public void Load()

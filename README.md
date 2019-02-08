@@ -13,33 +13,28 @@ More high level methods also exists, here is a more complete example that get us
 
 ```CSharp
 using DracoLib.Core;
+using DracoLib.Core.Text;
 using DracoLib.Core.Utils;
 using DracoProtos.Core.Base;
 using System;
 
-User config = new User()
+User user = new User()
 {
-    Username = "xxxxxxx@gmail.com",
-    Password = "xxxxxxx",
-    DeviceId = DracoUtils.GenerateDeviceId(),
-    Login = AuthType.GOOGLE
+	Username = "xxxxxxx@gmail.com",
+	Password = "xxxxxxx",
+	DeviceId = DracoUtils.GenerateDeviceId(),
+	LoginType = AuthType.GOOGLE,
+	Language = Langues.English.ToString(),
+	UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds * 60,
+	TimeOut = 20 * 1000
 };
 
-Config options = new Config()
-{
-    CheckProtocol = true,
-    EventsCounter = new Dictionary<string, int>(),
-    Lang = "English",
-    TimeOut = 0,
-    UtcOffset = (int)TimeZoneInfo.Utc.GetUtcOffset(DateTime.Now).TotalSeconds
-};
-
-var draco = new DracoClient(null /*WebProxy here*/, options);
+var draco = new DracoClient(user, null /*WebProxy here*/);
 
 if (!draco.Ping())
     throw new Exception();
 
-draco.Boot(config);
+draco.Boot();
 draco.Login();
 draco.Load();
 
@@ -83,7 +78,7 @@ We are following [semantic versioning](http://semver.org/) for DracoProtos.  Eve
 
 | Version      | App Version                 | Extra                     |
 |--------------|-----------------------------|---------------------------|
-| 1.2.1.0      | 1.10                        | Compatible                |
+| 1.2.2.0      | 1.10                        | Compatible                |
 
 #### `CREDITS`
  - [DracoApi (niicojs, SL-x-TnT)](https://github.com/dracoapi)

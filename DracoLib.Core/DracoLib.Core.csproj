@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/Account-Managers/DracoLib.Core</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Draconius;DracoLib;netstandard</PackageTags>
-    <Version>1.2.1.0</Version>
+    <Version>1.2.2.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>Acount Manager's</Company>
     <Copyright>2018-2019</Copyright>
