@@ -64,9 +64,11 @@ namespace GetMapUpdate
             foreach (var item in response.items) {
                 Console.WriteLine($"    Item = { draco.Strings.GetItemName(item.type) }, count = { item.count }");
             }
-            
+
+            GeoCoords coords = new GeoCoords { latitude = 45.469896, longitude = 9.180439 };
+
             Console.WriteLine("Get map update");
-            FUpdate map = draco.Map.GetMapUpdate(45.469896, 9.180439, 20);
+            FUpdate map = draco.Map.GetMapUpdate(coords);
             FCreatureUpdate creatures = map.items.Find(o => o.GetType() == typeof(FCreatureUpdate)) as FCreatureUpdate;
             FChestUpdate chests = map.items.Find(o => o.GetType() == typeof(FChestUpdate)) as FChestUpdate;
             FBuildingUpdate buildings = map.items.Find(o => o.GetType() == typeof(FBuildingUpdate)) as FBuildingUpdate;

@@ -19,7 +19,7 @@ namespace DracoLib.Core
             return client.Call(client.clientMap.CancelBuildingPersonalization(building));
         }
 
-        public FUpdate GetMapUpdate(double latitude, double longitude, float horizontalAccuracy = 0, Dictionary<FTile, long> tilescache = null)
+        public FUpdate GetMapUpdate(GeoCoords coords, float horizontalAccuracy = 0, Dictionary<FTile, long> tilescache = null)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : client.GetAccuracy();
             tilescache = tilescache ?? new Dictionary<FTile, long>() { };
@@ -33,12 +33,12 @@ namespace DracoLib.Core
                     currentUtcOffsetSeconds = client.UtcOffset,
                     coordsWithAccuracy = new GeoCoordsWithAccuracy()
                     {
-                        latitude = latitude,
-                        longitude = longitude,
+                        latitude = coords.latitude,
+                        longitude = coords.longitude,
                         horizontalAccuracy = horizontalAccuracy,
                     },
                 },
-                configCacheHash = client.ConfigHash,
+                configCacheHash = client.FConfig.GetMd5Hash(),
                 language = client.ClientInfo.language,
                 clientPlatform = ClientPlatform.IOS,
                 tilesCache = tilescache,
@@ -51,9 +51,10 @@ namespace DracoLib.Core
 
             if (data.items != null)
             {
-                var config = data.items.Find(i => i?.GetType() == typeof(FConfig)) as FConfig;
-                if (config != null) client.BuildConfigHash(config);
+                FConfig config = data.items.Find(i => i?.GetType() == typeof(FConfig)) as FConfig;
+                if (config != null) client.FConfig = config;
             }
+
             return data;
         }        
  
@@ -98,10 +99,18 @@ namespace DracoLib.Core
             return client.Call(client.clientMap.StartOpeningChest(dto));
         }
 
-        public FUpdate TryUseBuilding(double clientLat, double clientLng, string buildingId, double buildingLat, double buildingLng, string dungeonId, float horizontalAccuracy = 0)
+        public FUpdate TryUseBuilding(GeoCoords playerLocation, FBuilding building, float horizontalAccuracy = 0)
         {
             horizontalAccuracy = horizontalAccuracy > 0 ? horizontalAccuracy : client.GetAccuracy();
             long _time_sever = client.TimeServer <= 0 ? 0 : client.TimeServer;
+            string dungeonId = building.dungeonId;
+
+            switch (building.type)
+            {
+                case BuildingType.OBELISK:
+                    dungeonId = null;
+                    break;
+            }
 
             FUpdate fUpdate = client.Call(client.clientMap.TryUseBuilding(new FClientRequest
             {
@@ -109,12 +118,12 @@ namespace DracoLib.Core
                 currentUtcOffsetSeconds = client.UtcOffset,
                 coordsWithAccuracy = new GeoCoordsWithAccuracy
                 {
-                    latitude = clientLat,
-                    longitude = clientLng,
+                    latitude = playerLocation.latitude,
+                    longitude = playerLocation.longitude,
                     horizontalAccuracy = horizontalAccuracy
                 },
             },
-                new FBuildingRequest(buildingId, new GeoCoords { latitude = buildingLat, longitude = buildingLng }, dungeonId)
+                new FBuildingRequest(building.id, building.coords, dungeonId)
             ));
 
             client.TimeServer = fUpdate.serverTime;

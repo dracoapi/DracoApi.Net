@@ -17,19 +17,9 @@ namespace DracoLib.Core
             return client.Call(client.clientGamePlay.FeedCreature(creatureId, item, parentTile));
         }
 
-        public FCatchingCreature StartCatchingCreature(string creatureId)
+        public new FCatchingCreature StartCatchingCreature(FCreatureRequest request)
         {
-            var request = new FCreatureRequest
-            {
-                id = creatureId,
-                //veryFirst = true
-            };
-
-            var response = client.Call(client.clientGamePlay.StartCatchingCreature(request));
-
-            //this.dracoClient.Event("IsArAvailable", "False");
-
-            return response;
+            return client.Call(client.clientGamePlay.StartCatchingCreature(request));
         }
 
         public new object StopCatchingCreature(string creatureId)

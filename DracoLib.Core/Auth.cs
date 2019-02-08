@@ -25,11 +25,8 @@ namespace DracoLib.Core
 
         public new FConfig GetConfig(string language)
         {
-            //return client.Call(client.clientAuth.GetConfig(language));
             client.FConfig = client.Call(client.clientAuth.GetConfig(language));
-            client.BuildConfigHash(client.FConfig);
             return client.FConfig;
-
         }
 
         public new FNewsArticle GetNews(string locale, string lastSeen)
@@ -87,5 +84,5 @@ namespace DracoLib.Core
                 return result;
             }
         }
-     }
+    }
 }

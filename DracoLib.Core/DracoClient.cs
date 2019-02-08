@@ -69,7 +69,6 @@ namespace DracoLib.Core
         internal string ClientVersion { get; set; }
         internal string ProtocolVersion { get; set; }
         internal FConfig FConfig { get; set; }
-        internal sbyte[] ConfigHash { get; set; }
         internal int UtcOffset;
         internal Config Config { get; set; }
         internal readonly GamePlayService clientGamePlay = new GamePlayService();
@@ -93,13 +92,6 @@ namespace DracoLib.Core
         {
             double random = new Random().Next(20, 65) * 2;
             return (float)Math.Floor(random);
-        }
-
-        internal sbyte[] BuildConfigHash(FConfig config)
-        {
-            FConfig = config;
-            this.ConfigHash = FConfig.GetMd5HashAsSbyte(config);
-            return this.ConfigHash;
         }
 
         internal void FixTexture()
